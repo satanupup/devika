@@ -1,3 +1,4 @@
+from typing import Any  # 新增匯入
 import google.generativeai as genai
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
 
@@ -6,28 +7,39 @@ from src.config import Config
 class Gemini:
     def __init__(self):
         config = Config()
-        api_key = config.get_gemini_api_key()
-        genai.configure(api_key=api_key)
+        self.api_key = config.get_gemini_api_key()
 
     def inference(self, model_id: str, prompt: str) -> str:
-        config = genai.GenerationConfig(temperature=0)
-        model = genai.GenerativeModel(model_id, generation_config=config)
-        # Set safety settings for the request
+        # 設定安全性參數
         safety_settings = {
             HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
             HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
-            # You can adjust other categories as needed
+            # 可根據需求調整其他類別
         }
-        response = model.generate_content(prompt, safety_settings=safety_settings)
+        # 動態存取 generate 方法
+        generate_method = getattr(genai, "generate", None)
+        if not callable(generate_method):
+            raise AttributeError("The 'generate' method is not available in 'google.generativeai'.")
+
+        # 呼叫 generate 方法
+        response: Any = generate_method(
+            model=model_id,
+            prompt=prompt,
+            api_key=self.api_key,
+            temperature=0,
+            safety_settings=safety_settings,
+        )
         try:
-            # Check if the response contains text
-            return response.text
-        except ValueError:
-            # If the response doesn't contain text, check if the prompt was blocked
-            print("Prompt feedback:", response.prompt_feedback)
-            # Also check the finish reason to see if the response was blocked
-            print("Finish reason:", response.candidates[0].finish_reason)
-            # If the finish reason was SAFETY, the safety ratings have more details
-            print("Safety ratings:", response.candidates[0].safety_ratings)
-            # Handle the error or return an appropriate message
-            return "Error: Unable to generate content Gemini API"
+            # 檢查回應是否包含文字
+            if hasattr(response, "text") and response.text:
+                return response.text
+            else:
+                raise AttributeError("Response does not contain text.")
+        except AttributeError:
+            # 如果回應不包含文字，處理錯誤
+            if hasattr(response, "prompt_feedback"):
+                print("Prompt feedback:", response.prompt_feedback)
+            if hasattr(response, "candidates") and response.candidates:
+                print("Finish reason:", response.candidates[0].finish_reason)
+                print("Safety ratings:", response.candidates[0].safety_ratings)
+            return "Error: Unable to generate content with Gemini API"

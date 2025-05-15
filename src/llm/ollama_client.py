@@ -17,6 +17,9 @@ class Ollama:
             log.warning("run ollama server to use ollama models otherwise use API models")
 
     def inference(self, model_id: str, prompt: str) -> str:
+        if self.client is None:
+            log.error("Ollama client is not available. Cannot perform inference.")
+            raise RuntimeError("Ollama client not initialized.")
         response = self.client.generate(
             model=model_id,
             prompt=prompt.strip(),

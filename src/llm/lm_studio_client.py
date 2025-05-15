@@ -18,6 +18,10 @@ class LMStudio:
             log.warning("Make sure to set the LM Studio API endpoint in the config")
 
     def inference(self, model_id: str, prompt: str) -> str:
+        if self.client is None:
+            log.error("LM Studio client is not available. Cannot perform inference.")
+            raise RuntimeError("LM Studio client not initialized.")
+
         chat_completion = self.client.chat.completions.create(
             messages=[
                 {
@@ -27,4 +31,8 @@ class LMStudio:
             ],
             model=model_id, # unused 
         )
-        return chat_completion.choices[0].message.content
+        content = chat_completion.choices[0].message.content
+        if content is None:
+            log.warning("LM Studio returned no content for the prompt.")
+            return ""
+        return content

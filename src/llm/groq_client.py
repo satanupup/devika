@@ -21,4 +21,7 @@ class Groq:
             temperature=0
         )
 
-        return chat_completion.choices[0].message.content
+        content = chat_completion.choices[0].message.content
+        if content is None:
+            return ""
+        return content
