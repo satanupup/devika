@@ -2,174 +2,188 @@
   <img src=".assets/devika-avatar.png" alt="Devika Logo" width="250">
 </p>
 
-<h1 align="center">🚀 Devika - 智能 AI 軟體工程師 👩‍💻</h1>
+<h1 align="center">🧩 Devika VS Code Extension - 智能 AI 開發助理 👩‍💻</h1>
 
 <p align="center">
-  <strong>一個先進的 AI 軟體工程師，能夠理解高層次的人類指令，將其分解為步驟，研究相關資訊，並編寫程式碼來實現指定目標。</strong>
+  <strong>深度整合進 VS Code 的 AI 開發助理，具備程式碼情境理解、任務代理和 Git 整合功能</strong>
 </p>
 
 <p align="center">
   <a href="#快速開始">快速開始</a> •
   <a href="#核心功能">功能特色</a> •
-  <a href="#系統架構">系統架構</a> •
-  <a href="#配置設定">配置設定</a> •
-  <a href="#貢獻指南">貢獻指南</a>
+  <a href="#安裝指南">安裝指南</a> •
+  <a href="#使用方法">使用方法</a> •
+  <a href="#開發指南">開發指南</a>
 </p>
 
-![devika screenshot](.assets/devika-screenshot.png)
+![VS Code Extension Screenshot](https://via.placeholder.com/800x400/1e1e1e/ffffff?text=Devika+VS+Code+Extension)
 
-> [!IMPORTANT]
-> 此專案目前處於非常早期的開發/實驗階段。目前有許多未實現/損壞的功能。歡迎貢獻來幫助專案進展！
+> [!NOTE]
+> 這是 Devika AI 軟體工程師的 VS Code Extension 版本，專為提供更好的開發體驗而設計。具備智能程式碼分析、自動任務管理和深度 Git 整合功能。
 
 ## 目錄
 
 - [關於專案](#關於專案)
-- [演示影片](#演示影片)
 - [核心功能](#核心功能)
 - [系統架構](#系統架構)
-- [技術堆疊](#技術堆疊)
 - [快速開始](#快速開始)
   - [系統需求](#系統需求)
-  - [安裝步驟](#安裝步驟)
-  - [Docker 快速啟動](#docker-快速啟動)
+  - [安裝指南](#安裝指南)
   - [使用方法](#使用方法)
 - [配置設定](#配置設定)
 - [專案結構](#專案結構)
-- [API 文件](#api-文件)
 - [開發指南](#開發指南)
-- [測試](#測試)
-- [部署](#部署)
+  - [開發環境設定](#開發環境設定)
+  - [建置和測試](#建置和測試)
+  - [發布流程](#發布流程)
+- [功能詳解](#功能詳解)
 - [故障排除](#故障排除)
 - [貢獻指南](#貢獻指南)
 - [發展路線圖](#發展路線圖)
-- [幫助與支援](#幫助與支援)
 - [授權條款](#授權條款)
 
 ## 關於專案
 
-Devika 是一個先進的 AI 軟體工程師，能夠理解高層次的人類指令，將其分解為步驟，研究相關資訊，並編寫程式碼來實現指定目標。Devika 利用大型語言模型、規劃和推理演算法，以及網頁瀏覽能力來智能地開發軟體。
+Devika VS Code Extension 是一個深度整合進 VS Code 的 AI 開發助理，專為提升開發效率而設計。它不僅能執行指令，更能主動理解專案的程式碼結構與 Git 脈絡，提供智能的開發建議和自動化任務管理。
 
-### Devika 的特色優勢
+### 🎯 專案目標
 
-- **🎯 自主規劃**: 將複雜任務分解為可管理的步驟
-- **🔍 智能研究**: 自動搜尋和收集相關資訊
-- **💻 多語言編程**: 支援多種程式語言編寫程式碼
-- **🌐 網頁整合**: 無縫瀏覽和提取網頁資訊
-- **📊 即時監控**: 提供進度和決策制定的即時更新
-- **🔄 迭代開發**: 基於回饋學習和適應
+打造一款能「觀察、理解、建議、執行」的完整開發工作流助理，核心功能包括：
 
-Devika 旨在透過提供一個能夠在最少人工指導下承擔複雜編程任務的 AI 配對程式設計師，來革命性地改變我們構建軟體的方式。無論您需要創建新功能、修復錯誤，還是從頭開發整個專案，Devika 都能為您提供協助。
+- **🧠 智能情境感知**: 透過程式碼索引和語法樹分析，精準定位相關程式碼片段
+- **🤖 多步任務代理**: 將模糊需求拆解成具體可執行的步驟清單
+- **� 深度 Git 整合**: 分析變更、生成 Commit 訊息、追蹤開發歷史
+- **� 主動式工作流**: 自動偵測 TODO、FIXME，轉換為可管理的任務項
 
-> [!NOTE]
-> Devika 是以 Cognition AI 的 [Devin](https://www.cognition-labs.com/introducing-devin) 為藍本。此專案旨在成為 Devin 的開源替代方案，並有一個「過於雄心勃勃」的目標，即在 [SWE-bench](https://www.swebench.com/) 基準測試中達到與 Devin 相同的分數...並最終超越它？
+### ✨ 核心優勢
 
-## 演示影片
+- **� 精準上下文**: 只傳送最相關的程式碼片段給 AI，降低 Token 成本
+- **📊 即時監控**: 提供任務進度和決策制定的即時更新
+- **🔄 智能學習**: 基於程式碼變更和使用者回饋持續改進
+- **⚡ 無縫整合**: 深度整合 VS Code，提供原生的開發體驗
 
-https://github.com/satanupup/devika/assets/26198477/cfed6945-d53b-4189-9fbe-669690204206
+> [!TIP]
+> 這個 Extension 是基於原始 Devika 專案的核心理念，專門為 VS Code 環境優化設計，提供更直接、更高效的開發助理體驗。
 
 ## 核心功能
 
-### 🤖 多模型 AI 支援
-- **Claude 3** (建議使用，效能最佳)
-- **GPT-4** (OpenAI)
-- **Gemini** (Google)
-- **Mistral** (Mistral AI)
-- **Groq** (高速推理)
-- **本地 LLMs** 透過 [Ollama](https://ollama.com)
+### 🤖 AI 模型支援
+- **Claude 3** (Sonnet/Opus) - 建議使用，程式碼理解能力最佳
+- **GPT-4** / **GPT-3.5 Turbo** - OpenAI 模型，廣泛支援
+- **Gemini Pro** - Google 模型，多模態能力強
+- **一鍵切換**: 在設定中輕鬆切換不同 AI 模型
 
-### 🧠 智能代理系統
-- **進階規劃**: 將複雜任務分解為可執行的步驟
-- **情境研究**: 提取關鍵字並搜尋相關資訊
-- **多代理架構**: 針對不同任務的專門代理（規劃器、研究員、編程師等）
-- **決策制定**: 智能路由和任務執行
+### 🧠 智能程式碼分析
+- **語法樹解析**: 使用 Tree-sitter 精準理解程式碼結構
+- **符號索引**: 自動建立函式、類別、變數的索引
+- **上下文提取**: 智能提取相關程式碼片段，減少 Token 消耗
+- **複雜度分析**: 計算圈複雜度和認知複雜度
 
-### 🔍 研究與資訊收集
-- **網頁搜尋整合**: 支援 Bing、Google 和 DuckDuckGo
-- **內容提取**: 智能解析網頁內容
-- **知識管理**: 情境資訊儲存和檢索
-- **PDF 處理**: 從文件中提取資訊
+### 📋 任務代理系統
+- **自動任務生成**: 將 AI 建議轉換為可追蹤的任務
+- **任務狀態管理**: 待處理、進行中、已完成、已取消
+- **優先級排序**: 低、中、高、緊急四個優先級
+- **任務分組**: 將相關任務組織成群組
 
-### 💻 程式碼生成與管理
-- **多語言支援**: Python、JavaScript、Java、C++ 等
-- **專案組織**: 結構化檔案和資料夾管理
-- **程式碼執行**: 內建程式碼執行器和測試功能
-- **版本控制**: Git 整合進行專案管理
+### � 深度 Git 整合
+- **智能 Commit 訊息**: 基於變更內容自動生成描述性訊息
+- **變更總結**: 分析 Git diff 並提供變更摘要
+- **分支管理**: 檢視和切換分支
+- **歷史追蹤**: 查看檔案和專案的變更歷史
 
-### 🌐 網頁互動
-- **瀏覽器自動化**: Playwright 驅動的網頁瀏覽
-- **動態內容**: 處理 JavaScript 渲染的頁面
-- **螢幕截圖**: 視覺回饋和除錯
-- **表單互動**: 自動化網頁表單填寫
+### � 程式碼重構與優化
+- **重構建議**: AI 分析程式碼並提供改進建議
+- **一鍵應用**: 直接將重構建議應用到程式碼
+- **測試生成**: 為選取的程式碼自動生成單元測試
+- **程式碼品質檢查**: 識別潛在問題和改進機會
 
-### 📊 監控與視覺化
-- **即時狀態追蹤**: 監控代理進度和決策
-- **互動式 UI**: 使用 Svelte 構建的現代網頁介面
-- **Token 使用追蹤**: 監控 API 成本和使用量
-- **日誌系統**: 全面的除錯和審計追蹤
+### 📝 TODO 與任務管理
+- **自動掃描**: 掃描專案中的 TODO、FIXME、HACK 註解
+- **任務轉換**: 將註解自動轉換為可管理的任務項
+- **檔案關聯**: 任務與特定檔案和行數關聯
+- **進度追蹤**: 視覺化任務完成進度
+
+### 🎨 現代化 UI
+- **Webview 面板**: 原生 VS Code 整合的使用者介面
+- **即時更新**: 任務狀態和進度的即時反饋
+- **右鍵選單**: 快速存取常用功能
+- **狀態列整合**: 顯示擴充功能狀態和快捷操作
 
 ## 系統架構
 
-Devika 採用模組化、基於代理的架構設計，具有可擴展性和可延展性。
+Devika VS Code Extension 採用模組化架構設計，專為 VS Code 環境優化。
 
-### 核心組件
+### 🏗️ 核心模組
 
-1. **代理核心**: 管理 AI 工作流程的中央協調器
-2. **專門代理**: 針對特定任務的代理（規劃器、研究員、編程師等）
-3. **LLM 介面**: 多種語言模型的統一介面
-4. **瀏覽器引擎**: 網頁互動和內容提取
-5. **專案管理器**: 檔案系統和專案組織
-6. **狀態管理**: 即時代理狀態追蹤
-7. **網頁介面**: 用戶互動的現代 UI
+```
+src/
+├── core/                    # 核心管理器
+│   └── DevikaCoreManager.ts # 主要協調器
+├── llm/                     # AI 模型服務
+│   └── LLMService.ts        # 統一 LLM 介面
+├── context/                 # 程式碼情境智能
+│   ├── CodeContextService.ts # 上下文分析
+│   └── CodeParser.ts        # 程式碼解析
+├── tasks/                   # 任務管理
+│   └── TaskManager.ts       # 任務生命週期管理
+├── git/                     # Git 整合
+│   └── GitService.ts        # Git 操作封裝
+├── ui/                      # 使用者介面
+│   └── UIManager.ts         # Webview 管理
+├── config/                  # 配置管理
+│   └── ConfigManager.ts     # 設定和偏好
+└── extension.ts             # 擴充功能入口點
+```
 
-詳細技術細節請閱讀 [**架構文件**](docs/architecture)。
+### 🔧 技術堆疊
 
-## 技術堆疊
+#### VS Code Extension 框架
+- **TypeScript**: 主要開發語言，提供型別安全
+- **VS Code API**: 深度整合編輯器功能
+- **Webview API**: 自訂使用者介面
 
-### 後端
-- **Python 3.10+**: 核心應用程式執行環境
-- **Flask**: 網頁框架和 API 伺服器
-- **Socket.IO**: 即時通訊
-- **SQLModel**: 資料庫 ORM 和管理
-- **Playwright**: 瀏覽器自動化
-- **Jinja2**: 提示模板引擎
+#### 程式碼分析
+- **Tree-sitter**: 高效能語法樹解析
+- **多語言支援**: TypeScript、Python、Java、C++、Go、Rust 等
 
-### 前端
-- **Svelte**: 現代響應式 UI 框架
-- **SvelteKit**: 全端網頁框架
-- **TailwindCSS**: 實用優先的 CSS 框架
-- **Monaco Editor**: 程式碼編輯器組件
-- **Vite**: 建置工具和開發伺服器
+#### AI 整合
+- **多 LLM 支援**: Claude 3、GPT-4、Gemini Pro
+- **Axios**: HTTP 客戶端，處理 API 請求
+- **Token 管理**: 智能 Token 計算和成本控制
 
-### AI 與機器學習
-- **多種 LLM APIs**: Claude、GPT-4、Gemini、Mistral、Groq
-- **Ollama**: 本地 LLM 推理
-- **Tiktoken**: Token 計數和管理
-- **KeyBERT**: 關鍵字提取
-- **Sentence Transformers**: 語義搜尋
+#### Git 整合
+- **simple-git**: 強大的 Git 操作函式庫
+- **差異分析**: 智能變更檢測和總結
+
+#### 資料持久化
+- **VS Code State API**: 工作區和全域狀態管理
+- **JSON 序列化**: 任務和配置資料儲存
 
 
 ## 快速開始
 
 ### 系統需求
 
-在安裝 Devika 之前，請確保您已安裝以下軟體：
+#### 必要條件
+- **VS Code**: 1.74.0 或更高版本
+- **Node.js**: 18.0 或更高版本 (用於開發)
+- **Git**: 用於版本控制功能
 
-#### 系統要求
-- **Python**: 3.10 或 3.11 (尚不支援 3.12+)
-- **Node.js**: 18.0 或更高版本
-- **Git**: 用於複製儲存庫
+#### AI 模型 API 金鑰 (至少需要一個)
+- **Claude API**: [Anthropic Console](https://console.anthropic.com/)
+- **OpenAI API**: [OpenAI Platform](https://platform.openai.com/api-keys)
+- **Gemini API**: [Google AI Studio](https://makersuite.google.com/app/apikey)
 
-#### 套件管理器
-- **uv**: 快速的 Python 套件管理器 ([安裝指南](https://github.com/astral-sh/uv))
-- **bun**: JavaScript 執行環境和套件管理器 ([安裝指南](https://bun.sh/docs/installation))
+### 安裝指南
 
-#### 可選依賴項
-- **Ollama**: 用於本地 LLM 支援 ([設定指南](docs/Installation/ollama.md))
-- **Docker**: 用於容器化部署
+#### 方法一：從 VS Code Marketplace 安裝 (推薦)
 
-### 安裝步驟
+1. **開啟 VS Code**
+2. **前往擴充功能面板** (`Ctrl+Shift+X` 或 `Cmd+Shift+X`)
+3. **搜尋** "Devika AI 助理"
+4. **點擊安裝**
 
-#### 方法一：標準安裝
+#### 方法二：從原始碼安裝
 
 1. **複製儲存庫**
    ```bash
@@ -177,91 +191,56 @@ Devika 採用模組化、基於代理的架構設計，具有可擴展性和可�
    cd devika
    ```
 
-2. **設定 Python 環境**
+2. **安裝依賴項**
    ```bash
-   # 建立虛擬環境
-   uv venv
-
-   # 啟動虛擬環境
-   # 在 macOS/Linux:
-   source .venv/bin/activate
-
-   # 在 Windows:
-   .venv\Scripts\activate
-
-   # 安裝 Python 依賴項
-   uv pip install -r requirements.txt
+   npm install
    ```
 
-3. **安裝瀏覽器依賴項**
+3. **編譯擴充功能**
    ```bash
-   # 安裝 Playwright 瀏覽器 (網頁瀏覽必需)
-   playwright install --with-deps
+   npm run compile
    ```
 
-4. **設定前端**
+4. **在 VS Code 中開啟專案**
    ```bash
-   cd ui
-   bun install
-   cd ..
+   code .
    ```
 
-5. **啟動應用程式**
-   ```bash
-   # 終端機 1: 啟動後端伺服器
-   python devika.py
+5. **按 F5 啟動除錯模式**，這會開啟一個新的 VS Code 視窗並載入擴充功能
 
-   # 終端機 2: 啟動前端 (在新的終端機中)
-   cd ui
-   bun run start
+#### 方法三：安裝 VSIX 套件
+
+1. **下載最新的 VSIX 檔案** 從 [Releases 頁面](https://github.com/satanupup/devika/releases)
+2. **在 VS Code 中安裝**:
+   ```bash
+   code --install-extension devika-vscode-0.1.0.vsix
    ```
 
-6. **存取應用程式**
-   - 開啟瀏覽器並導航至 `http://localhost:3001`
-   - 您應該會看到 Devika 介面
+### 初次設定
 
-#### 方法二：快速啟動腳本
-
-對於 Windows 使用者，您可以使用提供的批次腳本：
-
-```bash
-# 執行自動化設定腳本
-run.bat
-```
-
-此腳本將會：
-- 使用 DeepSeek 模型啟動 Ollama
-- 啟動後端伺服器
-- 啟動前端開發伺服器
-- 在瀏覽器中開啟應用程式
-
-### Docker 快速啟動
-
-對於容器化設定：
-
-```bash
-# 複製儲存庫
-git clone https://github.com/satanupup/devika.git
-cd devika
-
-# 使用 Docker Compose 啟動
-docker-compose up -d
-
-# 在 http://localhost:3001 存取應用程式
-```
+1. **安裝完成後**，VS Code 會顯示歡迎通知
+2. **開啟指令面板** (`Ctrl+Shift+P` 或 `Cmd+Shift+P`)
+3. **執行指令**: `Devika: 啟動 AI 助理`
+4. **設定 API 金鑰**:
+   - 點擊設定圖示
+   - 選擇要設定的 AI 提供商
+   - 輸入您的 API 金鑰
 
 ### 驗證安裝
 
-安裝完成後，您應該看到：
+1. **檢查擴充功能狀態**:
+   - 在活動列中應該會看到 Devika 圖示 🤖
+   - 狀態列顯示 "Devika: 已就緒"
 
-1. **後端伺服器運行中**:
-   ```
-   root: INFO   : Devika is up and running!
-   ```
+2. **測試基本功能**:
+   - 選取一段程式碼
+   - 右鍵選單中應該會出現 Devika 選項
+   - 嘗試執行 "分析程式碼" 功能
 
-2. **前端可在** `http://localhost:3001` **存取**
-
-3. **終端機輸出中沒有錯誤訊息**
+3. **檢查設定**:
+   - 前往 VS Code 設定 (`Ctrl+,`)
+   - 搜尋 "Devika"
+   - 確認所有設定項目都正確顯示
 
 ### 使用方法
 
