@@ -26,6 +26,7 @@
 - [關於專案](#關於專案)
 - [核心功能](#核心功能)
 - [系統架構](#系統架構)
+- [開發狀態](#開發狀態)
 - [快速開始](#快速開始)
   - [系統需求](#系統需求)
   - [安裝指南](#安裝指南)
@@ -36,6 +37,7 @@
   - [開發環境設定](#開發環境設定)
   - [建置和測試](#建置和測試)
   - [發布流程](#發布流程)
+- [開發計畫](#開發計畫)
 - [功能詳解](#功能詳解)
 - [故障排除](#故障排除)
 - [貢獻指南](#貢獻指南)
@@ -159,6 +161,47 @@ src/
 - **VS Code State API**: 工作區和全域狀態管理
 - **JSON 序列化**: 任務和配置資料儲存
 
+## 開發狀態
+
+> [!NOTE]
+> 此專案目前處於積極開發階段。我們採用敏捷開發方法，分為 5 個 Sprint 週期進行開發。
+
+### 🚧 目前進度
+
+| 功能模組 | 狀態 | 完成度 | 說明 |
+|---------|------|--------|------|
+| 🏗️ **基礎架構** | 🟡 進行中 | 70% | TypeScript 設定、配置管理已完成 |
+| 🤖 **LLM 整合** | 🟡 進行中 | 60% | 多模型 API 整合進行中 |
+| 🧠 **程式碼分析** | ⚪ 計劃中 | 0% | Tree-sitter 整合待開始 |
+| 📋 **任務管理** | ⚪ 計劃中 | 0% | 任務系統設計完成，實作待開始 |
+| 🔗 **Git 整合** | ⚪ 計劃中 | 0% | Git 服務架構設計完成 |
+| 🎨 **使用者介面** | ⚪ 計劃中 | 0% | Webview 框架待實作 |
+
+### 📅 開發時程
+
+- **Sprint 1** (第 1-3 週): 建立基礎架構 (MVP) - 🟡 **進行中**
+- **Sprint 2** (第 4-6 週): 程式碼情境智能 - ⚪ 待開始
+- **Sprint 3** (第 7-9 週): 任務管理與 Git 整合 - ⚪ 待開始
+- **Sprint 4** (第 10-12 週): 進階功能與工作流 - ⚪ 待開始
+- **Sprint 5** (第 13-15 週): 優化與發布準備 - ⚪ 待開始
+
+詳細開發計畫請參閱 [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)
+
+### 🎯 近期里程碑
+
+#### Sprint 1 目標 (目前)
+- [x] TypeScript 專案設定
+- [x] 配置管理系統
+- [🟡] LLM 服務整合
+- [ ] 基本 UI 框架
+- [ ] 指令註冊系統
+
+#### 下一個里程碑 (Sprint 2)
+- [ ] Tree-sitter 語法分析
+- [ ] 程式碼符號提取
+- [ ] 智能上下文分析
+- [ ] 程式碼分析功能
+
 
 ## 快速開始
 
@@ -244,232 +287,440 @@ src/
 
 ### 使用方法
 
-#### 首次設定
+#### 🚀 基本使用流程
 
-1. **存取介面**
-   - 開啟瀏覽器並前往 `http://localhost:3001`
-   - 您將看到 Devika 儀表板
+1. **啟動 Devika**
+   - 使用指令面板 (`Ctrl+Shift+P`) 執行 `Devika: 啟動 AI 助理`
+   - 或點擊活動列中的 Devika 圖示 🤖
 
-2. **配置設定**
-   - 點擊設定圖示
-   - 為您想使用的模型新增 API 金鑰：
-     - OpenAI API 金鑰用於 GPT 模型
-     - Anthropic API 金鑰用於 Claude 模型
-     - Google API 金鑰用於 Gemini 模型
-     - 搜尋引擎 API 金鑰 (Bing/Google)
+2. **程式碼分析**
+   - 選取要分析的程式碼
+   - 右鍵選單 → `分析程式碼`
+   - 或使用指令 `Devika: 分析選取的程式碼`
 
-3. **建立您的第一個專案**
-   - 點擊「選擇專案」→「新專案」
-   - 輸入專案名稱
-   - 選擇您偏好的：
-     - **AI 模型**: Claude 3 (建議)、GPT-4、Gemini 等
-     - **搜尋引擎**: Bing、Google 或 DuckDuckGo
+3. **程式碼重構**
+   - 選取要重構的程式碼
+   - 右鍵選單 → `重構程式碼`
+   - 檢視建議並選擇是否應用
 
-#### 使用 Devika
+4. **生成測試**
+   - 選取函式或類別
+   - 右鍵選單 → `生成測試`
+   - 自動建立對應的測試檔案
 
-1. **開始對話**
-   ```
-   範例提示：
-   - "使用 React 和 Node.js 建立一個待辦事項應用程式"
-   - "建立一個 Python 新聞文章網頁爬蟲"
-   - "修復我的 Express.js 應用程式中的身份驗證錯誤"
-   - "為我的網站新增深色模式切換"
-   ```
+#### 🔧 進階功能
 
-2. **監控進度**
-   - 觀看 Devika 將您的請求分解為步驟
-   - 查看即時研究和規劃
-   - 觀看程式碼生成進度
-   - 監控瀏覽器互動和搜尋
+1. **Git 整合**
+   - 在 Git 面板中使用 `生成 Commit 訊息`
+   - 使用 `總結 Git 變更` 了解變更內容
+   - 自動分析 diff 並提供有意義的描述
 
-3. **檢視和迭代**
-   - 在檔案瀏覽器中檢查生成的程式碼
-   - 提供回饋或請求修改
-   - 提出後續問題或請求額外功能
+2. **TODO 管理**
+   - 自動掃描專案中的 TODO、FIXME 註解
+   - 轉換為可管理的任務項目
+   - 在任務面板中追蹤進度
 
-4. **專案管理**
-   - 所有檔案都儲存在 `data/projects/` 目錄中
-   - 每個專案都維護自己的對話歷史
-   - 使用專案選擇器在專案之間切換
+3. **任務系統**
+   - 檢視所有 AI 生成的任務
+   - 按狀態、類型、優先級篩選
+   - 標記完成或取消任務
 
-#### 範例工作流程
+#### 📝 使用範例
 
+**程式碼分析範例**:
+```typescript
+// 選取這個函式
+function calculateTotal(items: Item[]): number {
+    let total = 0;
+    for (let i = 0; i < items.length; i++) {
+        total += items[i].price * items[i].quantity;
+    }
+    return total;
+}
 ```
-您: "建立一個簡單的部落格網站，使用 HTML、CSS 和 JavaScript"
+→ AI 會分析並建議使用 `reduce` 方法來簡化程式碼
 
-Devika:
-1. 📋 規劃: 分解部落格網站需求
-2. 🔍 研究: 搜尋現代部落格設計模式
-3. 💻 編程: 建立 HTML 結構、CSS 樣式和 JavaScript 功能
-4. 📁 組織: 將檔案儲存到您的專案目錄
-5. ✅ 完成: 部落格網站準備好供檢視
-
-您: "為部落格新增深色模式切換"
-
-Devika:
-1. 🔍 研究: 尋找深色模式實作模式
-2. 💻 編程: 新增切換功能和深色主題樣式
-3. 🔄 整合: 使用新功能更新現有檔案
+**重構建議範例**:
+```typescript
+// AI 建議的重構版本
+function calculateTotal(items: Item[]): number {
+    return items.reduce((total, item) => total + (item.price * item.quantity), 0);
+}
 ```
+
+**測試生成範例**:
+```typescript
+// AI 生成的測試
+describe('calculateTotal', () => {
+    it('should calculate total correctly', () => {
+        const items = [
+            { price: 10, quantity: 2 },
+            { price: 5, quantity: 3 }
+        ];
+        expect(calculateTotal(items)).toBe(35);
+    });
+});
+```
+
+#### ⚡ 快捷鍵
+
+- `Ctrl+Shift+D` (Windows/Linux) 或 `Cmd+Shift+D` (Mac): 啟動 Devika
+- `Ctrl+Shift+A` (Windows/Linux) 或 `Cmd+Shift+A` (Mac): 分析選取的程式碼
+- `Ctrl+Shift+R` (Windows/Linux) 或 `Cmd+Shift+R` (Mac): 重構程式碼
+- `Ctrl+Shift+T` (Windows/Linux) 或 `Cmd+Shift+T` (Mac): 生成測試
 
 ## 配置設定
 
-Devika 使用 `config.toml` 檔案進行配置管理。首次執行時，它會自動從 `sample.config.toml` 模板建立此檔案。
+Devika VS Code Extension 使用 VS Code 的內建設定系統，所有配置都整合在 VS Code 設定中。
 
-### 配置檔案結構
+### 🔧 設定方式
 
-```toml
-[STORAGE]
-SQLITE_DB = "data/db/devika.db"
-SCREENSHOTS_DIR = "data/screenshots"
-PDFS_DIR = "data/pdfs"
-PROJECTS_DIR = "data/projects"
-LOGS_DIR = "data/logs"
-REPOS_DIR = "data/repos"
+#### 方法一：設定 UI (建議)
+1. 開啟 VS Code 設定 (`Ctrl+,` 或 `Cmd+,`)
+2. 搜尋 "Devika"
+3. 配置各項設定
 
-[API_KEYS]
-# 語言模型
-CLAUDE = "your-claude-api-key"
-OPENAI = "your-openai-api-key"
-GEMINI = "your-gemini-api-key"
-MISTRAL = "your-mistral-api-key"
-GROQ = "your-groq-api-key"
+#### 方法二：指令面板
+1. 開啟指令面板 (`Ctrl+Shift+P`)
+2. 執行 `Devika: 設定 API 金鑰`
+3. 選擇要設定的提供商並輸入金鑰
 
-# 搜尋引擎
-BING = "your-bing-api-key"
-GOOGLE_SEARCH = "your-google-search-api-key"
-GOOGLE_SEARCH_ENGINE_ID = "your-google-search-engine-id"
-
-# 部署
-NETLIFY = "your-netlify-api-key"
-
-[API_ENDPOINTS]
-BING = "https://api.bing.microsoft.com/v7.0/search"
-GOOGLE = "https://www.googleapis.com/customsearch/v1"
-OLLAMA = "http://127.0.0.1:11434"
-OPENAI = "https://api.openai.com/v1"
-
-[LOGGING]
-LOG_REST_API = "true"
-LOG_PROMPTS = "false"
-
-[TIMEOUT]
-INFERENCE = 60
+#### 方法三：settings.json
+```json
+{
+  "devika.openaiApiKey": "your-openai-api-key",
+  "devika.claudeApiKey": "your-claude-api-key",
+  "devika.geminiApiKey": "your-gemini-api-key",
+  "devika.preferredModel": "claude-3-sonnet",
+  "devika.autoScanTodos": true,
+  "devika.enableCodeIndexing": true,
+  "devika.maxContextLines": 100
+}
 ```
 
-### API 金鑰設定
+### ⚙️ 主要設定項目
 
-#### 必需的 API 金鑰
+#### AI 模型設定
+- **`devika.preferredModel`**: 偏好的 AI 模型
+  - 選項: `gpt-4`, `gpt-3.5-turbo`, `claude-3-opus`, `claude-3-sonnet`, `gemini-pro`
+  - 預設: `claude-3-sonnet`
 
-1. **語言模型** (至少選擇一個):
-   - **Claude (建議)**: [取得 API 金鑰](https://console.anthropic.com/)
-   - **OpenAI**: [取得 API 金鑰](https://platform.openai.com/api-keys)
-   - **Google Gemini**: [取得 API 金鑰](https://makersuite.google.com/app/apikey)
-   - **Mistral**: [取得 API 金鑰](https://console.mistral.ai/)
-   - **Groq**: [取得 API 金鑰](https://console.groq.com/)
+#### API 金鑰
+- **`devika.openaiApiKey`**: OpenAI API 金鑰
+- **`devika.claudeApiKey`**: Claude API 金鑰
+- **`devika.geminiApiKey`**: Gemini API 金鑰
 
-2. **搜尋引擎** (至少選擇一個):
-   - **Bing Search**: [取得 API 金鑰](https://www.microsoft.com/en-us/bing/apis/bing-web-search-api)
-   - **Google Custom Search**: [設定指南](docs/Installation/search_engine.md)
+#### 功能開關
+- **`devika.autoScanTodos`**: 自動掃描 TODO 註解
+  - 預設: `true`
+- **`devika.enableCodeIndexing`**: 啟用程式碼索引
+  - 預設: `true`
 
-#### 可選的 API 金鑰
+#### 效能設定
+- **`devika.maxContextLines`**: 傳送給 AI 的最大程式碼行數
+  - 範圍: 10-1000
+  - 預設: 100
 
-- **Netlify**: 用於自動部署 ([取得 API 金鑰](https://app.netlify.com/user/applications))
+### 🔐 API 金鑰管理
 
-### 配置方法
+#### 取得 API 金鑰
+1. **Claude API**: [Anthropic Console](https://console.anthropic.com/)
+2. **OpenAI API**: [OpenAI Platform](https://platform.openai.com/api-keys)
+3. **Gemini API**: [Google AI Studio](https://makersuite.google.com/app/apikey)
 
-#### 方法一：網頁介面 (建議)
-1. 啟動 Devika
-2. 前往設定頁面
-3. 輸入您的 API 金鑰
-4. 儲存配置
+#### 安全最佳實務
+- API 金鑰儲存在 VS Code 的安全儲存中
+- 不會同步到其他裝置
+- 定期檢查和輪換金鑰
+- 監控 API 使用量
 
-#### 方法二：手動配置
-1. 複製 `sample.config.toml` 到 `config.toml`
-2. 使用您的 API 金鑰編輯檔案
-3. 重新啟動 Devika
+### 🔍 設定驗證
 
-### 安全最佳實務
+擴充功能會自動驗證您的配置：
+- 檢查是否至少設定一個 API 金鑰
+- 驗證偏好模型是否有對應的金鑰
+- 檢查數值設定是否在有效範圍內
 
-- **絕不提交** `config.toml` 到版本控制
-- **使用環境變數** 進行生產部署
-- **定期輪換 API 金鑰**
-- **監控使用情況** 以偵測未授權存取
-
-詳細設定說明請參閱：
-- [搜尋引擎設定指南](docs/Installation/search_engine.md)
-- [Ollama 設定指南](docs/Installation/ollama.md)
+如果配置有問題，會在狀態列顯示警告訊息。
 
 ## 專案結構
 
 ```
-devika/
-├── src/                          # 核心應用程式原始碼
-│   ├── agents/                   # AI 代理實作
-│   │   ├── planner/             # 任務規劃代理
-│   │   ├── researcher/          # 資訊研究代理
-│   │   ├── coder/               # 程式碼生成代理
-│   │   ├── action/              # 動作決策代理
-│   │   └── ...                  # 其他專門代理
-│   ├── llm/                     # 語言模型介面
-│   ├── browser/                 # 網頁瀏覽和搜尋
-│   ├── memory/                  # 知識庫和儲存
-│   ├── services/                # 外部服務整合
-│   └── config.py                # 配置管理
-├── ui/                          # 前端應用程式
-│   ├── src/                     # Svelte 原始碼
-│   ├── static/                  # 靜態資源
-│   └── package.json             # 前端依賴項
-├── data/                        # 應用程式資料
-│   ├── projects/                # 生成的專案檔案
-│   ├── db/                      # SQLite 資料庫
-│   ├── logs/                    # 應用程式日誌
-│   └── screenshots/             # 瀏覽器螢幕截圖
-├── docs/                        # 文件
-│   ├── architecture/            # 架構文件
-│   └── Installation/            # 設定指南
-├── devika.py                    # 主要應用程式進入點
-├── requirements.txt             # Python 依賴項
-├── docker-compose.yaml          # Docker 配置
-└── config.toml                  # 應用程式配置
+devika-vscode/
+├── src/                         # TypeScript 原始碼
+│   ├── core/                    # 核心管理器
+│   │   └── DevikaCoreManager.ts # 主要協調器和工作流管理
+│   ├── llm/                     # AI 模型服務
+│   │   └── LLMService.ts        # 多 LLM 提供商整合
+│   ├── context/                 # 程式碼情境智能
+│   │   ├── CodeContextService.ts # 上下文分析和提取
+│   │   └── CodeParser.ts        # 程式碼解析和符號提取
+│   ├── tasks/                   # 任務管理系統
+│   │   └── TaskManager.ts       # 任務生命週期和狀態管理
+│   ├── git/                     # Git 整合
+│   │   └── GitService.ts        # Git 操作和變更分析
+│   ├── ui/                      # 使用者介面
+│   │   └── UIManager.ts         # Webview 和 UI 管理
+│   ├── config/                  # 配置管理
+│   │   └── ConfigManager.ts     # 設定和偏好管理
+│   ├── test/                    # 測試檔案
+│   │   ├── suite/               # 測試套件
+│   │   └── runTest.ts           # 測試執行器
+│   └── extension.ts             # 擴充功能主入口點
+├── out/                         # 編譯後的 JavaScript 檔案
+├── .vscode/                     # VS Code 專案設定
+│   ├── launch.json              # 除錯配置
+│   └── tasks.json               # 建置任務
+├── package.json                 # 擴充功能清單和依賴項
+├── tsconfig.json                # TypeScript 配置
+├── .eslintrc.json               # ESLint 規則
+├── .vscodeignore                # 打包時忽略的檔案
+└── README.md                    # 專案說明文件
 ```
 
-## API 文件
+## 開發指南
 
-Devika 提供 REST API 供程式化存取：
+### 開發環境設定
 
-### 核心端點
+#### 必要工具
+- **Node.js**: 18.0 或更高版本
+- **npm**: 8.0 或更高版本
+- **VS Code**: 1.74.0 或更高版本
+- **Git**: 版本控制
 
-- `GET /api/status` - 檢查伺服器狀態
-- `GET /api/data` - 取得專案、模型和搜尋引擎
-- `POST /api/messages` - 檢索專案訊息
-- `GET /api/settings` - 取得目前配置
-- `POST /api/settings` - 更新配置
-- `GET /api/logs` - 取得應用程式日誌
-- `GET /api/token-usage` - 取得 token 使用統計
+#### 設定步驟
 
-### WebSocket 事件
+1. **複製儲存庫**
+   ```bash
+   git clone https://github.com/satanupup/devika.git
+   cd devika
+   ```
 
-- `socket_connect` - 建立連接
-- `user-message` - 向代理發送使用者訊息
-- `agent-response` - 接收代理回應
-- `code` - 接收生成的程式碼
-- `screenshot` - 接收瀏覽器螢幕截圖
+2. **安裝依賴項**
+   ```bash
+   npm install
+   ```
 
-### API 使用範例
+3. **編譯 TypeScript**
+   ```bash
+   npm run compile
+   ```
 
-```python
-import requests
+4. **啟動開發模式**
+   ```bash
+   npm run watch
+   ```
 
-# 檢查狀態
-response = requests.get('http://localhost:1337/api/status')
-print(response.json())
+5. **在 VS Code 中開啟專案**
+   ```bash
+   code .
+   ```
 
-# 取得可用模型
-response = requests.get('http://localhost:1337/api/data')
-data = response.json()
-print(f"可用模型: {data['models']}")
+6. **啟動除錯**
+   - 按 `F5` 或使用除錯面板
+   - 選擇 "執行擴充功能" 配置
+   - 這會開啟一個新的 VS Code 視窗載入擴充功能
+
+### 建置和測試
+
+#### 編譯專案
+```bash
+# 一次性編譯
+npm run compile
+
+# 監視模式 (自動重新編譯)
+npm run watch
 ```
+
+#### 執行測試
+```bash
+# 執行所有測試
+npm test
+
+# 執行 ESLint 檢查
+npm run lint
+```
+
+#### 打包擴充功能
+```bash
+# 安裝 vsce (如果尚未安裝)
+npm install -g @vscode/vsce
+
+# 打包成 VSIX 檔案
+npm run package
+```
+
+### 發布流程
+
+#### 準備發布
+1. **更新版本號**
+   ```bash
+   npm version patch  # 或 minor, major
+   ```
+
+2. **更新 CHANGELOG**
+   - 記錄新功能和修復
+   - 遵循語義化版本規範
+
+3. **測試擴充功能**
+   - 在多個 VS Code 版本中測試
+   - 驗證所有功能正常運作
+
+#### 發布到 Marketplace
+```bash
+# 登入 Visual Studio Marketplace
+vsce login <publisher-name>
+
+# 發布擴充功能
+vsce publish
+```
+
+### 程式碼風格
+
+#### TypeScript 規範
+- 使用 4 空格縮排
+- 使用 PascalCase 命名類別
+- 使用 camelCase 命名變數和函式
+- 使用 UPPER_CASE 命名常數
+
+#### ESLint 規則
+專案使用 ESLint 確保程式碼品質：
+```bash
+# 檢查程式碼風格
+npm run lint
+
+# 自動修復可修復的問題
+npm run lint -- --fix
+```
+
+### 除錯技巧
+
+#### VS Code 除錯
+1. 在程式碼中設定中斷點
+2. 按 `F5` 啟動除錯
+3. 在新視窗中觸發功能
+4. 檢查變數和呼叫堆疊
+
+#### 日誌記錄
+```typescript
+// 使用 console.log 進行除錯
+console.log('Debug info:', data);
+
+// 使用 VS Code 輸出頻道
+const outputChannel = vscode.window.createOutputChannel('Devika');
+outputChannel.appendLine('Log message');
+```
+
+#### 常見問題
+- **擴充功能未載入**: 檢查 package.json 中的 activationEvents
+- **指令未註冊**: 確認 contributes.commands 配置正確
+- **Webview 無法顯示**: 檢查 CSP 設定和資源路徑
+
+## 開發計畫
+
+### 📋 敏捷開發方法
+
+我們採用敏捷開發方法，將整個專案分為 5 個 Sprint 週期，每個週期約 2-3 週。每個 Sprint 都有明確的目標和可交付成果。
+
+### 🎯 Sprint 概覽
+
+#### Sprint 1: 建立基礎架構 (MVP) - 🟡 進行中
+**時間**: 第 1-3 週
+**目標**: 建立可運作的基礎骨架，實現核心功能的最小可行版本
+
+**主要任務**:
+- [x] TypeScript 專案設定和配置
+- [x] ConfigManager 實作 (API 金鑰管理)
+- [🟡] LLMService 基礎實作
+- [ ] 基本 UI 框架 (Webview)
+- [ ] 指令註冊系統
+
+**成功標準**:
+- 擴充功能可以在 VS Code 中正常載入
+- 可以設定和驗證 API 金鑰
+- 基本的 AI 對話功能運作
+
+#### Sprint 2: 程式碼情境智能 - ⚪ 待開始
+**時間**: 第 4-6 週
+**目標**: 實作程式碼分析和上下文理解的核心功能
+
+**主要任務**:
+- [ ] Tree-sitter 語法分析整合
+- [ ] CodeParser 核心功能 (符號提取、TODO 掃描)
+- [ ] CodeContextService (智能上下文提取)
+- [ ] 程式碼分析功能實作
+
+**成功標準**:
+- 可以正確解析主要程式語言的語法樹
+- 能夠提取函式、類別等符號資訊
+- 智能上下文提取功能運作正常
+
+#### Sprint 3: 任務管理與 Git 整合 - ⚪ 待開始
+**時間**: 第 7-9 週
+**目標**: 實作任務代理系統和深度 Git 整合功能
+
+**主要任務**:
+- [ ] TaskManager 系統 (CRUD、狀態管理)
+- [ ] GitService 核心功能 (狀態檢測、diff 分析)
+- [ ] AI 回應解析器 (建議轉任務)
+- [ ] 任務 UI 整合
+
+**成功標準**:
+- 任務管理系統完全運作
+- Git 整合功能可以生成有意義的 commit 訊息
+- AI 建議可以自動轉換為可管理的任務
+
+#### Sprint 4: 進階功能與工作流 - ⚪ 待開始
+**時間**: 第 10-12 週
+**目標**: 實作程式碼重構、測試生成和完整工作流
+
+**主要任務**:
+- [ ] 程式碼重構功能 (建議生成、一鍵應用)
+- [ ] 測試生成系統 (單元測試、測試檔案建立)
+- [ ] 自動 TODO 掃描 (背景監聽)
+- [ ] Git 工作流完善 (一鍵 commit、分支管理)
+
+**成功標準**:
+- 程式碼重構功能可以正確應用變更
+- 測試生成功能產生可執行的測試
+- 自動 TODO 掃描不會影響效能
+
+#### Sprint 5: 優化與發布準備 - ⚪ 待開始
+**時間**: 第 13-15 週
+**目標**: 效能優化、測試完善、文件更新和發布準備
+
+**主要任務**:
+- [ ] 效能優化與錯誤處理
+- [ ] 測試覆蓋率完善 (目標 >80%)
+- [ ] UI/UX 優化
+- [ ] 文件與範例完善
+- [ ] 發布準備 (Marketplace)
+
+**成功標準**:
+- 擴充功能效能達到生產級別
+- 測試覆蓋率達到 80% 以上
+- 準備好發布到 VS Code Marketplace
+
+### 📊 進度追蹤
+
+我們使用 GitHub Issues 和 Project Board 來追蹤開發進度：
+
+- **Issues**: 功能需求、錯誤回報、改進建議
+- **Pull Requests**: 程式碼審查和協作開發
+- **Milestones**: Sprint 里程碑和版本發布
+- **Project Board**: 視覺化任務狀態和進度
+
+### 🤝 參與開發
+
+如果您想參與開發，請：
+
+1. 查看 [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md) 了解詳細計畫
+2. 選擇適合的 [Good First Issue](https://github.com/satanupup/devika/labels/good%20first%20issue)
+3. 在 Issue 中留言表示您要處理
+4. Fork 專案並建立功能分支
+5. 提交 Pull Request
+
+詳細的貢獻指南請參閱 [貢獻指南](#貢獻指南) 部分。
 
 ## 開發指南
 
@@ -759,57 +1010,108 @@ LOG_PROMPTS = "true"
 
 詳細計劃請參閱完整的 [ROADMAP.md](ROADMAP.md)。
 
-## 幫助與支援
+## 功能詳解
 
-### 社群資源
+### 🧠 智能程式碼分析
+Devika 使用先進的語法樹分析技術，能夠：
+- 理解程式碼結構和語義
+- 識別潛在的效能問題
+- 提供具體的改進建議
+- 計算程式碼複雜度指標
 
-- 💬 **Discord 社群**: [加入我們的 Discord](https://discord.gg/3VCpAbWwy5)
-- 🐛 **問題追蹤器**: [回報錯誤](https://github.com/satanupup/devika/issues)
-- 💡 **討論區**: [功能請求和想法](https://github.com/satanupup/devika/discussions)
-- 📖 **文件**: [架構文件](docs/architecture/)
+### � 任務代理系統
+自動將 AI 建議轉換為可管理的任務：
+- 任務狀態追蹤（待處理、進行中、已完成）
+- 優先級管理（低、中、高、緊急）
+- 檔案和行數關聯
+- 任務分組和批次操作
+
+### 🔗 Git 深度整合
+智能分析 Git 變更並提供協助：
+- 基於 diff 內容生成描述性 commit 訊息
+- 分析變更影響範圍
+- 提供變更總結和建議
+- 支援分支管理和歷史查看
+
+## 故障排除
+
+### 常見問題
+
+#### 擴充功能無法啟動
+- 檢查 VS Code 版本是否 ≥ 1.74.0
+- 確認 Node.js 版本是否 ≥ 18.0
+- 重新載入 VS Code 視窗
+
+#### API 金鑰無效
+- 驗證金鑰格式是否正確
+- 檢查金鑰是否有足夠的配額
+- 確認選擇的模型與金鑰匹配
+
+#### 程式碼分析失敗
+- 確認選取的程式碼語法正確
+- 檢查檔案是否已儲存
+- 嘗試重新啟動擴充功能
+
+#### 任務無法建立
+- 檢查工作區是否已開啟
+- 確認有寫入權限
+- 清除擴充功能快取
 
 ### 取得幫助
+1. 查看 [GitHub Issues](https://github.com/satanupup/devika/issues)
+2. 檢查 VS Code 開發者工具的控制台
+3. 啟用除錯模式並查看日誌
 
-1. **首先檢查文件**
-2. **搜尋現有問題** 尋找類似問題
-3. **加入我們的 Discord** 獲得即時社群支援
-4. **建立詳細問題** 如果找不到解決方案
+## 貢獻指南
 
-### 回報問題
+我們歡迎各種形式的貢獻！
 
-回報問題時，請包含：
+### 🤝 如何貢獻
 
-- **環境詳細資訊** (作業系統、Python 版本等)
-- **重現問題的步驟**
-- **預期與實際行為**
-- **錯誤訊息和日誌**
-- **配置詳細資訊** (不含 API 金鑰)
+1. **Fork 專案** 到您的 GitHub 帳戶
+2. **建立功能分支** (`git checkout -b feature/amazing-feature`)
+3. **提交變更** (`git commit -m 'Add amazing feature'`)
+4. **推送分支** (`git push origin feature/amazing-feature`)
+5. **開啟 Pull Request**
+
+### 📝 貢獻類型
+
+- **🐛 錯誤修復**: 修復已知問題
+- **✨ 新功能**: 實作新的 AI 功能
+- **📚 文件改進**: 改善說明文件
+- **🧪 測試**: 增加測試覆蓋率
+- **🎨 UI/UX**: 改善使用者介面
+- **⚡ 效能優化**: 提升執行效率
+
+### 🔧 開發貢獻
+
+參考 [開發指南](#開發指南) 設定開發環境，然後：
+
+1. 選擇一個 [Good First Issue](https://github.com/satanupup/devika/labels/good%20first%20issue)
+2. 在 Issue 中留言表示您要處理
+3. 按照開發指南進行開發
+4. 提交 Pull Request 並等待審核
 
 ## 授權條款
 
-Devika 在 [MIT 授權條款](https://opensource.org/licenses/MIT) 下發布。更多資訊請參閱 [`LICENSE`](LICENSE) 檔案。
+本專案採用 [MIT 授權條款](LICENSE)。
 
-### 第三方授權條款
-
-此專案使用多個開源函式庫。詳細資訊請參閱各個套件的授權條款：
-
-- **Flask**: BSD-3-Clause 授權條款
-- **Svelte**: MIT 授權條款
-- **Playwright**: Apache-2.0 授權條款
-- **Anthropic SDK**: MIT 授權條款
-- **OpenAI SDK**: MIT 授權條款
+### 第三方授權
+- **VS Code API**: MIT License
+- **Tree-sitter**: MIT License
+- **simple-git**: MIT License
+- **axios**: MIT License
 
 ## 致謝
 
+- **Microsoft** 提供優秀的 VS Code 平台和 API
 - **Anthropic** 提供 Claude AI 模型
 - **OpenAI** 提供 GPT 模型和 APIs
 - **Google** 提供 Gemini AI 模型
-- **Mistral AI** 提供 Mistral 模型
-- **Groq** 提供高速推理
-- **Ollama** 提供本地 LLM 支援
+- **Tree-sitter 社群** 提供強大的語法分析工具
 - **開源社群** 提供無數的函式庫和工具
 
-特別感謝所有幫助讓 Devika 變得更好的貢獻者！
+特別感謝所有幫助讓 Devika VS Code Extension 變得更好的貢獻者！
 
 ---
 
@@ -829,8 +1131,10 @@ Devika 在 [MIT 授權條款](https://opensource.org/licenses/MIT) 下發布。�
 
 **🚀 準備好革命性地改變您的編程體驗了嗎？**
 
-[快速開始](#快速開始) • [加入 Discord](https://discord.gg/3VCpAbWwy5) • [貢獻專案](#貢獻指南)
+[快速開始](#快速開始) • [GitHub Issues](https://github.com/satanupup/devika/issues) • [貢獻專案](#貢獻指南)
 
-*與 Devika 一起快樂編程！👩‍💻*
+*與 Devika VS Code Extension 一起提升開發效率！👩‍💻*
+
+**⭐ 如果這個專案對您有幫助，請給我們一個 Star！**
 
 </div>

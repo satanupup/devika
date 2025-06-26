@@ -1,0 +1,213 @@
+{
+  "name": "devika-vscode",
+  "displayName": "Devika AI 開發助理",
+  "description": "智能 AI 開發助理 VS Code Extension - 具備程式碼情境理解、任務代理和 Git 整合功能",
+  "version": "0.1.0",
+  "publisher": "satanupup",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Other",
+    "Machine Learning",
+    "Programming Languages"
+  ],
+  "keywords": [
+    "ai",
+    "assistant",
+    "code",
+    "development",
+    "automation",
+    "git",
+    "refactor"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "devika.start",
+        "title": "啟動 Devika AI 助理",
+        "category": "Devika"
+      },
+      {
+        "command": "devika.analyzeCode",
+        "title": "分析選取的程式碼",
+        "category": "Devika"
+      },
+      {
+        "command": "devika.generateTests",
+        "title": "生成單元測試",
+        "category": "Devika"
+      },
+      {
+        "command": "devika.refactorCode",
+        "title": "重構程式碼",
+        "category": "Devika"
+      },
+      {
+        "command": "devika.summarizeChanges",
+        "title": "總結 Git 變更",
+        "category": "Devika"
+      },
+      {
+        "command": "devika.generateCommitMessage",
+        "title": "生成 Commit 訊息",
+        "category": "Devika"
+      },
+      {
+        "command": "devika.showTasks",
+        "title": "顯示任務列表",
+        "category": "Devika"
+      },
+      {
+        "command": "devika.scanTodos",
+        "title": "掃描 TODO 項目",
+        "category": "Devika"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "devika.analyzeCode",
+          "when": "editorHasSelection",
+          "group": "devika@1"
+        },
+        {
+          "command": "devika.refactorCode",
+          "when": "editorHasSelection",
+          "group": "devika@2"
+        },
+        {
+          "command": "devika.generateTests",
+          "when": "editorHasSelection",
+          "group": "devika@3"
+        }
+      ],
+      "scm/title": [
+        {
+          "command": "devika.generateCommitMessage",
+          "when": "scmProvider == git",
+          "group": "devika@1"
+        },
+        {
+          "command": "devika.summarizeChanges",
+          "when": "scmProvider == git",
+          "group": "devika@2"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Devika AI 助理",
+      "properties": {
+        "devika.openaiApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "OpenAI API 金鑰",
+          "scope": "application"
+        },
+        "devika.claudeApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Claude API 金鑰",
+          "scope": "application"
+        },
+        "devika.geminiApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Gemini API 金鑰",
+          "scope": "application"
+        },
+        "devika.preferredModel": {
+          "type": "string",
+          "enum": [
+            "gpt-4",
+            "gpt-3.5-turbo",
+            "claude-3-opus",
+            "claude-3-sonnet",
+            "gemini-pro"
+          ],
+          "default": "claude-3-sonnet",
+          "description": "偏好的 AI 模型"
+        },
+        "devika.autoScanTodos": {
+          "type": "boolean",
+          "default": true,
+          "description": "自動掃描 TODO 和 FIXME 註解"
+        },
+        "devika.enableCodeIndexing": {
+          "type": "boolean",
+          "default": true,
+          "description": "啟用程式碼索引功能"
+        },
+        "devika.maxContextLines": {
+          "type": "number",
+          "default": 100,
+          "description": "傳送給 AI 的最大程式碼行數"
+        }
+      }
+    },
+    "views": {
+      "explorer": [
+        {
+          "id": "devika.tasks",
+          "name": "Devika 任務",
+          "when": "devika.activated"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "devika",
+          "title": "Devika AI",
+          "icon": "$(robot)"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.74.0",
+    "@types/node": "16.x",
+    "@typescript-eslint/eslint-plugin": "^5.45.0",
+    "@typescript-eslint/parser": "^5.45.0",
+    "eslint": "^8.28.0",
+    "typescript": "^4.9.4",
+    "@vscode/test-electron": "^2.2.0",
+    "@vscode/vsce": "^2.15.0"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "simple-git": "^3.20.0",
+    "tree-sitter": "^0.20.4",
+    "tree-sitter-typescript": "^0.20.3",
+    "tree-sitter-python": "^0.20.4",
+    "tree-sitter-javascript": "^0.20.1",
+    "tree-sitter-java": "^0.20.2",
+    "tree-sitter-cpp": "^0.20.0",
+    "tree-sitter-c-sharp": "^0.20.0",
+    "tree-sitter-go": "^0.20.0",
+    "tree-sitter-rust": "^0.20.4",
+    "tiktoken": "^1.0.10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/satanupup/devika.git"
+  },
+  "bugs": {
+    "url": "https://github.com/satanupup/devika/issues"
+  },
+  "homepage": "https://github.com/satanupup/devika#readme",
+  "license": "MIT"
+}
