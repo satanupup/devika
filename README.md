@@ -445,38 +445,68 @@ Devika VS Code Extension 使用 VS Code 的內建設定系統，所有配置都�
 
 ## 專案結構
 
+> **🧩 模組化架構**: 本專案採用分離式架構，將核心邏輯與 VS Code 特定功能分開
+
 ```
-devika-vscode/
-├── src/                         # TypeScript 原始碼
-│   ├── core/                    # 核心管理器
-│   │   └── DevikaCoreManager.ts # 主要協調器和工作流管理
-│   ├── llm/                     # AI 模型服務
-│   │   └── LLMService.ts        # 多 LLM 提供商整合
-│   ├── context/                 # 程式碼情境智能
-│   │   ├── CodeContextService.ts # 上下文分析和提取
-│   │   └── CodeParser.ts        # 程式碼解析和符號提取
-│   ├── tasks/                   # 任務管理系統
-│   │   └── TaskManager.ts       # 任務生命週期和狀態管理
-│   ├── git/                     # Git 整合
-│   │   └── GitService.ts        # Git 操作和變更分析
-│   ├── ui/                      # 使用者介面
-│   │   └── UIManager.ts         # Webview 和 UI 管理
-│   ├── config/                  # 配置管理
-│   │   └── ConfigManager.ts     # 設定和偏好管理
-│   ├── test/                    # 測試檔案
-│   │   ├── suite/               # 測試套件
-│   │   └── runTest.ts           # 測試執行器
-│   └── extension.ts             # 擴充功能主入口點
-├── out/                         # 編譯後的 JavaScript 檔案
-├── .vscode/                     # VS Code 專案設定
-│   ├── launch.json              # 除錯配置
-│   └── tasks.json               # 建置任務
-├── package.json                 # 擴充功能清單和依賴項
-├── tsconfig.json                # TypeScript 配置
-├── .eslintrc.json               # ESLint 規則
-├── .vscodeignore                # 打包時忽略的檔案
-└── README.md                    # 專案說明文件
+devika/
+├── devika-core/                 # 🧠 核心 AI 引擎 (平台無關)
+│   ├── src/
+│   │   ├── interfaces/          # 抽象介面定義
+│   │   │   ├── IFileSystem.ts   # 檔案系統介面
+│   │   │   ├── IUserInterface.ts # 使用者介面介面
+│   │   │   └── IProjectContext.ts # 專案上下文介面
+│   │   ├── llm/                 # AI 模型服務
+│   │   │   ├── LLMService.ts    # 統一 LLM 介面
+│   │   │   ├── providers/       # 各 LLM 提供商實作
+│   │   │   └── types.ts         # LLM 相關型別
+│   │   ├── context/             # 程式碼情境分析 (待實作)
+│   │   ├── tasks/               # 任務管理核心 (待實作)
+│   │   ├── git/                 # Git 操作核心 (待實作)
+│   │   └── plugins/             # 插件系統核心 (待實作)
+│   ├── package.json             # 核心模組依賴
+│   └── README.md                # 核心模組說明
+│
+├── devika-vscode/               # 🎨 VS Code 擴充功能 (目前主要開發)
+│   ├── src/
+│   │   ├── core/                # VS Code 核心管理
+│   │   │   └── DevikaCoreManager.ts # 主要協調器
+│   │   ├── adapters/            # devika-core 介面適配器
+│   │   │   ├── VSCodeFileSystem.ts # 檔案系統適配
+│   │   │   ├── VSCodeUI.ts      # 使用者介面適配
+│   │   │   └── VSCodeProject.ts # 專案上下文適配
+│   │   ├── ui/                  # VS Code UI 管理
+│   │   │   └── UIManager.ts     # Webview 和 UI 管理
+│   │   ├── config/              # VS Code 特定配置
+│   │   │   └── ConfigManager.ts # 設定管理
+│   │   ├── plugins/             # Augment 插件系統
+│   │   │   ├── PluginManager.ts # 插件管理器
+│   │   │   ├── agents/          # AI 代理實作
+│   │   │   └── types.ts         # 插件型別定義
+│   │   ├── test/                # 測試檔案
+│   │   └── extension.ts         # 擴充功能入口點
+│   ├── package.json             # VS Code 擴充功能清單
+│   └── README.md                # VS Code 擴充功能說明
+│
+├── docs/                        # 📚 專案文件
+│   ├── ARCHITECTURE_SEPARATION.md # 架構分離計畫
+│   ├── DEVELOPMENT_PLAN.md      # 開發計畫
+│   ├── AUGMENT_PLUGIN_GUIDE.md  # Augment 插件開發指南
+│   └── API.md                   # API 文件
+│
+├── ROADMAP.md                   # 發展路線圖
+├── CONTRIBUTING.md              # 貢獻指南
+└── README.md                    # 主專案說明
 ```
+
+### 🔄 架構優勢
+
+| 優勢 | 說明 |
+|------|------|
+| **🔌 平台無關** | `devika-core` 可用於任何 IDE 或編輯器 |
+| **🧪 易於測試** | 核心邏輯可獨立測試，不依賴 VS Code |
+| **🚀 快速擴展** | 新平台只需實作介面適配器 |
+| **🛠️ 維護性高** | 核心邏輯與 UI 邏輯分離 |
+| **📦 模組化** | 清楚的依賴關係和職責分離 |
 
 ## 開發指南
 

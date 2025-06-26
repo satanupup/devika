@@ -5,11 +5,16 @@ import { ConfigManager } from './config/ConfigManager';
 import { TaskManager } from './tasks/TaskManager';
 import { GitService } from './git/GitService';
 import { CodeContextService } from './context/CodeContextService';
+import { PluginManager } from './plugins/PluginManager';
 
 let devikaCoreManager: DevikaCoreManager;
+let pluginManager: PluginManager;
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('Devika AI 助理正在啟動...');
+
+    // 初始化插件管理器
+    pluginManager = new PluginManager(context);
 
     // 初始化核心管理器
     devikaCoreManager = new DevikaCoreManager(context);
@@ -112,6 +117,76 @@ function registerCommands(context: vscode.ExtensionContext) {
 
         vscode.commands.registerCommand('devika.scanTodos', async () => {
             await devikaCoreManager.scanTodos();
+        }),
+
+        // Augment 插件指令
+        vscode.commands.registerCommand('devika.showPlugins', async () => {
+            const plugins = pluginManager.getAvailablePlugins();
+            const items = plugins.map(plugin => ({
+                label: `$(extensions) ${plugin.name}`,
+                description: plugin.description,
+                detail: `類別: ${plugin.category} | 預估時間: ${plugin.estimatedTime || '未知'}`,
+                plugin
+            }));
+
+            const selected = await vscode.window.showQuickPick(items, {
+                placeHolder: '選擇要執行的 Augment 插件',
+                matchOnDescription: true,
+                matchOnDetail: true
+            });
+
+            if (selected) {
+                try {
+                    const result = await pluginManager.executePlugin(selected.plugin.id);
+                    if (result.success) {
+                        vscode.window.showInformationMessage(result.message);
+                    } else {
+                        vscode.window.showErrorMessage(result.message);
+                    }
+                } catch (error) {
+                    vscode.window.showErrorMessage(`插件執行失敗: ${error}`);
+                }
+            }
+        }),
+
+        // 文件生成插件
+        vscode.commands.registerCommand('devika.generateContributing', async () => {
+            try {
+                const result = await pluginManager.executePlugin('generate-contributing');
+                if (result.success) {
+                    vscode.window.showInformationMessage(result.message);
+                } else {
+                    vscode.window.showErrorMessage(result.message);
+                }
+            } catch (error) {
+                vscode.window.showErrorMessage(`生成貢獻指南失敗: ${error}`);
+            }
+        }),
+
+        vscode.commands.registerCommand('devika.generateRoadmap', async () => {
+            try {
+                const result = await pluginManager.executePlugin('generate-roadmap');
+                if (result.success) {
+                    vscode.window.showInformationMessage(result.message);
+                } else {
+                    vscode.window.showErrorMessage(result.message);
+                }
+            } catch (error) {
+                vscode.window.showErrorMessage(`生成路線圖失敗: ${error}`);
+            }
+        }),
+
+        vscode.commands.registerCommand('devika.generateChangelog', async () => {
+            try {
+                const result = await pluginManager.executePlugin('generate-changelog');
+                if (result.success) {
+                    vscode.window.showInformationMessage(result.message);
+                } else {
+                    vscode.window.showErrorMessage(result.message);
+                }
+            } catch (error) {
+                vscode.window.showErrorMessage(`生成變更日誌失敗: ${error}`);
+            }
         })
     ];
 
