@@ -784,7 +784,7 @@ LOG_PROMPTS = "true"
 
 ### 社群資源
 
-- 💬 **Discord 社群**: [加入我們的 Discord](https://discord.gg/CYRp43878y)
+- 💬 **Discord 社群**: [加入我們的 Discord](https://discord.gg/3VCpAbWwy5)
 - 🐛 **問題追蹤器**: [回報錯誤](https://github.com/satanupup/devika/issues)
 - 💡 **討論區**: [功能請求和想法](https://github.com/satanupup/devika/discussions)
 - 📖 **文件**: [架構文件](docs/architecture/)
@@ -850,7 +850,7 @@ Devika 在 [MIT 授權條款](https://opensource.org/licenses/MIT) 下發布。�
 
 **🚀 準備好革命性地改變您的編程體驗了嗎？**
 
-[快速開始](#快速開始) • [加入 Discord](https://discord.gg/CYRp43878y) • [貢獻專案](#貢獻指南)
+[快速開始](#快速開始) • [加入 Discord](https://discord.gg/3VCpAbWwy5) • [貢獻專案](#貢獻指南)
 
 *與 Devika 一起快樂編程！👩‍💻*
 
