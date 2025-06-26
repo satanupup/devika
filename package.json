@@ -1,7 +1,7 @@
 {
   "name": "devika-vscode",
   "displayName": "Devika AI 開發助理",
-  "description": "智能 AI 開發助理 VS Code Extension - 具備程式碼情境理解、任務代理和 Git 整合功能",
+  "description": "AI-powered VS Code extension for intelligent code analysis and development assistance",
   "version": "0.1.0",
   "publisher": "satanupup",
   "engines": {
@@ -15,11 +15,11 @@
   "keywords": [
     "ai",
     "assistant",
-    "code",
-    "development",
-    "automation",
-    "git",
-    "refactor"
+    "vscode-extension",
+    "code-analysis",
+    "development-tools",
+    "llm",
+    "typescript"
   ],
   "activationEvents": [
     "onStartupFinished"
