@@ -239,6 +239,84 @@ export class PluginManager {
     }
 
     private createUIInterface() {
+        const getPreviewHtml = (fileName: string, content: string, message: string): string => {
+            return `
+            <!DOCTYPE html>
+            <html lang="zh-TW">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>預覽: ${fileName}</title>
+                <style>
+                    body {
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                        padding: 20px;
+                        background-color: var(--vscode-editor-background);
+                        color: var(--vscode-editor-foreground);
+                    }
+                    .header {
+                        margin-bottom: 20px;
+                        padding-bottom: 10px;
+                        border-bottom: 1px solid var(--vscode-panel-border);
+                    }
+                    .content {
+                        background: var(--vscode-textCodeBlock-background);
+                        padding: 20px;
+                        border-radius: 4px;
+                        margin-bottom: 20px;
+                        white-space: pre-wrap;
+                        font-family: 'Courier New', monospace;
+                        max-height: 400px;
+                        overflow-y: auto;
+                    }
+                    .actions {
+                        display: flex;
+                        gap: 10px;
+                    }
+                    button {
+                        background: var(--vscode-button-background);
+                        color: var(--vscode-button-foreground);
+                        border: none;
+                        padding: 8px 16px;
+                        border-radius: 4px;
+                        cursor: pointer;
+                    }
+                    button:hover {
+                        background: var(--vscode-button-hoverBackground);
+                    }
+                    .cancel {
+                        background: var(--vscode-button-secondaryBackground);
+                        color: var(--vscode-button-secondaryForeground);
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h2>📄 ${fileName}</h2>
+                    <p>${message}</p>
+                </div>
+                <div class="content">${content}</div>
+                <div class="actions">
+                    <button onclick="confirm()">✅ 確認建立</button>
+                    <button class="cancel" onclick="cancel()">❌ 取消</button>
+                </div>
+
+                <script>
+                    const vscode = acquireVsCodeApi();
+
+                    function confirm() {
+                        vscode.postMessage({ command: 'confirm' });
+                    }
+
+                    function cancel() {
+                        vscode.postMessage({ command: 'cancel' });
+                    }
+                </script>
+            </body>
+            </html>
+            `;
+        };
+
         return {
             async showPreview(fileName: string, content: string, message: string): Promise<boolean> {
                 // 建立預覽面板
@@ -249,7 +327,7 @@ export class PluginManager {
                     { enableScripts: true }
                 );
 
-                panel.webview.html = this.getPreviewHtml(fileName, content, message);
+                panel.webview.html = getPreviewHtml(fileName, content, message);
 
                 return new Promise((resolve) => {
                     panel.webview.onDidReceiveMessage(
@@ -315,81 +393,4 @@ export class PluginManager {
         };
     }
 
-    private getPreviewHtml(fileName: string, content: string, message: string): string {
-        return `
-        <!DOCTYPE html>
-        <html lang="zh-TW">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>預覽: ${fileName}</title>
-            <style>
-                body {
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                    padding: 20px;
-                    background-color: var(--vscode-editor-background);
-                    color: var(--vscode-editor-foreground);
-                }
-                .header {
-                    margin-bottom: 20px;
-                    padding-bottom: 10px;
-                    border-bottom: 1px solid var(--vscode-panel-border);
-                }
-                .content {
-                    background: var(--vscode-textCodeBlock-background);
-                    padding: 20px;
-                    border-radius: 4px;
-                    margin-bottom: 20px;
-                    white-space: pre-wrap;
-                    font-family: 'Courier New', monospace;
-                    max-height: 400px;
-                    overflow-y: auto;
-                }
-                .actions {
-                    display: flex;
-                    gap: 10px;
-                }
-                button {
-                    background: var(--vscode-button-background);
-                    color: var(--vscode-button-foreground);
-                    border: none;
-                    padding: 8px 16px;
-                    border-radius: 4px;
-                    cursor: pointer;
-                }
-                button:hover {
-                    background: var(--vscode-button-hoverBackground);
-                }
-                .cancel {
-                    background: var(--vscode-button-secondaryBackground);
-                    color: var(--vscode-button-secondaryForeground);
-                }
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <h2>📄 ${fileName}</h2>
-                <p>${message}</p>
-            </div>
-            <div class="content">${content}</div>
-            <div class="actions">
-                <button onclick="confirm()">✅ 確認建立</button>
-                <button class="cancel" onclick="cancel()">❌ 取消</button>
-            </div>
-
-            <script>
-                const vscode = acquireVsCodeApi();
-
-                function confirm() {
-                    vscode.postMessage({ command: 'confirm' });
-                }
-
-                function cancel() {
-                    vscode.postMessage({ command: 'cancel' });
-                }
-            </script>
-        </body>
-        </html>
-        `;
-    }
 }
