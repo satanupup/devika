@@ -1,0 +1,169 @@
+{
+  ".svelte-kit/generated/server/internal.js": {
+    "file": "internal.js",
+    "name": "internal",
+    "src": ".svelte-kit/generated/server/internal.js",
+    "isEntry": true,
+    "imports": [
+      "_internal.js"
+    ]
+  },
+  "_Seperator.js": {
+    "file": "chunks/Seperator.js",
+    "name": "Seperator",
+    "imports": [
+      "_ssr.js"
+    ]
+  },
+  "_Toaster.svelte_svelte_type_style_lang.js": {
+    "file": "chunks/Toaster.svelte_svelte_type_style_lang.js",
+    "name": "Toaster.svelte_svelte_type_style_lang",
+    "imports": [
+      "_ssr.js",
+      "_index.js"
+    ],
+    "css": [
+      "_app/immutable/assets/Toaster.CDv3jphE.css"
+    ]
+  },
+  "_api.js": {
+    "file": "chunks/api.js",
+    "name": "api",
+    "imports": [
+      "_index.js"
+    ]
+  },
+  "_exports.js": {
+    "file": "chunks/exports.js",
+    "name": "exports"
+  },
+  "_index.js": {
+    "file": "chunks/index.js",
+    "name": "index",
+    "imports": [
+      "_ssr.js"
+    ]
+  },
+  "_internal.js": {
+    "file": "chunks/internal.js",
+    "name": "internal",
+    "imports": [
+      "_ssr.js",
+      "_ssr2.js"
+    ],
+    "dynamicImports": [
+      "src/hooks.server.ts"
+    ]
+  },
+  "_mode.js": {
+    "file": "chunks/mode.js",
+    "name": "mode",
+    "imports": [
+      "_index.js"
+    ]
+  },
+  "_ssr.js": {
+    "file": "chunks/ssr.js",
+    "name": "ssr"
+  },
+  "_ssr2.js": {
+    "file": "chunks/ssr2.js",
+    "name": "ssr"
+  },
+  "_stores.js": {
+    "file": "chunks/stores.js",
+    "name": "stores",
+    "imports": [
+      "_ssr.js",
+      "_exports.js"
+    ]
+  },
+  "node_modules/@sveltejs/kit/src/runtime/components/error.svelte": {
+    "file": "entries/fallbacks/error.svelte.js",
+    "name": "entries/fallbacks/error.svelte",
+    "src": "node_modules/@sveltejs/kit/src/runtime/components/error.svelte",
+    "isEntry": true,
+    "imports": [
+      "_ssr.js",
+      "_stores.js"
+    ]
+  },
+  "node_modules/@sveltejs/kit/src/runtime/server/index.js": {
+    "file": "index.js",
+    "name": "index",
+    "src": "node_modules/@sveltejs/kit/src/runtime/server/index.js",
+    "isEntry": true,
+    "imports": [
+      "_internal.js",
+      "_exports.js",
+      "_index.js"
+    ]
+  },
+  "src/hooks.server.ts": {
+    "file": "chunks/hooks.server.js",
+    "name": "hooks.server",
+    "src": "src/hooks.server.ts",
+    "isDynamicEntry": true
+  },
+  "src/routes/+layout.js": {
+    "file": "entries/pages/_layout.js",
+    "name": "entries/pages/_layout",
+    "src": "src/routes/+layout.js",
+    "isEntry": true
+  },
+  "src/routes/+layout.svelte": {
+    "file": "entries/pages/_layout.svelte.js",
+    "name": "entries/pages/_layout.svelte",
+    "src": "src/routes/+layout.svelte",
+    "isEntry": true,
+    "imports": [
+      "_ssr.js",
+      "_stores.js",
+      "_Toaster.svelte_svelte_type_style_lang.js",
+      "_mode.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_layout.Bi15mpB-.css"
+    ]
+  },
+  "src/routes/+page.svelte": {
+    "file": "entries/pages/_page.svelte.js",
+    "name": "entries/pages/_page.svelte",
+    "src": "src/routes/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_ssr.js",
+      "_Toaster.svelte_svelte_type_style_lang.js",
+      "_api.js",
+      "_Seperator.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.B4T8hs7e.css"
+    ]
+  },
+  "src/routes/logs/+page.svelte": {
+    "file": "entries/pages/logs/_page.svelte.js",
+    "name": "entries/pages/logs/_page.svelte",
+    "src": "src/routes/logs/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_ssr.js",
+      "_api.js"
+    ]
+  },
+  "src/routes/settings/+page.svelte": {
+    "file": "entries/pages/settings/_page.svelte.js",
+    "name": "entries/pages/settings/_page.svelte",
+    "src": "src/routes/settings/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_ssr.js",
+      "_api.js",
+      "_index.js",
+      "_ssr2.js",
+      "_mode.js",
+      "_Seperator.js",
+      "_Toaster.svelte_svelte_type_style_lang.js"
+    ]
+  }
+}
