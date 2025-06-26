@@ -722,6 +722,13 @@ outputChannel.appendLine('Log message');
 
 詳細的貢獻指南請參閱 [貢獻指南](#貢獻指南) 部分。
 
+### 📋 專案文件
+
+- **[開發計畫](DEVELOPMENT_PLAN.md)**: 詳細的 5 個 Sprint 開發計畫
+- **[發展路線圖](ROADMAP.md)**: 長期版本發布和功能規劃
+- **[貢獻指南](CONTRIBUTING.md)**: 完整的貢獻流程和規範
+- **[專案總結](PROJECT_SUMMARY.md)**: 目前進度和成就總結
+
 ## 開發指南
 
 ### 設定開發環境
