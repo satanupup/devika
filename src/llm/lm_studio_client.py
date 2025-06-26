@@ -11,7 +11,7 @@ class LMStudio:
             self.api_endpoint = Config().get_lmstudio_api_endpoint()
             self.client = OpenAI(base_url=self.api_endpoint, api_key="not-needed")
             log.info("LM Studio available")
-        except:
+        except Exception:
             self.api_endpoint = None
             self.client = None
             log.warning("LM Studio not available")

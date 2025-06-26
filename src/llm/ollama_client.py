@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+
 import ollama
 from src.logger import Logger
 from src.config import Config
@@ -11,7 +15,7 @@ class Ollama:
             self.client = ollama.Client(Config().get_ollama_api_endpoint())
             self.models = self.client.list()["models"]
             log.info("Ollama available")
-        except:
+        except Exception:
             self.client = None
             log.warning("Ollama not available")
             log.warning("run ollama server to use ollama models otherwise use API models")

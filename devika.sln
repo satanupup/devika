@@ -1,0 +1,35 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "data", "data", "{015FE221-96B2-289B-A0E8-6E7354784A75}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "projects", "projects", "{36998D31-B1D7-2080-DFCD-A1F05CB924AA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "emmt", "emmt", "{E1FD0471-FDAB-0F8A-7ECC-990A6A224CA8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MouseInMaze", "data\projects\emmt\MouseInMaze\MouseInMaze.csproj", "{8C1B59A9-74A8-8A69-06EC-D265CC1EBD41}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8C1B59A9-74A8-8A69-06EC-D265CC1EBD41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C1B59A9-74A8-8A69-06EC-D265CC1EBD41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C1B59A9-74A8-8A69-06EC-D265CC1EBD41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C1B59A9-74A8-8A69-06EC-D265CC1EBD41}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{36998D31-B1D7-2080-DFCD-A1F05CB924AA} = {015FE221-96B2-289B-A0E8-6E7354784A75}
+		{E1FD0471-FDAB-0F8A-7ECC-990A6A224CA8} = {36998D31-B1D7-2080-DFCD-A1F05CB924AA}
+		{8C1B59A9-74A8-8A69-06EC-D265CC1EBD41} = {E1FD0471-FDAB-0F8A-7ECC-990A6A224CA8}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E3048F1C-6021-4827-A532-C1A6A172A686}
+	EndGlobalSection
+EndGlobal
