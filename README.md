@@ -1018,7 +1018,7 @@ npm run compile
   - CI/CD 管道整合
   - 雲端部署選項
 
-詳細計劃請參閱完整的 [ROADMAP.md](ROADMAP.md)。
+
 
 ## 功能詳解
 
