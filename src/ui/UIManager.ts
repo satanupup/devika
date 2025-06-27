@@ -654,6 +654,153 @@ export class UIManager {
         return priorityMap[priority] || priority;
     }
 
+    async showPreview(fileName: string, content: string, message: string): Promise<boolean> {
+        const previewPanel = vscode.window.createWebviewPanel(
+            'devika.preview',
+            `預覽: ${fileName}`,
+            vscode.ViewColumn.Two,
+            {
+                enableScripts: true,
+                retainContextWhenHidden: false
+            }
+        );
+
+        previewPanel.webview.html = this.getPreviewHtml(fileName, content, message);
+
+        return new Promise((resolve) => {
+            previewPanel.webview.onDidReceiveMessage(
+                message => {
+                    if (message.command === 'confirm') {
+                        resolve(true);
+                        previewPanel.dispose();
+                    } else if (message.command === 'cancel') {
+                        resolve(false);
+                        previewPanel.dispose();
+                    }
+                },
+                undefined,
+                this.context.subscriptions
+            );
+
+            previewPanel.onDidDispose(() => {
+                resolve(false);
+            });
+        });
+    }
+
+    private getPreviewHtml(fileName: string, content: string, message: string): string {
+        const escapedContent = content
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+
+        return `<!DOCTYPE html>
+        <html lang="zh-TW">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>預覽 ${fileName}</title>
+            <style>
+                body {
+                    font-family: var(--vscode-font-family);
+                    font-size: var(--vscode-font-size);
+                    color: var(--vscode-foreground);
+                    background-color: var(--vscode-editor-background);
+                    margin: 0;
+                    padding: 20px;
+                }
+                .header {
+                    border-bottom: 1px solid var(--vscode-panel-border);
+                    padding-bottom: 15px;
+                    margin-bottom: 20px;
+                }
+                .message {
+                    background-color: var(--vscode-textBlockQuote-background);
+                    border-left: 4px solid var(--vscode-textBlockQuote-border);
+                    padding: 10px 15px;
+                    margin-bottom: 20px;
+                }
+                .content {
+                    background-color: var(--vscode-textCodeBlock-background);
+                    border: 1px solid var(--vscode-panel-border);
+                    border-radius: 4px;
+                    padding: 15px;
+                    margin-bottom: 20px;
+                    white-space: pre-wrap;
+                    font-family: var(--vscode-editor-font-family);
+                    font-size: var(--vscode-editor-font-size);
+                    overflow-x: auto;
+                    max-height: 60vh;
+                    overflow-y: auto;
+                }
+                .actions {
+                    display: flex;
+                    gap: 10px;
+                    justify-content: flex-end;
+                    padding-top: 15px;
+                    border-top: 1px solid var(--vscode-panel-border);
+                }
+                .btn {
+                    padding: 8px 16px;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 13px;
+                    font-family: var(--vscode-font-family);
+                }
+                .btn-primary {
+                    background-color: var(--vscode-button-background);
+                    color: var(--vscode-button-foreground);
+                }
+                .btn-primary:hover {
+                    background-color: var(--vscode-button-hoverBackground);
+                }
+                .btn-secondary {
+                    background-color: var(--vscode-button-secondaryBackground);
+                    color: var(--vscode-button-secondaryForeground);
+                }
+                .btn-secondary:hover {
+                    background-color: var(--vscode-button-secondaryHoverBackground);
+                }
+                .file-name {
+                    font-weight: bold;
+                    color: var(--vscode-textLink-foreground);
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h2>📄 檔案預覽: <span class="file-name">${fileName}</span></h2>
+            </div>
+
+            <div class="message">
+                <p>${message}</p>
+            </div>
+
+            <div class="content">${escapedContent}</div>
+
+            <div class="actions">
+                <button class="btn btn-secondary" onclick="cancel()">❌ 取消</button>
+                <button class="btn btn-primary" onclick="confirm()">✅ 確認建立</button>
+            </div>
+
+            <script>
+                const vscode = acquireVsCodeApi();
+
+                function confirm() {
+                    vscode.postMessage({ command: 'confirm' });
+                }
+
+                function cancel() {
+                    vscode.postMessage({ command: 'cancel' });
+                }
+            </script>
+        </body>
+        </html>`;
+    }
+
     dispose(): void {
         if (this.mainPanel) {
             this.mainPanel.dispose();
