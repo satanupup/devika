@@ -376,6 +376,153 @@ ${changes.join('\n\n')}
         }
     }
 
+    // 上下文管理方法
+    async addCodeSnippetToContext(
+        code: string,
+        filePath: string,
+        startLine: number,
+        endLine: number
+    ): Promise<void> {
+        const snippet = {
+            code,
+            filePath,
+            startLine,
+            endLine,
+            timestamp: new Date().toISOString()
+        };
+
+        // 添加到上下文服务
+        await this.codeContextService.addCodeSnippet(snippet);
+
+        // 可选：保存到工作区状态
+        const existingSnippets = this.context.workspaceState.get<any[]>('codeSnippets', []);
+        existingSnippets.push(snippet);
+        await this.context.workspaceState.update('codeSnippets', existingSnippets);
+    }
+
+    async showContextManager(): Promise<void> {
+        const snippets = this.context.workspaceState.get<any[]>('codeSnippets', []);
+
+        if (snippets.length === 0) {
+            vscode.window.showInformationMessage('上下文中沒有代碼片段');
+            return;
+        }
+
+        const items = snippets.map((snippet, index) => ({
+            label: `$(file-code) ${snippet.filePath.split('/').pop()}`,
+            description: `第 ${snippet.startLine}-${snippet.endLine} 行`,
+            detail: snippet.code.substring(0, 100) + (snippet.code.length > 100 ? '...' : ''),
+            snippet,
+            index
+        }));
+
+        const selected = await vscode.window.showQuickPick(items, {
+            placeHolder: '選擇要查看或移除的代碼片段',
+            matchOnDescription: true,
+            matchOnDetail: true
+        });
+
+        if (selected) {
+            const action = await vscode.window.showQuickPick([
+                { label: '$(eye) 查看完整代碼', action: 'view' },
+                { label: '$(go-to-file) 跳轉到文件', action: 'goto' },
+                { label: '$(trash) 從上下文移除', action: 'remove' }
+            ], {
+                placeHolder: '選擇操作'
+            });
+
+            if (action) {
+                switch (action.action) {
+                    case 'view':
+                        await this.showCodeSnippetPreview(selected.snippet);
+                        break;
+                    case 'goto':
+                        await this.gotoCodeSnippet(selected.snippet);
+                        break;
+                    case 'remove':
+                        await this.removeCodeSnippetFromContext(selected.index);
+                        break;
+                }
+            }
+        }
+    }
+
+    async clearContext(): Promise<void> {
+        await this.context.workspaceState.update('codeSnippets', []);
+        this.codeContextService.clearContext();
+    }
+
+    private async showCodeSnippetPreview(snippet: any): Promise<void> {
+        const panel = vscode.window.createWebviewPanel(
+            'codeSnippetPreview',
+            `代碼片段預覽: ${snippet.filePath.split('/').pop()}`,
+            vscode.ViewColumn.Two,
+            { enableScripts: false }
+        );
+
+        panel.webview.html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body {
+                        font-family: var(--vscode-font-family);
+                        padding: 20px;
+                        background-color: var(--vscode-editor-background);
+                        color: var(--vscode-editor-foreground);
+                    }
+                    .header {
+                        border-bottom: 1px solid var(--vscode-panel-border);
+                        padding-bottom: 10px;
+                        margin-bottom: 20px;
+                    }
+                    .code {
+                        background-color: var(--vscode-textCodeBlock-background);
+                        border: 1px solid var(--vscode-panel-border);
+                        border-radius: 4px;
+                        padding: 15px;
+                        white-space: pre-wrap;
+                        font-family: var(--vscode-editor-font-family);
+                        font-size: var(--vscode-editor-font-size);
+                        overflow-x: auto;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h2>📄 ${snippet.filePath}</h2>
+                    <p>第 ${snippet.startLine}-${snippet.endLine} 行 | 添加時間: ${new Date(snippet.timestamp).toLocaleString()}</p>
+                </div>
+                <div class="code">${snippet.code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+            </body>
+            </html>
+        `;
+    }
+
+    private async gotoCodeSnippet(snippet: any): Promise<void> {
+        try {
+            const document = await vscode.workspace.openTextDocument(snippet.filePath);
+            const editor = await vscode.window.showTextDocument(document);
+
+            const startPos = new vscode.Position(snippet.startLine - 1, 0);
+            const endPos = new vscode.Position(snippet.endLine - 1, 0);
+            const range = new vscode.Range(startPos, endPos);
+
+            editor.selection = new vscode.Selection(startPos, endPos);
+            editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
+        } catch (error) {
+            vscode.window.showErrorMessage(`無法打開文件: ${error}`);
+        }
+    }
+
+    private async removeCodeSnippetFromContext(index: number): Promise<void> {
+        const snippets = this.context.workspaceState.get<any[]>('codeSnippets', []);
+        snippets.splice(index, 1);
+        await this.context.workspaceState.update('codeSnippets', snippets);
+        vscode.window.showInformationMessage('代碼片段已從上下文中移除');
+    }
+
     dispose() {
         this.uiManager.dispose();
         this.taskManager.dispose();

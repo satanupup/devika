@@ -178,6 +178,12 @@ export class UIManager {
             case 'showTasks':
                 await vscode.commands.executeCommand('devika.showTasks');
                 break;
+            case 'chat':
+                await this.handleChatMessage(message.message);
+                break;
+            case 'stopChat':
+                await this.handleStopChat();
+                break;
         }
     }
 
@@ -192,6 +198,58 @@ export class UIManager {
             case 'editTask':
                 // 處理編輯任務
                 break;
+        }
+    }
+
+    private currentChatAbortController: AbortController | undefined;
+
+    private async handleChatMessage(message: string): Promise<void> {
+        try {
+            // Create abort controller for this chat request
+            this.currentChatAbortController = new AbortController();
+
+            // Import LLMService and ConfigManager dynamically to avoid circular dependencies
+            const { LLMService } = await import('../llm/LLMService');
+            const { ConfigManager } = await import('../config/ConfigManager');
+            const configManager = ConfigManager.getInstance();
+            const llmService = new LLMService(configManager);
+
+            // Generate response
+            const result = await llmService.generateCompletion(
+                `作為一個 AI 程式開發助理，請回答以下問題：${message}`
+            );
+            const response = result.content;
+
+            // Send response back to webview
+            if (this.mainPanel) {
+                this.mainPanel.webview.postMessage({
+                    command: 'chatResponse',
+                    content: response
+                });
+            }
+
+        } catch (error: any) {
+            // Handle abort
+            if (error.name === 'AbortError') {
+                return;
+            }
+
+            // Send error back to webview
+            if (this.mainPanel) {
+                this.mainPanel.webview.postMessage({
+                    command: 'chatError',
+                    error: error.message || '未知錯誤'
+                });
+            }
+        } finally {
+            this.currentChatAbortController = undefined;
+        }
+    }
+
+    private async handleStopChat(): Promise<void> {
+        if (this.currentChatAbortController) {
+            this.currentChatAbortController.abort();
+            this.currentChatAbortController = undefined;
         }
     }
 
@@ -252,6 +310,79 @@ export class UIManager {
                     padding: 15px;
                     margin-top: 20px;
                 }
+                .chat-container {
+                    background: var(--vscode-editor-background);
+                    border: 1px solid var(--vscode-panel-border);
+                    border-radius: 8px;
+                    margin-top: 20px;
+                    height: 400px;
+                    display: flex;
+                    flex-direction: column;
+                }
+                .chat-messages {
+                    flex: 1;
+                    overflow-y: auto;
+                    padding: 15px;
+                    scroll-behavior: smooth;
+                }
+                .chat-message {
+                    margin-bottom: 15px;
+                    padding: 10px;
+                    border-radius: 6px;
+                    max-width: 80%;
+                }
+                .chat-message.user {
+                    background: var(--vscode-button-background);
+                    color: var(--vscode-button-foreground);
+                    margin-left: auto;
+                }
+                .chat-message.assistant {
+                    background: var(--vscode-textCodeBlock-background);
+                    color: var(--vscode-editor-foreground);
+                }
+                .chat-input-container {
+                    border-top: 1px solid var(--vscode-panel-border);
+                    padding: 15px;
+                    display: flex;
+                    gap: 10px;
+                }
+                .chat-input {
+                    flex: 1;
+                    background: var(--vscode-input-background);
+                    border: 1px solid var(--vscode-input-border);
+                    color: var(--vscode-input-foreground);
+                    padding: 8px 12px;
+                    border-radius: 4px;
+                    font-family: inherit;
+                }
+                .chat-send-btn {
+                    background: var(--vscode-button-background);
+                    color: var(--vscode-button-foreground);
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                }
+                .chat-send-btn:hover {
+                    background: var(--vscode-button-hoverBackground);
+                }
+                .chat-send-btn:disabled {
+                    opacity: 0.5;
+                    cursor: not-allowed;
+                }
+                .chat-stop-btn {
+                    background: var(--vscode-errorForeground);
+                    color: white;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    display: none;
+                }
+                .chat-stop-btn:hover {
+                    background: var(--vscode-errorForeground);
+                    opacity: 0.8;
+                }
             </style>
         </head>
         <body>
@@ -296,12 +427,109 @@ export class UIManager {
                 </ul>
             </div>
 
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="chat-message assistant">
+                        <strong>🤖 Devika:</strong> 您好！我是您的 AI 程式開發助理。有什麼可以幫助您的嗎？
+                    </div>
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" class="chat-input" id="chatInput" placeholder="輸入您的問題或指令..." />
+                    <button class="chat-send-btn" id="chatSendBtn" onclick="sendChatMessage()">發送</button>
+                    <button class="chat-stop-btn" id="chatStopBtn" onclick="stopChatResponse()">停止</button>
+                </div>
+            </div>
+
             <script>
                 const vscode = acquireVsCodeApi();
+                let isGenerating = false;
 
                 function sendMessage(command) {
                     vscode.postMessage({ command: command });
                 }
+
+                function sendChatMessage() {
+                    const input = document.getElementById('chatInput');
+                    const message = input.value.trim();
+                    if (!message || isGenerating) return;
+
+                    // Add user message to chat
+                    addChatMessage('user', message);
+                    input.value = '';
+
+                    // Show loading state
+                    setGeneratingState(true);
+
+                    // Send to extension
+                    vscode.postMessage({
+                        command: 'chat',
+                        message: message
+                    });
+                }
+
+                function stopChatResponse() {
+                    if (isGenerating) {
+                        vscode.postMessage({ command: 'stopChat' });
+                        setGeneratingState(false);
+                    }
+                }
+
+                function addChatMessage(sender, content) {
+                    const messagesContainer = document.getElementById('chatMessages');
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = \`chat-message \${sender}\`;
+
+                    if (sender === 'user') {
+                        messageDiv.innerHTML = \`<strong>👤 您:</strong> \${content}\`;
+                    } else {
+                        messageDiv.innerHTML = \`<strong>🤖 Devika:</strong> \${content}\`;
+                    }
+
+                    messagesContainer.appendChild(messageDiv);
+
+                    // Auto-scroll to bottom
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }
+
+                function setGeneratingState(generating) {
+                    isGenerating = generating;
+                    const sendBtn = document.getElementById('chatSendBtn');
+                    const stopBtn = document.getElementById('chatStopBtn');
+                    const input = document.getElementById('chatInput');
+
+                    sendBtn.disabled = generating;
+                    stopBtn.style.display = generating ? 'block' : 'none';
+                    input.disabled = generating;
+
+                    if (generating) {
+                        sendBtn.textContent = '生成中...';
+                    } else {
+                        sendBtn.textContent = '發送';
+                    }
+                }
+
+                // Handle Enter key in chat input
+                document.getElementById('chatInput').addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendChatMessage();
+                    }
+                });
+
+                // Handle messages from extension
+                window.addEventListener('message', event => {
+                    const message = event.data;
+                    switch (message.command) {
+                        case 'chatResponse':
+                            addChatMessage('assistant', message.content);
+                            setGeneratingState(false);
+                            break;
+                        case 'chatError':
+                            addChatMessage('assistant', '❌ 抱歉，發生錯誤：' + message.error);
+                            setGeneratingState(false);
+                            break;
+                    }
+                });
             </script>
         </body>
         </html>

@@ -330,4 +330,20 @@ export class CodeContextService {
 
         return context;
     }
+
+    // 代码片段管理
+    private codeSnippets: any[] = [];
+
+    async addCodeSnippet(snippet: any): Promise<void> {
+        this.codeSnippets.push(snippet);
+    }
+
+    getCodeSnippets(): any[] {
+        return this.codeSnippets;
+    }
+
+    clearContext(): void {
+        this.codeSnippets = [];
+        this.symbolIndex.clear();
+    }
 }

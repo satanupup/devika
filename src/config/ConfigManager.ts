@@ -307,4 +307,89 @@ export class ConfigManager {
 
         vscode.window.showInformationMessage(message);
     }
+
+    // 插件配置相关
+    getPluginConfig(pluginId: string): any {
+        return this.config.get<any>(`plugins.${pluginId}`, {});
+    }
+
+    setPluginConfig(pluginId: string, config: any): void {
+        this.config.update(`plugins.${pluginId}`, config, vscode.ConfigurationTarget.Workspace);
+    }
+
+    getPluginEnabled(pluginId: string): boolean {
+        return this.config.get<boolean>(`plugins.${pluginId}.enabled`, true);
+    }
+
+    setPluginEnabled(pluginId: string, enabled: boolean): void {
+        this.config.update(`plugins.${pluginId}.enabled`, enabled, vscode.ConfigurationTarget.Workspace);
+    }
+
+    // 聊天配置
+    getChatAutoScroll(): boolean {
+        return this.config.get<boolean>('chat.autoScroll', true);
+    }
+
+    setChatAutoScroll(enabled: boolean): void {
+        this.config.update('chat.autoScroll', enabled, vscode.ConfigurationTarget.Workspace);
+    }
+
+    getChatMaxHistory(): number {
+        return this.config.get<number>('chat.maxHistory', 50);
+    }
+
+    setChatMaxHistory(count: number): void {
+        this.config.update('chat.maxHistory', count, vscode.ConfigurationTarget.Workspace);
+    }
+
+    // 文件排除配置
+    getFileExclusionEnabled(): boolean {
+        return this.config.get<boolean>('fileExclusion.enabled', true);
+    }
+
+    setFileExclusionEnabled(enabled: boolean): void {
+        this.config.update('fileExclusion.enabled', enabled, vscode.ConfigurationTarget.Workspace);
+    }
+
+    getCustomExclusionPatterns(): string[] {
+        return this.config.get<string[]>('fileExclusion.customPatterns', []);
+    }
+
+    setCustomExclusionPatterns(patterns: string[]): void {
+        this.config.update('fileExclusion.customPatterns', patterns, vscode.ConfigurationTarget.Workspace);
+    }
+
+    // 代理模式配置
+    getAgentModeEnabled(): boolean {
+        return this.config.get<boolean>('agentMode.enabled', false);
+    }
+
+    setAgentModeEnabled(enabled: boolean): void {
+        this.config.update('agentMode.enabled', enabled, vscode.ConfigurationTarget.Workspace);
+    }
+
+    getAgentAutoApprove(): boolean {
+        return this.config.get<boolean>('agentMode.autoApprove', false);
+    }
+
+    setAgentAutoApprove(enabled: boolean): void {
+        this.config.update('agentMode.autoApprove', enabled, vscode.ConfigurationTarget.Workspace);
+    }
+
+    // 上下文管理配置
+    getContextMaxSnippets(): number {
+        return this.config.get<number>('context.maxSnippets', 20);
+    }
+
+    setContextMaxSnippets(count: number): void {
+        this.config.update('context.maxSnippets', count, vscode.ConfigurationTarget.Workspace);
+    }
+
+    getContextAutoCleanup(): boolean {
+        return this.config.get<boolean>('context.autoCleanup', true);
+    }
+
+    setContextAutoCleanup(enabled: boolean): void {
+        this.config.update('context.autoCleanup', enabled, vscode.ConfigurationTarget.Workspace);
+    }
 }

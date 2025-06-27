@@ -119,6 +119,53 @@ function registerCommands(context: vscode.ExtensionContext) {
             await devikaCoreManager.scanTodos();
         }),
 
+        // 代码片段选择和上下文添加
+        vscode.commands.registerCommand('devika.addCodeSnippetToContext', async () => {
+            const editor = vscode.window.activeTextEditor;
+            if (!editor) {
+                vscode.window.showWarningMessage('請先選擇一個編輯器');
+                return;
+            }
+
+            const selection = editor.selection;
+            const selectedText = editor.document.getText(selection);
+
+            if (!selectedText.trim()) {
+                vscode.window.showWarningMessage('請先選擇要添加到上下文的代碼片段');
+                return;
+            }
+
+            // 添加到上下文管理器
+            await devikaCoreManager.addCodeSnippetToContext(
+                selectedText,
+                editor.document.fileName,
+                selection.start.line + 1,
+                selection.end.line + 1
+            );
+
+            vscode.window.showInformationMessage(
+                `已添加 ${selection.end.line - selection.start.line + 1} 行代碼到上下文`
+            );
+        }),
+
+        vscode.commands.registerCommand('devika.showContextManager', async () => {
+            await devikaCoreManager.showContextManager();
+        }),
+
+        vscode.commands.registerCommand('devika.clearContext', async () => {
+            const result = await vscode.window.showWarningMessage(
+                '確定要清空所有上下文嗎？',
+                { modal: true },
+                '確定',
+                '取消'
+            );
+
+            if (result === '確定') {
+                await devikaCoreManager.clearContext();
+                vscode.window.showInformationMessage('上下文已清空');
+            }
+        }),
+
         // Augment 插件指令
         vscode.commands.registerCommand('devika.showPlugins', async () => {
             const plugins = pluginManager.getAvailablePlugins();
