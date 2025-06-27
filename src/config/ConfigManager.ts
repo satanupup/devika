@@ -49,7 +49,7 @@ export class ConfigManager {
 
     // 模型設定
     getPreferredModel(): string {
-        return this.config.get<string>('preferredModel', 'claude-3-5-sonnet-20241022');
+        return this.config.get<string>('preferredModel', 'gemini-2.5-flash');
     }
 
     setPreferredModel(model: string): void {

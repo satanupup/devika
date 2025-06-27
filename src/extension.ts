@@ -289,9 +289,10 @@ function registerCommands(context: vscode.ExtensionContext) {
 
                 if (configManager.getOpenAIApiKey()) {
                     availableModels.push(
-                        { label: '🤖 GPT-4', description: 'OpenAI GPT-4 (最強推理能力)', value: 'gpt-4' },
-                        { label: '⚡ GPT-4 Turbo', description: 'OpenAI GPT-4 Turbo (更快速度)', value: 'gpt-4-turbo' },
-                        { label: '💨 GPT-3.5 Turbo', description: 'OpenAI GPT-3.5 Turbo (快速且經濟)', value: 'gpt-3.5-turbo' }
+                        { label: '🚀 GPT-4o', description: 'OpenAI GPT-4o (最新旗艦模型)', value: 'gpt-4o' },
+                        { label: '💨 GPT-4o Mini', description: 'OpenAI GPT-4o Mini (快速且經濟)', value: 'gpt-4o-mini' },
+                        { label: '🤖 GPT-4 Turbo', description: 'OpenAI GPT-4 Turbo (強大推理)', value: 'gpt-4-turbo' },
+                        { label: '⚡ GPT-3.5 Turbo', description: 'OpenAI GPT-3.5 Turbo (經濟選擇)', value: 'gpt-3.5-turbo' }
                     );
                 }
 
@@ -305,8 +306,13 @@ function registerCommands(context: vscode.ExtensionContext) {
 
                 if (configManager.getGeminiApiKey()) {
                     availableModels.push(
-                        { label: '💎 Gemini Pro', description: 'Google Gemini Pro', value: 'gemini-pro' },
-                        { label: '🚀 Gemini 1.5 Pro', description: 'Google Gemini 1.5 Pro (長上下文)', value: 'gemini-1.5-pro' }
+                        { label: '🧠 Gemini 2.5 Pro', description: 'Google 最先進的多用途模型 (推薦)', value: 'gemini-2.5-pro' },
+                        { label: '⚡ Gemini 2.5 Flash', description: 'Google 混合推理模型 (支援思考)', value: 'gemini-2.5-flash' },
+                        { label: '💨 Gemini 2.5 Flash-Lite', description: 'Google 最具成本效益的模型', value: 'gemini-2.5-flash-lite' },
+                        { label: '🤖 Gemini 2.0 Flash', description: 'Google 為 Agents 時代打造的平衡模型', value: 'gemini-2.0-flash-001' },
+                        { label: '🔥 Gemini 2.0 Flash-Lite', description: 'Google 最小、最具成本效益', value: 'gemini-2.0-flash-lite' },
+                        { label: '🚀 Gemini 1.5 Pro', description: 'Google Gemini 1.5 Pro (長上下文)', value: 'gemini-1.5-pro' },
+                        { label: '💎 Gemini 1.5 Flash', description: 'Google Gemini 1.5 Flash (快速)', value: 'gemini-1.5-flash' }
                     );
                 }
 
@@ -716,16 +722,34 @@ function updateStatusBarItem(): void {
 
     // 簡化模型名稱顯示
     let displayName = currentModel;
-    if (currentModel.includes('gpt-4')) {
-        displayName = '🤖 GPT-4';
+    if (currentModel.includes('gpt-4o-mini')) {
+        displayName = '💨 GPT-4o Mini';
+    } else if (currentModel.includes('gpt-4o')) {
+        displayName = '🚀 GPT-4o';
+    } else if (currentModel.includes('gpt-4-turbo')) {
+        displayName = '🤖 GPT-4 Turbo';
     } else if (currentModel.includes('gpt-3.5')) {
-        displayName = '💨 GPT-3.5';
+        displayName = '⚡ GPT-3.5';
     } else if (currentModel.includes('claude-3-5-sonnet')) {
         displayName = '🧠 Claude 3.5';
     } else if (currentModel.includes('claude-3-opus')) {
         displayName = '🎯 Claude Opus';
     } else if (currentModel.includes('claude-3-haiku')) {
         displayName = '⚡ Claude Haiku';
+    } else if (currentModel.includes('gemini-2.5-pro')) {
+        displayName = '🧠 Gemini 2.5 Pro';
+    } else if (currentModel.includes('gemini-2.5-flash-lite')) {
+        displayName = '💨 Gemini 2.5 Lite';
+    } else if (currentModel.includes('gemini-2.5-flash')) {
+        displayName = '⚡ Gemini 2.5 Flash';
+    } else if (currentModel.includes('gemini-2.0-flash-lite')) {
+        displayName = '🔥 Gemini 2.0 Lite';
+    } else if (currentModel.includes('gemini-2.0-flash')) {
+        displayName = '🤖 Gemini 2.0 Flash';
+    } else if (currentModel.includes('gemini-1.5-flash')) {
+        displayName = '💎 Gemini 1.5 Flash';
+    } else if (currentModel.includes('gemini-1.5-pro')) {
+        displayName = '🚀 Gemini 1.5 Pro';
     } else if (currentModel.includes('gemini')) {
         displayName = '💎 Gemini';
     }

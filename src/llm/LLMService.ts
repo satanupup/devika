@@ -230,23 +230,66 @@ export class LLMService {
         }
 
         try {
+            // 構建請求體
+            const requestBody: any = {
+                contents: [
+                    {
+                        parts: [
+                            {
+                                text: prompt
+                            }
+                        ]
+                    }
+                ],
+                generationConfig: {
+                    maxOutputTokens: options.maxTokens || 4000,
+                    temperature: options.temperature || 0.7,
+                    topP: 0.8,
+                    topK: 10
+                },
+                safetySettings: [
+                    {
+                        category: "HARM_CATEGORY_HARASSMENT",
+                        threshold: "BLOCK_ONLY_HIGH"
+                    },
+                    {
+                        category: "HARM_CATEGORY_HATE_SPEECH",
+                        threshold: "BLOCK_ONLY_HIGH"
+                    },
+                    {
+                        category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                        threshold: "BLOCK_ONLY_HIGH"
+                    },
+                    {
+                        category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+                        threshold: "BLOCK_ONLY_HIGH"
+                    }
+                ]
+            };
+
+            // 為支援思考的模型添加系統指令
+            if (model.includes('2.5') || model.includes('2.0')) {
+                requestBody.systemInstruction = {
+                    parts: [
+                        {
+                            text: "你是一個專業的程式開發助理，專精於程式碼分析、重構和測試生成。請提供準確、實用的建議。"
+                        }
+                    ]
+                };
+
+                // 為 2.5 系列模型添加思考配置
+                if (model.includes('2.5')) {
+                    requestBody.config = {
+                        thinkingConfig: {
+                            thinkingBudget: -1  // 啟用動態思考
+                        }
+                    };
+                }
+            }
+
             const response = await axios.post(
                 `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-                {
-                    contents: [
-                        {
-                            parts: [
-                                {
-                                    text: prompt
-                                }
-                            ]
-                        }
-                    ],
-                    generationConfig: {
-                        maxOutputTokens: options.maxTokens || 4000,
-                        temperature: options.temperature || 0.7
-                    }
-                },
+                requestBody,
                 {
                     headers: {
                         'Content-Type': 'application/json'
@@ -255,7 +298,22 @@ export class LLMService {
                 }
             );
 
+            // 檢查響應是否有效
+            if (!response.data.candidates || response.data.candidates.length === 0) {
+                throw new Error('Gemini API 沒有返回有效的候選回應');
+            }
+
             const candidate = response.data.candidates[0];
+
+            // 檢查是否被安全過濾器阻擋
+            if (candidate.finishReason === 'SAFETY') {
+                throw new Error('回應被 Gemini 安全過濾器阻擋，請嘗試修改您的問題');
+            }
+
+            if (!candidate.content || !candidate.content.parts || candidate.content.parts.length === 0) {
+                throw new Error('Gemini API 返回的內容格式無效');
+            }
+
             return {
                 content: candidate.content.parts[0].text,
                 model: model,
