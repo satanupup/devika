@@ -41,20 +41,27 @@ export class IntelligentTaskDispatcher {
 
     async processUserQuery(query: string): Promise<string> {
         try {
+            console.log('🔍 處理用戶查詢:', query);
+
             // 1. 確保項目已索引
             await this.ensureProjectIndexed();
 
             // 2. 分析用戶意圖
             const intent = await this.analyzeUserIntent(query);
+            console.log('🎯 分析意圖結果:', intent);
 
             // 3. 自動執行相應任務
             const result = await this.executeTasksForIntent(intent, query);
+            console.log('⚡ 任務執行結果:', result);
 
             // 4. 生成智能回應
-            return await this.generateIntelligentResponse(query, intent, result);
+            const response = await this.generateIntelligentResponse(query, intent, result);
+            console.log('💬 生成回應:', response.substring(0, 100) + '...');
+
+            return response;
 
         } catch (error) {
-            console.error('處理用戶查詢失敗:', error);
+            console.error('❌ 處理用戶查詢失敗:', error);
             return `抱歉，處理您的請求時遇到問題：${error}`;
         }
     }
@@ -137,45 +144,67 @@ export class IntelligentTaskDispatcher {
     private fallbackIntentAnalysis(query: string): UserIntent {
         const lowerQuery = query.toLowerCase();
 
-        if (lowerQuery.includes('項目') || lowerQuery.includes('結構') || lowerQuery.includes('概覽')) {
+        // 項目相關關鍵詞 (中英文)
+        if (lowerQuery.includes('項目') || lowerQuery.includes('結構') || lowerQuery.includes('概覽') ||
+            lowerQuery.includes('project') || lowerQuery.includes('structure') || lowerQuery.includes('overview') ||
+            lowerQuery.includes('專案') || lowerQuery.includes('分析整個') || lowerQuery.includes('建立請讀我')) {
             return {
                 type: 'project_overview',
-                confidence: 0.7,
+                confidence: 0.8,
                 parameters: {},
                 requiredActions: ['analyze_project_structure']
             };
         }
 
-        if (lowerQuery.includes('git') || lowerQuery.includes('提交') || lowerQuery.includes('歷史')) {
+        // Git 相關關鍵詞
+        if (lowerQuery.includes('git') || lowerQuery.includes('提交') || lowerQuery.includes('歷史') ||
+            lowerQuery.includes('commit') || lowerQuery.includes('history') || lowerQuery.includes('變更')) {
             return {
                 type: 'git_history',
-                confidence: 0.7,
+                confidence: 0.8,
                 parameters: {},
                 requiredActions: ['get_git_history']
             };
         }
 
-        if (lowerQuery.includes('代碼') || lowerQuery.includes('分析') || lowerQuery.includes('函數')) {
+        // 代碼分析相關
+        if (lowerQuery.includes('代碼') || lowerQuery.includes('分析') || lowerQuery.includes('函數') ||
+            lowerQuery.includes('code') || lowerQuery.includes('analyze') || lowerQuery.includes('function') ||
+            lowerQuery.includes('程式碼') || lowerQuery.includes('方法')) {
             return {
                 type: 'code_analysis',
-                confidence: 0.7,
+                confidence: 0.8,
                 parameters: {},
                 requiredActions: ['analyze_code_context']
             };
         }
 
-        if (lowerQuery.includes('文件') || lowerQuery.includes('搜索') || lowerQuery.includes('查找')) {
+        // 文件搜索相關
+        if (lowerQuery.includes('文件') || lowerQuery.includes('搜索') || lowerQuery.includes('查找') ||
+            lowerQuery.includes('file') || lowerQuery.includes('search') || lowerQuery.includes('find')) {
             return {
                 type: 'file_search',
-                confidence: 0.7,
+                confidence: 0.8,
                 parameters: { searchTerm: query },
                 requiredActions: ['search_files']
             };
         }
 
+        // 問候和身份相關
+        if (lowerQuery.includes('你好') || lowerQuery.includes('hello') || lowerQuery.includes('hi') ||
+            lowerQuery.includes('哪家公司') || lowerQuery.includes('什麼') || lowerQuery.includes('who') ||
+            lowerQuery.includes('what') || lowerQuery.includes('你是')) {
+            return {
+                type: 'general',
+                confidence: 0.9,
+                parameters: { isGreeting: true },
+                requiredActions: ['general_response']
+            };
+        }
+
         return {
             type: 'general',
-            confidence: 0.5,
+            confidence: 0.6,
             parameters: {},
             requiredActions: ['general_response']
         };
@@ -250,16 +279,20 @@ export class IntelligentTaskDispatcher {
         `;
 
         try {
+            console.log('🤖 調用 LLM 服務...');
             const response = await this.llmService.generateCompletion(prompt);
+            console.log('✅ LLM 回應成功');
             return response.content;
         } catch (error) {
+            console.error('❌ LLM 調用失敗:', error);
+            console.log('🔄 使用後備回應');
             return this.generateFallbackResponse(intent, result);
         }
     }
 
     private generateFallbackResponse(intent: UserIntent, result: TaskResult): string {
         if (!result.success) {
-            return result.message;
+            return `抱歉，處理您的請求時遇到問題：${result.message}`;
         }
 
         switch (intent.type) {
@@ -274,13 +307,45 @@ export class IntelligentTaskDispatcher {
             case 'git_history':
                 const history = result.data.gitHistory;
                 return `📜 **最近的提交記錄**\n\n` +
-                       history?.slice(0, 5).map((commit: any) => 
+                       history?.slice(0, 5).map((commit: any) =>
                            `• ${commit.hash.substring(0, 8)}: ${commit.message}`
                        ).join('\n') || '沒有找到 Git 歷史記錄';
 
+            case 'code_analysis':
+                return `🔍 **代碼分析**\n\n我已經分析了相關的代碼內容。請告訴我您想了解代碼的哪個方面？`;
+
+            case 'file_search':
+                const searchResults = result.data.searchResults;
+                return `🔍 **搜索結果**\n\n找到 ${searchResults?.count || 0} 個相關項目。`;
+
             default:
-                return '我已經分析了您的請求並收集了相關信息。有什麼具體想了解的嗎？';
+                // 對於一般查詢，嘗試直接使用 LLM 回應
+                return this.handleGeneralQuery(intent, result);
         }
+    }
+
+    private handleGeneralQuery(intent: UserIntent, result: TaskResult): string {
+        // 如果有項目信息，提供基本的項目狀態
+        if (result.data.projectInfo) {
+            const info = result.data.projectInfo;
+            return `👋 您好！我是 Devika AI 助理。\n\n` +
+                   `📁 當前工作區: ${info.workspaceName || '未知'}\n` +
+                   `📄 打開的文件: ${info.openFiles || 0} 個\n\n` +
+                   `我可以幫助您：\n` +
+                   `• 分析項目結構和代碼\n` +
+                   `• 查看 Git 歷史和變更\n` +
+                   `• 搜索和理解代碼邏輯\n` +
+                   `• 提供重構和優化建議\n\n` +
+                   `請告訴我您想了解什麼？`;
+        }
+
+        return `👋 您好！我是 Devika AI 助理，專門幫助您進行程式開發。\n\n` +
+               `我可以協助您：\n` +
+               `• 📊 分析項目結構\n` +
+               `• 🔍 理解和分析代碼\n` +
+               `• 📜 查看 Git 歷史\n` +
+               `• 🛠️ 提供重構建議\n\n` +
+               `請告訴我您需要什麼幫助？`;
     }
 
     private async searchInProject(searchTerm: string): Promise<any> {
