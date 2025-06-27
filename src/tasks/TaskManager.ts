@@ -2,9 +2,10 @@ import * as vscode from 'vscode';
 
 export interface Task {
     id: string;
+    title: string;
     description: string;
     status: 'pending' | 'in-progress' | 'completed' | 'cancelled';
-    type: 'analysis' | 'refactor' | 'test' | 'todo' | 'fix' | 'feature';
+    type: 'analysis' | 'refactor' | 'test' | 'todo' | 'fix' | 'feature' | 'documentation' | 'deployment';
     filePath?: string;
     range?: vscode.Range;
     createdAt: Date;
@@ -12,6 +13,11 @@ export interface Task {
     completedAt?: Date;
     priority: 'low' | 'medium' | 'high' | 'urgent';
     tags: string[];
+    assignee?: string;
+    estimatedTime?: number; // 預估時間（分鐘）
+    actualTime?: number; // 實際時間（分鐘）
+    dependencies?: string[]; // 依賴的任務 ID
+    subtasks?: string[]; // 子任務 ID
     metadata?: any;
 }
 
@@ -38,13 +44,15 @@ export class TaskManager {
         this.setupAutoSave();
     }
 
-    async addTask(task: Omit<Task, 'id' | 'createdAt' | 'priority' | 'tags'>): Promise<Task> {
+    async addTask(task: Omit<Task, 'id' | 'createdAt' | 'priority' | 'tags' | 'dependencies' | 'subtasks'>): Promise<Task> {
         const newTask: Task = {
             ...task,
             id: this.generateTaskId(),
             createdAt: new Date(),
             priority: 'medium',
-            tags: []
+            tags: [],
+            dependencies: task.dependencies || [],
+            subtasks: task.subtasks || []
         };
 
         this.tasks.set(newTask.id, newTask);
@@ -212,60 +220,7 @@ export class TaskManager {
         return await this.updateTask(taskId, { tags: updatedTags });
     }
 
-    getTaskStatistics(): {
-        total: number;
-        pending: number;
-        inProgress: number;
-        completed: number;
-        cancelled: number;
-        byType: { [key in Task['type']]: number };
-        byPriority: { [key in Task['priority']]: number };
-    } {
-        const tasks = this.getAllTasks();
-        const stats = {
-            total: tasks.length,
-            pending: 0,
-            inProgress: 0,
-            completed: 0,
-            cancelled: 0,
-            byType: {
-                analysis: 0,
-                refactor: 0,
-                test: 0,
-                todo: 0,
-                fix: 0,
-                feature: 0
-            } as { [key in Task['type']]: number },
-            byPriority: {
-                low: 0,
-                medium: 0,
-                high: 0,
-                urgent: 0
-            } as { [key in Task['priority']]: number }
-        };
 
-        for (const task of tasks) {
-            switch (task.status) {
-                case 'pending':
-                    stats.pending++;
-                    break;
-                case 'in-progress':
-                    stats.inProgress++;
-                    break;
-                case 'completed':
-                    stats.completed++;
-                    break;
-                case 'cancelled':
-                    stats.cancelled++;
-                    break;
-            }
-
-            stats.byType[task.type]++;
-            stats.byPriority[task.priority]++;
-        }
-
-        return stats;
-    }
 
     async clearCompletedTasks(): Promise<number> {
         const completedTasks = this.getTasksByStatus('completed');
@@ -327,6 +282,253 @@ export class TaskManager {
             await this.saveTasks();
             await this.saveTaskGroups();
         }, 5 * 60 * 1000);
+    }
+
+    /**
+     * 獲取任務統計信息
+     */
+    getTaskStatistics(): {
+        total: number;
+        pending: number;
+        inProgress: number;
+        completed: number;
+        cancelled: number;
+        byType: Map<string, number>;
+        byPriority: Map<string, number>;
+        averageCompletionTime: number;
+    } {
+        const stats = {
+            total: this.tasks.size,
+            pending: 0,
+            inProgress: 0,
+            completed: 0,
+            cancelled: 0,
+            byType: new Map<string, number>(),
+            byPriority: new Map<string, number>(),
+            averageCompletionTime: 0
+        };
+
+        let totalCompletionTime = 0;
+        let completedTasksWithTime = 0;
+
+        for (const task of this.tasks.values()) {
+            // 統計狀態
+            switch (task.status) {
+                case 'pending':
+                    stats.pending++;
+                    break;
+                case 'in-progress':
+                    stats.inProgress++;
+                    break;
+                case 'completed':
+                    stats.completed++;
+                    if (task.actualTime) {
+                        totalCompletionTime += task.actualTime;
+                        completedTasksWithTime++;
+                    }
+                    break;
+                case 'cancelled':
+                    stats.cancelled++;
+                    break;
+            }
+
+            // 統計類型
+            const typeCount = stats.byType.get(task.type) || 0;
+            stats.byType.set(task.type, typeCount + 1);
+
+            // 統計優先級
+            const priorityCount = stats.byPriority.get(task.priority) || 0;
+            stats.byPriority.set(task.priority, priorityCount + 1);
+        }
+
+        // 計算平均完成時間
+        if (completedTasksWithTime > 0) {
+            stats.averageCompletionTime = totalCompletionTime / completedTasksWithTime;
+        }
+
+        return stats;
+    }
+
+    /**
+     * 獲取任務依賴圖
+     */
+    getTaskDependencyGraph(): Map<string, string[]> {
+        const graph = new Map<string, string[]>();
+
+        for (const task of this.tasks.values()) {
+            graph.set(task.id, task.dependencies);
+        }
+
+        return graph;
+    }
+
+    /**
+     * 檢查任務依賴循環
+     */
+    checkCircularDependencies(): string[] {
+        const visited = new Set<string>();
+        const recursionStack = new Set<string>();
+        const cycles: string[] = [];
+
+        const dfs = (taskId: string, path: string[]): boolean => {
+            if (recursionStack.has(taskId)) {
+                cycles.push(path.join(' -> ') + ' -> ' + taskId);
+                return true;
+            }
+
+            if (visited.has(taskId)) {
+                return false;
+            }
+
+            visited.add(taskId);
+            recursionStack.add(taskId);
+
+            const task = this.tasks.get(taskId);
+            if (task) {
+                for (const depId of task.dependencies) {
+                    if (dfs(depId, [...path, taskId])) {
+                        return true;
+                    }
+                }
+            }
+
+            recursionStack.delete(taskId);
+            return false;
+        };
+
+        for (const taskId of this.tasks.keys()) {
+            if (!visited.has(taskId)) {
+                dfs(taskId, []);
+            }
+        }
+
+        return cycles;
+    }
+
+    /**
+     * 獲取任務的執行順序（拓撲排序）
+     */
+    getTaskExecutionOrder(): string[] {
+        const inDegree = new Map<string, number>();
+        const graph = new Map<string, string[]>();
+
+        // 初始化
+        for (const task of this.tasks.values()) {
+            inDegree.set(task.id, 0);
+            graph.set(task.id, []);
+        }
+
+        // 構建圖和計算入度
+        for (const task of this.tasks.values()) {
+            for (const depId of task.dependencies) {
+                if (graph.has(depId)) {
+                    graph.get(depId)!.push(task.id);
+                    inDegree.set(task.id, (inDegree.get(task.id) || 0) + 1);
+                }
+            }
+        }
+
+        // 拓撲排序
+        const queue: string[] = [];
+        const result: string[] = [];
+
+        // 找到所有入度為 0 的節點
+        for (const [taskId, degree] of inDegree.entries()) {
+            if (degree === 0) {
+                queue.push(taskId);
+            }
+        }
+
+        while (queue.length > 0) {
+            const current = queue.shift()!;
+            result.push(current);
+
+            // 處理當前節點的所有鄰居
+            for (const neighbor of graph.get(current) || []) {
+                inDegree.set(neighbor, inDegree.get(neighbor)! - 1);
+                if (inDegree.get(neighbor) === 0) {
+                    queue.push(neighbor);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * 自動分配任務優先級
+     */
+    autoAssignPriorities(): void {
+        const dependencyGraph = this.getTaskDependencyGraph();
+        const executionOrder = this.getTaskExecutionOrder();
+
+        // 基於依賴關係和截止日期自動分配優先級
+        for (let i = 0; i < executionOrder.length; i++) {
+            const taskId = executionOrder[i];
+            const task = this.tasks.get(taskId);
+
+            if (task) {
+                // 越早需要執行的任務優先級越高
+                const position = i / executionOrder.length;
+
+                if (position < 0.25) {
+                    task.priority = 'urgent';
+                } else if (position < 0.5) {
+                    task.priority = 'high';
+                } else if (position < 0.75) {
+                    task.priority = 'medium';
+                } else {
+                    task.priority = 'low';
+                }
+
+                task.updatedAt = new Date();
+                this.onTaskChangedEmitter.fire(task);
+            }
+        }
+    }
+
+    /**
+     * 生成任務報告
+     */
+    generateTaskReport(): string {
+        const stats = this.getTaskStatistics();
+        const cycles = this.checkCircularDependencies();
+
+        let report = '# 任務管理報告\n\n';
+
+        // 基本統計
+        report += '## 基本統計\n\n';
+        report += `- 總任務數: ${stats.total}\n`;
+        report += `- 待處理: ${stats.pending}\n`;
+        report += `- 進行中: ${stats.inProgress}\n`;
+        report += `- 已完成: ${stats.completed}\n`;
+        report += `- 已取消: ${stats.cancelled}\n`;
+        report += `- 平均完成時間: ${stats.averageCompletionTime.toFixed(1)} 分鐘\n\n`;
+
+        // 按類型統計
+        report += '## 按類型統計\n\n';
+        for (const [type, count] of stats.byType.entries()) {
+            report += `- ${type}: ${count}\n`;
+        }
+        report += '\n';
+
+        // 按優先級統計
+        report += '## 按優先級統計\n\n';
+        for (const [priority, count] of stats.byPriority.entries()) {
+            report += `- ${priority}: ${count}\n`;
+        }
+        report += '\n';
+
+        // 依賴循環檢查
+        if (cycles.length > 0) {
+            report += '## ⚠️ 發現依賴循環\n\n';
+            for (const cycle of cycles) {
+                report += `- ${cycle}\n`;
+            }
+            report += '\n';
+        }
+
+        return report;
     }
 
     dispose(): void {

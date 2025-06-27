@@ -9,7 +9,7 @@ import { SmartCodeAnalyzer } from './SmartCodeAnalyzer';
 import { MarkdownAnalyzer } from '../analyzer/MarkdownAnalyzer';
 
 export interface UserIntent {
-    type: 'code_analysis' | 'project_overview' | 'git_history' | 'file_search' | 'refactor' | 'debug' | 'general';
+    type: 'code_analysis' | 'project_overview' | 'git_history' | 'file_search' | 'refactor' | 'debug' | 'general' | 'markdown_analysis';
     confidence: number;
     parameters: any;
     requiredActions: string[];

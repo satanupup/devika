@@ -26,9 +26,12 @@ export interface CodeContext {
 export class CodeContextService {
     private codeParser: CodeParser;
     private symbolIndex: Map<string, CodeSymbol[]> = new Map();
+    private dependencyGraph: Map<string, string[]> = new Map();
+    private fileWatcher: vscode.FileSystemWatcher | undefined;
 
     constructor() {
         this.codeParser = new CodeParser();
+        this.initializeFileWatcher();
     }
 
     async getCodeContext(
@@ -234,23 +237,7 @@ export class CodeContextService {
         }
     }
 
-    async indexWorkspace(workspaceFolder: vscode.WorkspaceFolder): Promise<void> {
-        try {
-            const files = await vscode.workspace.findFiles(
-                new vscode.RelativePattern(workspaceFolder, '**/*.{ts,js,py,java,cpp,cs,go,rs}'),
-                '**/node_modules/**'
-            );
 
-            for (const file of files) {
-                const document = await vscode.workspace.openTextDocument(file);
-                await this.updateIndex(document);
-            }
-
-            console.log(`已索引 ${files.length} 個檔案`);
-        } catch (error) {
-            console.error('索引工作區失敗:', error);
-        }
-    }
 
     searchSymbols(query: string): CodeSymbol[] {
         const results: CodeSymbol[] = [];
@@ -345,5 +332,100 @@ export class CodeContextService {
     clearContext(): void {
         this.codeSnippets = [];
         this.symbolIndex.clear();
+    }
+
+    /**
+     * 初始化文件監視器
+     */
+    private initializeFileWatcher(): void {
+        const pattern = '**/*.{ts,js,tsx,jsx,py,java,kt,swift,cpp,c,cs,go,rs}';
+        this.fileWatcher = vscode.workspace.createFileSystemWatcher(pattern);
+
+        this.fileWatcher.onDidChange(uri => {
+            this.invalidateSymbolCache(uri.fsPath);
+        });
+
+        this.fileWatcher.onDidCreate(uri => {
+            this.indexFile(uri);
+        });
+
+        this.fileWatcher.onDidDelete(uri => {
+            this.removeFromIndex(uri.fsPath);
+        });
+    }
+
+    /**
+     * 索引單個文件
+     */
+    async indexFile(uri: vscode.Uri): Promise<void> {
+        try {
+            const document = await vscode.workspace.openTextDocument(uri);
+            const symbols = await this.getDocumentSymbols(document);
+            this.symbolIndex.set(uri.fsPath, symbols);
+
+            // 分析依賴關係
+            const imports = await this.codeParser.extractImports(document);
+            this.dependencyGraph.set(uri.fsPath, imports);
+        } catch (error) {
+            console.error(`索引文件失敗 ${uri.fsPath}:`, error);
+        }
+    }
+
+    /**
+     * 索引整個工作區
+     */
+    async indexWorkspace(workspaceFolder: vscode.WorkspaceFolder): Promise<void> {
+        const pattern = new vscode.RelativePattern(workspaceFolder, '**/*.{ts,js,tsx,jsx,py,java,kt,swift,cpp,c,cs,go,rs}');
+        const files = await vscode.workspace.findFiles(pattern);
+
+        const indexPromises = files.map(uri => this.indexFile(uri));
+        await Promise.all(indexPromises);
+    }
+
+    /**
+     * 失效符號緩存
+     */
+    private invalidateSymbolCache(filePath: string): void {
+        this.symbolIndex.delete(filePath);
+        this.dependencyGraph.delete(filePath);
+    }
+
+    /**
+     * 從索引中移除文件
+     */
+    private removeFromIndex(filePath: string): void {
+        this.symbolIndex.delete(filePath);
+        this.dependencyGraph.delete(filePath);
+    }
+
+    /**
+     * 獲取文件的依賴關係
+     */
+    getDependencies(filePath: string): string[] {
+        return this.dependencyGraph.get(filePath) || [];
+    }
+
+    /**
+     * 獲取依賴於指定文件的文件列表
+     */
+    getDependents(filePath: string): string[] {
+        const dependents: string[] = [];
+
+        for (const [file, dependencies] of this.dependencyGraph.entries()) {
+            if (dependencies.includes(filePath)) {
+                dependents.push(file);
+            }
+        }
+
+        return dependents;
+    }
+
+    /**
+     * 清理資源
+     */
+    dispose(): void {
+        if (this.fileWatcher) {
+            this.fileWatcher.dispose();
+        }
     }
 }

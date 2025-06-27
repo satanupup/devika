@@ -274,9 +274,13 @@
     "package": "vsce package"
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.2.2",
+    "@types/fs-extra": "^11.0.4",
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "16.x",
+    "@types/sqlite3": "^3.1.11",
+    "@types/uuid": "^10.0.0",
     "@types/vscode": "^1.74.0",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
@@ -287,8 +291,13 @@
   },
   "dependencies": {
     "axios": "^1.6.0",
+    "crypto-js": "^4.2.0",
+    "date-fns": "^4.1.0",
+    "fs-extra": "^11.3.0",
     "mocha": "^11.7.1",
+    "path-browserify": "^1.0.1",
     "simple-git": "^3.20.0",
+    "sqlite3": "^5.1.7",
     "tiktoken": "^1.0.10",
     "tree-sitter": "^0.20.4",
     "tree-sitter-c-sharp": "^0.20.0",
@@ -298,7 +307,8 @@
     "tree-sitter-javascript": "^0.20.1",
     "tree-sitter-python": "^0.20.4",
     "tree-sitter-rust": "^0.20.4",
-    "tree-sitter-typescript": "^0.20.3"
+    "tree-sitter-typescript": "^0.20.3",
+    "uuid": "^11.1.0"
   },
   "repository": {
     "type": "git",

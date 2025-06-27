@@ -58,6 +58,7 @@ suite('Devika Extension Test Suite', () => {
         await taskManager.initialize();
 
         const task = await taskManager.addTask({
+            title: '測試任務',
             description: '測試任務',
             status: 'pending',
             type: 'analysis'
@@ -82,6 +83,7 @@ suite('Devika Extension Test Suite', () => {
         await taskManager.initialize();
 
         const task = await taskManager.addTask({
+            title: '測試任務',
             description: '測試任務',
             status: 'pending',
             type: 'analysis'
@@ -111,12 +113,14 @@ suite('Devika Extension Test Suite', () => {
         await taskManager.initialize();
 
         await taskManager.addTask({
+            title: '重構程式碼',
             description: '重構程式碼',
             status: 'pending',
             type: 'refactor'
         });
 
         await taskManager.addTask({
+            title: '生成測試',
             description: '生成測試',
             status: 'pending',
             type: 'test'
