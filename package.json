@@ -68,6 +68,12 @@
         "category": "Devika"
       },
       {
+        "command": "devika.setupApiKeys",
+        "title": "設置 API 密鑰",
+        "category": "Devika",
+        "icon": "$(key)"
+      },
+      {
         "command": "devika.showPlugins",
         "title": "顯示 Augment 插件",
         "category": "Devika",

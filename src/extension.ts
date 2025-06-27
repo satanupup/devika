@@ -211,6 +211,16 @@ function registerCommands(context: vscode.ExtensionContext) {
             }
         }),
 
+        // 設置 API 密鑰指令
+        vscode.commands.registerCommand('devika.setupApiKeys', async () => {
+            try {
+                await showApiKeySetupDialog();
+            } catch (error) {
+                console.error('設置 API 密鑰失敗:', error);
+                vscode.window.showErrorMessage(`設置 API 密鑰失敗: ${error}`);
+            }
+        }),
+
         // Augment 插件指令
         vscode.commands.registerCommand('devika.showPlugins', async () => {
             const plugins = pluginManager.getAvailablePlugins();
@@ -303,6 +313,78 @@ function initializeServices(context: vscode.ExtensionContext) {
     });
 
     context.subscriptions.push(onSaveListener, onChangeListener);
+}
+
+async function showApiKeySetupDialog(): Promise<void> {
+    const configManager = ConfigManager.getInstance();
+
+    const options = [
+        { label: '$(key) OpenAI API 密鑰', description: 'GPT-3.5, GPT-4 等模型', value: 'openai' },
+        { label: '$(key) Claude API 密鑰', description: 'Anthropic Claude 模型', value: 'claude' },
+        { label: '$(key) Gemini API 密鑰', description: 'Google Gemini 模型', value: 'gemini' },
+        { label: '$(gear) 打開設置頁面', description: '在 VS Code 設置中配置', value: 'settings' }
+    ];
+
+    const selected = await vscode.window.showQuickPick(options, {
+        placeHolder: '選擇要設置的 API 密鑰類型'
+    });
+
+    if (!selected) {
+        return;
+    }
+
+    if (selected.value === 'settings') {
+        // 打開 VS Code 設置頁面
+        await vscode.commands.executeCommand('workbench.action.openSettings', '@ext:devika.vscode-extension');
+        return;
+    }
+
+    // 輸入 API 密鑰
+    const apiKey = await vscode.window.showInputBox({
+        prompt: `請輸入您的 ${selected.label.replace('$(key) ', '')}`,
+        password: true,
+        placeHolder: '輸入 API 密鑰...',
+        validateInput: (value) => {
+            if (!value || value.trim().length === 0) {
+                return 'API 密鑰不能為空';
+            }
+            if (value.length < 10) {
+                return 'API 密鑰長度太短';
+            }
+            return null;
+        }
+    });
+
+    if (!apiKey) {
+        return;
+    }
+
+    // 保存 API 密鑰
+    try {
+        switch (selected.value) {
+            case 'openai':
+                configManager.setOpenAIApiKey(apiKey);
+                break;
+            case 'claude':
+                configManager.setClaudeApiKey(apiKey);
+                break;
+            case 'gemini':
+                configManager.setGeminiApiKey(apiKey);
+                break;
+        }
+
+        vscode.window.showInformationMessage(
+            `✅ ${selected.label.replace('$(key) ', '')} 設置成功！`,
+            '測試連接'
+        ).then(choice => {
+            if (choice === '測試連接') {
+                vscode.commands.executeCommand('devika.start');
+            }
+        });
+
+    } catch (error) {
+        vscode.window.showErrorMessage(`設置 API 密鑰失敗: ${error}`);
+    }
 }
 
 function registerViewProviders(context: vscode.ExtensionContext): void {
