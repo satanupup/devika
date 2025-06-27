@@ -22,11 +22,7 @@
     "typescript"
   ],
   "activationEvents": [
-    "onStartupFinished",
-    "onCommand:devika.start",
-    "onLanguage:typescript",
-    "onLanguage:javascript",
-    "onLanguage:python"
+    "onStartupFinished"
   ],
   "main": "./out/extension.js",
   "contributes": {
