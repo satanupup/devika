@@ -15,6 +15,7 @@ export class DevikaCoreManager {
     private gitService: GitService;
     private codeContextService: CodeContextService;
     private codeParser: CodeParser;
+    private initializationPromise: Promise<void>;
 
     constructor(private context: vscode.ExtensionContext) {
         this.configManager = ConfigManager.getInstance();
@@ -25,7 +26,11 @@ export class DevikaCoreManager {
         this.codeContextService = new CodeContextService();
         this.codeParser = new CodeParser();
 
-        this.initialize();
+        this.initializationPromise = this.initialize();
+    }
+
+    async waitForInitialization(): Promise<void> {
+        return this.initializationPromise;
     }
 
     private async initialize() {

@@ -14,28 +14,47 @@ let taskProvider: DevikaTaskProvider;
 let chatProvider: DevikaChatProvider;
 let contextProvider: DevikaContextProvider;
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
     console.log('Devika AI 助理正在啟動...');
 
-    // 初始化插件管理器
-    pluginManager = new PluginManager(context);
+    try {
+        // 初始化插件管理器
+        pluginManager = new PluginManager(context);
 
-    // 初始化核心管理器
-    devikaCoreManager = new DevikaCoreManager(context);
+        // 初始化核心管理器
+        devikaCoreManager = new DevikaCoreManager(context);
 
-    // 設定 context 變數，用於控制 UI 顯示
-    vscode.commands.executeCommand('setContext', 'devika.activated', true);
+        // 等待核心管理器初始化完成
+        await devikaCoreManager.waitForInitialization();
 
-    // 註冊所有指令
-    registerCommands(context);
+        // 設定 context 變數，用於控制 UI 顯示
+        vscode.commands.executeCommand('setContext', 'devika.activated', true);
 
-    // 初始化服務
-    initializeServices(context);
+        // 註冊所有指令
+        registerCommands(context);
 
-    // 註冊視圖提供者
-    registerViewProviders(context);
+        // 初始化服務
+        initializeServices(context);
 
-    console.log('Devika AI 助理已成功啟動！');
+        // 註冊視圖提供者
+        registerViewProviders(context);
+
+        console.log('Devika AI 助理已成功啟動！');
+
+        // 顯示歡迎消息
+        vscode.window.showInformationMessage(
+            '🤖 Devika AI 助理已啟動！點擊側邊欄的 Devika 圖標開始使用。',
+            '開始使用'
+        ).then(choice => {
+            if (choice === '開始使用') {
+                vscode.commands.executeCommand('devika.start');
+            }
+        });
+
+    } catch (error) {
+        console.error('Devika 啟動失敗:', error);
+        vscode.window.showErrorMessage(`Devika 啟動失敗: ${error}`);
+    }
 }
 
 export function deactivate() {
@@ -47,27 +66,46 @@ export function deactivate() {
 function registerCommands(context: vscode.ExtensionContext) {
     const commands = [
         // 主要指令
-        vscode.commands.registerCommand('devika.start', () => {
-            devikaCoreManager.showMainPanel();
+        vscode.commands.registerCommand('devika.start', async () => {
+            try {
+                if (!devikaCoreManager) {
+                    vscode.window.showErrorMessage('Devika 核心管理器尚未初始化，請稍候再試');
+                    return;
+                }
+                await devikaCoreManager.showMainPanel();
+            } catch (error) {
+                console.error('啟動 Devika 失敗:', error);
+                vscode.window.showErrorMessage(`啟動 Devika 失敗: ${error}`);
+            }
         }),
 
         // 程式碼分析指令
         vscode.commands.registerCommand('devika.analyzeCode', async () => {
-            const editor = vscode.window.activeTextEditor;
-            if (!editor) {
-                vscode.window.showErrorMessage('請先選取要分析的程式碼');
-                return;
-            }
+            try {
+                if (!devikaCoreManager) {
+                    vscode.window.showErrorMessage('Devika 核心管理器尚未初始化，請稍候再試');
+                    return;
+                }
 
-            const selection = editor.selection;
-            const selectedText = editor.document.getText(selection);
-            
-            if (!selectedText) {
-                vscode.window.showErrorMessage('請選取要分析的程式碼');
-                return;
-            }
+                const editor = vscode.window.activeTextEditor;
+                if (!editor) {
+                    vscode.window.showErrorMessage('請先選取要分析的程式碼');
+                    return;
+                }
 
-            await devikaCoreManager.analyzeCode(selectedText, editor.document, selection);
+                const selection = editor.selection;
+                const selectedText = editor.document.getText(selection);
+
+                if (!selectedText) {
+                    vscode.window.showErrorMessage('請選取要分析的程式碼');
+                    return;
+                }
+
+                await devikaCoreManager.analyzeCode(selectedText, editor.document, selection);
+            } catch (error) {
+                console.error('分析程式碼失敗:', error);
+                vscode.window.showErrorMessage(`分析程式碼失敗: ${error}`);
+            }
         }),
 
         // 重構程式碼指令
