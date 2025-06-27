@@ -1,0 +1,1565 @@
+首頁
+Gemini API
+模型
+Gemini Developer API 定價
+
+
+Gemini API「免費方案」透過 API 服務提供，頻率限制較低且僅供測試使用。所有適用國家/地區都能免費使用 Google AI Studio。Gemini API「付費方案」提供更高的頻率限制、額外功能和不同的資料處理方式。
+
+升級至付費方案
+Gemini 2.5 Pro
+在 Google AI Studio 中試用
+
+這是 Google 最先進的多用途模型，擅長程式設計和複雜推理工作。
+
+免費方案	付費等級，每 100 萬個符記的美元費用
+輸入價格	不適用	$1.25 美元，提示「<= 200k 個符記」
+$2.50 美元，提示「> 200k 個符記」
+輸出價格 (包括思考符號)	不適用	$10.00 美元，提示符號 <= 200, 000 個符記
+$15.00 美元，提示符號 > 200, 000 個符記
+脈絡快取價格	不適用	$0.31 美元，提示值 <= 200, 000 個符記
+$0.625 美元，提示值 > 200, 000 個符記
+$4.50 美元 / 1,000,000 個符記 (儲存空間價格)
+利用 Google 搜尋建立基準	不適用	1,500 RPD (免費)，之後每 1,000 個要求 $35 美元
+用於改善 Google 產品	是	否
+Gemini 2.5 Flash
+在 Google AI Studio 中試用
+
+這是我們第一個支援 100 萬個符記脈絡窗口，並具有思考預算的混合推理模型。
+
+免費方案	付費等級，每 100 萬個符記的美元費用
+輸入價格	無須支付費用	$0.30 美元 (文字 / 圖片 / 影片)
+$1.00 美元 (音訊)
+輸出價格 (包括思考符號)	無須支付費用	$2.50
+脈絡快取價格	不適用	$0.075 美元 (文字/圖片/影片)
+$0.25 美元 (音訊)
+$1.00 美元/1,000,000 個符記/小時 (儲存空間價格)
+利用 Google 搜尋建立基準	免費，最多 500 RPD (與 Flash-Lite RPD 共用限制)	1,500 個 RPD (免費，上限與 Flash-Lite RPD 共用)，超過部分每 1,000 個要求 $35 美元
+Live API	無須支付費用	輸入：$0.50 美元 (文字)、$3.00 美元 (音訊 / 圖片 [影片])
+輸出：$2.00 美元 (文字)、$12.00 美元 (音訊)
+用於改善 Google 產品	是	否
+Gemini 2.5 Flash-Lite 預先發布版
+在 Google AI Studio 中試用
+
+這是我們最小、最具成本效益的模型，專為大規模使用而建構。
+
+免費方案	付費等級，每 100 萬個符記的美元費用
+輸入價格 (文字、圖片、影片)	無須支付費用	$0.10 美元 (文字 / 圖片 / 影片)
+$0.50 美元 (音訊)
+輸出價格 (包括思考符號)	無須支付費用	$0.40 美元
+脈絡快取價格	不適用	$0.025 美元 (文字 / 圖片 / 影片)
+$0.125 美元 (音訊)
+每小時$1.00 美元 / 1,000,000 個符記 (儲存空間價格)
+利用 Google 搜尋建立基準	免費，最多 500 RPD (與 Flash RPD 共用)	1,500 個 RPD (免費，上限與 Flash RPD 共用)，之後每 1,000 個要求 $35 美元
+用於改善 Google 產品	是	否
+Gemini 2.5 Flash 原生音訊
+在 Google AI Studio 中試用
+
+我們的原生音訊模型經過最佳化，可提供更高品質的音訊輸出內容，包括更佳的節奏、更自然的語音、更詳細的說明和更貼近情境的語氣。
+
+預覽版模型可能會在穩定前變更，且有更嚴格的費率限制。
+
+免費方案	付費等級，每 100 萬個符記的美元費用
+輸入價格	不適用	$0.50 美元 (文字)
+$3.00 美元 (音訊 / 影片)
+輸出價格 (包括思考符號)	不適用	$2.00 美元 (文字)
+$12.00 美元 (音訊)
+用於改善 Google 產品	是	否
+Gemini 2.5 Flash 預先發布版 TTS
+在 Google AI Studio 中試用
+
+我們的 2.5 Flash 文字轉語音音訊模型經過最佳化調整，可產生價格實惠、延遲時間短且可控的語音。
+
+預覽版模型可能會在穩定前變更，且有更嚴格的費率限制。
+
+免費方案	付費等級，每 100 萬個符記的美元費用
+輸入價格	無須支付費用	$0.50 美元 (文字)
+輸出價格	無須支付費用	$10.00 美元 (音訊)
+用於改善 Google 產品	是	否
+Gemini 2.5 Pro 預先發布版 TTS
+在 Google AI Studio 中試用
+
+我們的 2.5 Pro 文字轉語音音訊模型經過最佳化，可提供強大的低延遲語音生成功能，提供更自然的輸出內容，並更容易引導提示。
+
+預覽版模型可能會在穩定前變更，且有更嚴格的費率限制。
+
+免費方案	付費等級，每 100 萬個符記的美元費用
+輸入價格	不適用	$1.00 美元 (文字)
+輸出價格	不適用	$20.00 美元 (音訊)
+用於改善 Google 產品	是	否
+Gemini 2.0 Flash
+在 Google AI Studio 中試用
+
+這是我們最平衡的多模態模型，在所有工作中皆有出色表現，脈絡窗口為 100 萬個符號，專為 Agents 時代打造。
+
+免費方案	付費等級，每 100 萬個符記的美元費用
+輸入價格	無須支付費用	$0.10 美元 (文字 / 圖片 / 影片)
+$0.70 美元 (音訊)
+輸出價格	無須支付費用	$0.40 美元
+脈絡快取價格	無須支付費用	$0.025 美元 / 1,000,000 個符記 (文字/圖片/影片)
+$0.175 美元 / 1,000,000 個符記 (音訊)
+脈絡快取 (儲存空間)	免費，每小時最多可儲存 1,000,000 個符記	每小時 $1.00 美元 / 1,000,000 個符記
+圖像生成功能的定價	無須支付費用	每張圖片 $0.039 美元*
+調整價格	不適用	不適用
+利用 Google 搜尋建立基準	免費，最多 500 RPD	1,500 RPD (免費)，之後每 1,000 個要求 $35 美元
+Live API	無須支付費用	輸入：$0.35 美元 (文字)、$2.10 美元 (音訊 / 圖片 [影片])
+輸出：$1.50 美元 (文字)、$8.50 美元 (音訊)
+用於改善 Google 產品	是	否
+[*] 圖片輸出價格為每 1,000,000 個符記 $30 美元。輸出圖片大小上限為 1024 x 1024 像素，會消耗 1290 個符記，相當於每張圖片 0.039 美元。
+
+Gemini 2.0 Flash-Lite
+在 Google AI Studio 中試用
+
+這是我們最小、最具成本效益的模型，專為大規模使用而建構。
+
+免費方案	付費等級，每 100 萬個符記的美元費用
+輸入價格	無須支付費用	$0.075 美元
+輸出價格	無須支付費用	$0.30 美元
+脈絡快取價格	不適用	不適用
+脈絡快取 (儲存空間)	不適用	不適用
+調整價格	不適用	不適用
+利用 Google 搜尋建立基準	不適用	不適用
+用於改善 Google 產品	是	否
+Imagen 3
+在 Google AI Studio 中試用
+
+這是我們最先進的圖片生成模型，適用於 Gemini API 付費等級的開發人員。
+
+免費方案	付費方案，每張圖片的美元價格
+圖片價格	不適用	$0.03
+用於改善 Google 產品	是	否
+Veo 2
+試用 API
+
+這是我們最先進的影片生成模型，可供 Gemini API 付費層級的開發人員使用。
+
+免費方案	付費級別，以美元計費的每秒費用
+影片價格	不適用	$0.35 美元
+用於改善 Google 產品	是	否
+Gemma 3
+試用 Gemma 3
+
+這是一款輕量級的先進開放式模型，採用與 Gemini 模型相同的技術打造而成。
+
+免費方案	付費等級，每 100 萬個符記的美元費用
+輸入價格	無須支付費用	不適用
+輸出價格	無須支付費用	不適用
+脈絡快取價格	無須支付費用	不適用
+脈絡快取 (儲存空間)	無須支付費用	不適用
+調整價格	不適用	不適用
+利用 Google 搜尋建立基準	不適用	不適用
+用於改善 Google 產品	是	否
+Gemma 3n
+試用 Gemma 3n
+
+我們的開放式模型可在手機、筆電和平板電腦等日常裝置上，提供高效的效能。
+
+免費方案	付費等級，每 100 萬個符記的美元費用
+輸入價格	無須支付費用	不適用
+輸出價格	無須支付費用	不適用
+脈絡快取價格	無須支付費用	不適用
+脈絡快取 (儲存空間)	無須支付費用	不適用
+調整價格	不適用	不適用
+利用 Google 搜尋建立基準	不適用	不適用
+用於改善 Google 產品	是	否
+Gemini 1.5 Flash
+在 Google AI Studio 中試用
+
+這是我們最快的多模態模型，可處理各種重複性任務，脈絡窗口為 100 萬個符記。
+
+免費方案	付費等級，每 100 萬個符記的美元費用
+輸入價格	無須支付費用	$0.075 美元，提示值 <= 128k 個符記
+$0.15 美元，提示值 > 128k 個符記
+輸出價格	無須支付費用	$0.30 美元，提示值 <= 128k 個符記
+$0.60 美元，提示值 > 128k 個符記
+脈絡快取價格	免付費，每小時最多可儲存 100 萬個符記	$0.01875，提示 <= 128k 個符記
+$0.0375，提示 > 128k 個符記
+脈絡快取 (儲存空間)	無須支付費用	每小時 $1.00 美元
+調整價格	符記價格適用於經過調校的模型
+調校服務不收費。	符記價格適用於經過調校的模型
+調校服務不收費。
+利用 Google 搜尋建立基準	不適用	$35 美元 / 1,000 次申請
+用於改善 Google 產品	是	否
+Gemini 1.5 Flash-8B
+在 Google AI Studio 中試用
+
+這是最小型的模型，適用於較低層級的智慧用途，且支援 100 萬個符號的脈絡窗口。
+
+免費方案	付費等級，每 100 萬個符記的美元費用
+輸入價格	無須支付費用	$0.0375 美元，提示值 <= 128k 個符記
+$0.075 美元，提示值 > 128k 個符記
+輸出價格	無須支付費用	$0.15 美元，提示值 <= 128k 個符記
+$0.30 美元，提示值 > 128k 個符記
+脈絡快取價格	免付費，每小時最多可儲存 100 萬個符記	$0.01，提示值 <= 128k 個符記
+$0.02，提示值 > 128k 個符記
+脈絡快取 (儲存空間)	無須支付費用	每小時 $0.25 美元
+調整價格	符記價格適用於經過調校的模型
+調校服務不收費。	符記價格適用於經過調校的模型
+調校服務不收費。
+利用 Google 搜尋建立基準	不適用	$35 美元 / 1,000 次申請
+用於改善 Google 產品	是	否
+Gemini 1.5 Pro
+在 Google AI Studio 中試用
+
+我們最先進的 Gemini 1.5 系列模型，脈絡窗口突破性達到 200 萬個符記。
+
+免費方案	付費等級，每 100 萬個符記的美元費用
+輸入價格	無須支付費用	$1.25 美元，提示值 <= 128k 個符記
+$2.50 美元，提示值 > 128k 個符記
+輸出價格	無須支付費用	$5.00，提示 <= 128k 個符記
+$10.00，提示 > 128k 個符記
+脈絡快取價格	不適用	$0.3125，提示值 <= 128k 個符記
+$0.625，提示值 > 128k 個符記
+脈絡快取 (儲存空間)	不適用	每小時 $4.50 美元
+調整價格	不適用	不適用
+利用 Google 搜尋建立基準	不適用	$35 美元 / 1,000 次申請
+用於改善 Google 產品	是	否
+文字嵌入 004
+我們先進的文字嵌入模型。
+
+免費方案	付費等級，每 100 萬個符記的美元費用
+輸入價格	無須支付費用	不適用
+輸出價格	無須支付費用	不適用
+調整價格	不適用	不適用
+用於改善 Google 產品	是	否
+[*] 所有適用地區均可免費使用 Google AI Studio。詳情請參閱帳單常見問題。
+
+[**] 價格可能與此處列出的價格和 Vertex AI 提供的價格不同。如需瞭解 Vertex 的價格，請參閱 Vertex AI 定價頁面。
+
+[***] 如果您使用動態擷取功能來降低成本，只有要求回覆中包含至少一個來自網路的基準支援網址時，才會收取「以 Google 搜尋建立基準」的費用。使用 Gemini 一律須支付費用。費率限制可能會變動。
+
+除非另有註明，否則本頁面中的內容是採用創用 CC 姓名標示 4.0 授權，程式碼範例則為阿帕契 2.0 授權。詳情請參閱《Google Developers 網站政策》。Java 是 Oracle 和/或其關聯企業的註冊商標。
+
+上次更新時間：2025-06-23 (世界標準時間)。
+
+
+
+
+// To run this code you need to install the following dependencies:
+// npm install @google/genai mime
+// npm install -D @types/node
+
+import {
+  GoogleGenAI,
+} from '@google/genai';
+
+async function main() {
+  const ai = new GoogleGenAI({
+    apiKey: process.env.GEMINI_API_KEY,
+  });
+  const config = {
+    thinkingConfig: {
+      thinkingBudget: -1,
+    },
+    responseMimeType: 'text/plain',
+  };
+  const model = 'gemini-2.5-pro';
+  const contents = [
+    {
+      role: 'user',
+      parts: [
+        {
+          text: `INSERT_INPUT_HERE`,
+        },
+      ],
+    },
+  ];
+
+  const response = await ai.models.generateContentStream({
+    model,
+    config,
+    contents,
+  });
+  let fileIndex = 0;
+  for await (const chunk of response) {
+    console.log(chunk.text);
+  }
+}
+
+main();
+
+
+
+
+@google/genai
+Google Gen AI SDK for TypeScript and JavaScript
+NPM Downloads Node Current
+
+Documentation: https://googleapis.github.io/js-genai/
+
+The Google Gen AI JavaScript SDK is designed for TypeScript and JavaScript developers to build applications powered by Gemini. The SDK supports both the Gemini Developer API and Vertex AI.
+
+The Google Gen AI SDK is designed to work with Gemini 2.0 features.
+
+Caution
+API Key Security: Avoid exposing API keys in client-side code. Use server-side implementations in production environments.
+
+Prerequisites
+Node.js version 20 or later
+The following are required for Vertex AI users (excluding Vertex AI Studio)
+Select or create a Google Cloud project.
+
+Enable billing for your project.
+
+Enable the Vertex AI API.
+
+Configure authentication for your project.
+
+Install the gcloud CLI.
+Initialize the gcloud CLI.
+Create local authentication credentials for your user account:
+gcloud auth application-default login
+Copy
+A list of accepted authentication options are listed in GoogleAuthOptions interface of google-auth-library-node.js GitHub repo.
+
+Installation
+To install the SDK, run the following command:
+
+npm install @google/genai
+Copy
+Quickstart
+The simplest way to get started is to use an API key from Google AI Studio:
+
+import {GoogleGenAI} from '@google/genai';
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+const ai = new GoogleGenAI({apiKey: GEMINI_API_KEY});
+
+async function main() {
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.0-flash-001',
+    contents: 'Why is the sky blue?',
+  });
+  console.log(response.text);
+}
+
+main();
+Copy
+Initialization
+The Google Gen AI SDK provides support for both the Google AI Studio and Vertex AI implementations of the Gemini API.
+
+Gemini Developer API
+For server-side applications, initialize using an API key, which can be acquired from Google AI Studio:
+
+import { GoogleGenAI } from '@google/genai';
+const ai = new GoogleGenAI({apiKey: 'GEMINI_API_KEY'});
+Copy
+Browser
+Caution
+API Key Security: Avoid exposing API keys in client-side code. Use server-side implementations in production environments.
+
+In the browser the initialization code is identical:
+
+import { GoogleGenAI } from '@google/genai';
+const ai = new GoogleGenAI({apiKey: 'GEMINI_API_KEY'});
+Copy
+Vertex AI
+Sample code for VertexAI initialization:
+
+import { GoogleGenAI } from '@google/genai';
+
+const ai = new GoogleGenAI({
+    vertexai: true,
+    project: 'your_project',
+    location: 'your_location',
+});
+Copy
+(Optional) (NodeJS only) Using environment variables:
+For NodeJS environments, you can create a client by configuring the necessary environment variables. Configuration setup instructions depends on whether you're using the Gemini Developer API or the Gemini API in Vertex AI.
+
+Gemini Developer API: Set GOOGLE_API_KEY as shown below:
+
+export GOOGLE_API_KEY='your-api-key'
+Copy
+Gemini API on Vertex AI: Set GOOGLE_GENAI_USE_VERTEXAI, GOOGLE_CLOUD_PROJECT and GOOGLE_CLOUD_LOCATION, as shown below:
+
+export GOOGLE_GENAI_USE_VERTEXAI=true
+export GOOGLE_CLOUD_PROJECT='your-project-id'
+export GOOGLE_CLOUD_LOCATION='us-central1'
+Copy
+import {GoogleGenAI} from '@google/genai';
+
+const ai = new GoogleGenAI();
+Copy
+API Selection
+By default, the SDK uses the beta API endpoints provided by Google to support preview features in the APIs. The stable API endpoints can be selected by setting the API version to v1.
+
+To set the API version use apiVersion. For example, to set the API version to v1 for Vertex AI:
+
+const ai = new GoogleGenAI({
+    vertexai: true,
+    project: 'your_project',
+    location: 'your_location',
+    apiVersion: 'v1'
+});
+Copy
+To set the API version to v1alpha for the Gemini Developer API:
+
+const ai = new GoogleGenAI({
+    apiKey: 'GEMINI_API_KEY',
+    apiVersion: 'v1alpha'
+});
+Copy
+GoogleGenAI overview
+All API features are accessed through an instance of the GoogleGenAI classes. The submodules bundle together related API methods:
+
+ai.models: Use models to query models (generateContent, generateImages, ...), or examine their metadata.
+ai.caches: Create and manage caches to reduce costs when repeatedly using the same large prompt prefix.
+ai.chats: Create local stateful chat objects to simplify multi turn interactions.
+ai.files: Upload files to the API and reference them in your prompts. This reduces bandwidth if you use a file many times, and handles files too large to fit inline with your prompt.
+ai.live: Start a live session for real time interaction, allows text + audio + video input, and text or audio output.
+Samples
+More samples can be found in the github samples directory.
+
+Streaming
+For quicker, more responsive API interactions use the generateContentStream method which yields chunks as they're generated:
+
+import {GoogleGenAI} from '@google/genai';
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+const ai = new GoogleGenAI({apiKey: GEMINI_API_KEY});
+
+async function main() {
+  const response = await ai.models.generateContentStream({
+    model: 'gemini-2.0-flash-001',
+    contents: 'Write a 100-word poem.',
+  });
+  for await (const chunk of response) {
+    console.log(chunk.text);
+  }
+}
+
+main();
+Copy
+Function Calling
+To let Gemini to interact with external systems, you can provide provide functionDeclaration objects as tools. To use these tools it's a 4 step
+
+Declare the function name, description, and parameters
+Call generateContent with function calling enabled
+Use the returned FunctionCall parameters to call your actual function
+Send the result back to the model (with history, easier in ai.chat) as a FunctionResponse
+import {GoogleGenAI, FunctionCallingConfigMode, FunctionDeclaration, Type} from '@google/genai';
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+async function main() {
+  const controlLightDeclaration: FunctionDeclaration = {
+    name: 'controlLight',
+    parameters: {
+      type: Type.OBJECT,
+      description: 'Set the brightness and color temperature of a room light.',
+      properties: {
+        brightness: {
+          type: Type.NUMBER,
+          description:
+              'Light level from 0 to 100. Zero is off and 100 is full brightness.',
+        },
+        colorTemperature: {
+          type: Type.STRING,
+          description:
+              'Color temperature of the light fixture which can be `daylight`, `cool`, or `warm`.',
+        },
+      },
+      required: ['brightness', 'colorTemperature'],
+    },
+  };
+
+  const ai = new GoogleGenAI({apiKey: GEMINI_API_KEY});
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.0-flash-001',
+    contents: 'Dim the lights so the room feels cozy and warm.',
+    config: {
+      toolConfig: {
+        functionCallingConfig: {
+          // Force it to call any function
+          mode: FunctionCallingConfigMode.ANY,
+          allowedFunctionNames: ['controlLight'],
+        }
+      },
+      tools: [{functionDeclarations: [controlLightDeclaration]}]
+    }
+  });
+
+  console.log(response.functionCalls);
+}
+
+main();
+Copy
+Generate Content
+How to structure contents argument for generateContent
+The SDK allows you to specify the following types in the contents parameter:
+
+Content
+Content: The SDK will wrap the singular Content instance in an array which contains only the given content instance
+Content[]: No transformation happens
+Part
+Parts will be aggregated on a singular Content, with role 'user'.
+
+Part | string: The SDK will wrap the string or Part in a Content instance with role 'user'.
+Part[] | string[]: The SDK will wrap the full provided list into a single Content with role 'user'.
+NOTE: This doesn't apply to FunctionCall and FunctionResponse parts, if you are specifying those, you need to explicitly provide the full Content[] structure making it explicit which Parts are 'spoken' by the model, or the user. The SDK will throw an exception if you try this.
+
+How is this different from the other Google AI SDKs
+This SDK (@google/genai) is Google Deepmind’s "vanilla" SDK for its generative AI offerings, and is where Google Deepmind adds new AI features.
+
+Models hosted either on the Vertex AI platform or the Gemini Developer platform are accessible through this SDK.
+
+Other SDKs may be offering additional AI frameworks on top of this SDK, or may be targeting specific project environments (like Firebase).
+
+The @google/generative_language and @google-cloud/vertexai SDKs are previous iterations of this SDK and are no longer receiving new Gemini 2.0+ features.
+
+
+ 本頁面由 Cloud Translation API 翻譯而成。
+Switch to English
+首頁
+Gemini API
+模型
+這對你有幫助嗎？
+
+提供意見Gemini API 快速入門導覽課程
+
+本快速入門說明如何安裝程式庫，並發出第一個 Gemini API 要求。
+
+事前準備
+您需要 Gemini API 金鑰。如果您還沒有金鑰，可以在 Google AI Studio 免費取得。
+
+安裝 Google Gen AI SDK
+Python
+JavaScript
+Go
+Java
+Apps Script
+使用 Node.js 18 以上版本，請使用下列 npm 指令安裝 Google Gen AI SDK for TypeScript and JavaScript：
+
+
+npm install @google/genai
+提出第一個要求
+以下範例使用 generateContent 方法，透過 Gemini 2.5 Flash 模型傳送要求至 Gemini API。
+
+Python
+JavaScript
+Go
+Java
+Apps Script
+REST
+
+import { GoogleGenAI } from "@google/genai";
+
+const ai = new GoogleGenAI({});
+
+async function main() {
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: "Explain how AI works in a few words",
+  });
+  console.log(response.text);
+}
+
+main();
+許多程式碼範例預設為啟用「Thinking」
+本網站上的許多程式碼範例都使用 Gemini 2.5 Flash 模型，這個模型預設啟用「思考」功能，可提升回覆品質。請注意，這可能會增加回應時間和符記用量。如果您重視速度或希望降低成本，可以將思考預算設為零來停用這項功能，如以下範例所示。詳情請參閱思考指南。
+
+注意： 思考功能僅適用於 Gemini 2.5 系列模型，且無法在 Gemini 2.5 Pro 上停用。
+Python
+JavaScript
+Go
+REST
+Apps Script
+
+import { GoogleGenAI } from "@google/genai";
+
+const ai = new GoogleGenAI({});
+
+async function main() {
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: "Explain how AI works in a few words",
+    config: {
+      thinkingConfig: {
+        thinkingBudget: 0, // Disables thinking
+      },
+    }
+  });
+  console.log(response.text);
+}
+
+await main();
+後續步驟
+您已完成第一個 API 要求，建議您參閱下列指南，瞭解 Gemini 的運作方式：
+
+思考
+產生文字
+視覺輔助
+長篇脈絡
+Gemini 思考
+
+Gemini 2.5 系列模型採用內部「思考過程」，大幅提升推理和多步驟規劃能力，因此在編碼、進階數學和資料分析等複雜工作上，能發揮極高的效能。
+
+本指南將說明如何使用 Gemini API 運用 Gemini 的思考功能。
+
+事前準備
+請務必使用支援的 2.5 系列模型進行思考。在深入研究 API 之前，建議您先在 AI Studio 中探索這些模型：
+
+在 AI 工作室中試用 Gemini 2.5 Flash
+在 AI Studio 中試用 Gemini 2.5 Pro
+在 AI Studio 中試用 Gemini 2.5 Flash-Lite 預覽版
+思考後產生內容
+使用思考模型發出要求的做法，與任何其他內容產生要求類似。主要差異在於您必須在 model 欄位中指定一個具備思考支援功能的模型，如以下文字產生範例所示：
+
+Python
+JavaScript
+Go
+REST
+
+import { GoogleGenAI } from "@google/genai";
+
+const ai = new GoogleGenAI({});
+
+async function main() {
+  const prompt = "Explain the concept of Occam's Razor and provide a simple, everyday example.";
+
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-pro",
+    contents: prompt,
+  });
+
+  console.log(response.text);
+}
+
+main();
+思考預算
+thinkingBudget 參數可引導模型在產生回覆時，使用思考符號的數量。詞元數量越高，推理通常就越精細，有助於處理更複雜的工作。如果延遲時間更重要，請使用較低的預算，或是將 thinkingBudget 設為 0 來停用思考功能。將 thinkingBudget 設為 -1 會啟用動態思考功能，也就是說模型會根據要求的複雜度調整預算。
+
+thinkingBudget 僅支援 Gemini 2.5 Flash、2.5 Pro 和 2.5 Flash-Lite。視提示而定，模型可能會超出或低於符號集預算。
+
+以下是各模型類型的 thinkingBudget 設定詳細資料。
+
+模型	預設設定
+(未設定思考預算)	範圍	停用思考功能	啟用動態思考
+2.5 Pro	動態思考：模型決定思考的時機和程度	128 至 32768	不適用：無法停用思考	thinkingBudget = -1
+2.5 Flash	動態思考：模型決定思考的時機和程度	0 至 24576	thinkingBudget = 0	thinkingBudget = -1
+2.5 Flash Lite	模型不會思考	512 至 24576	thinkingBudget = 0	thinkingBudget = -1
+Python
+JavaScript
+Go
+REST
+
+import { GoogleGenAI } from "@google/genai";
+
+const ai = new GoogleGenAI({});
+
+async function main() {
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-pro",
+    contents: "Provide a list of 3 famous physicists and their key contributions",
+    config: {
+      thinkingConfig: {
+        thinkingBudget: 1024,
+        // Turn off thinking:
+        // thinkingBudget: 0
+        // Turn on dynamic thinking:
+        // thinkingBudget: -1
+      },
+    },
+  });
+
+  console.log(response.text);
+}
+
+main();
+思想摘要
+想法摘要是模型原始想法的合成版本，可提供模型內部推理過程的洞察資料。請注意，思考預算會套用至模型的原始想法，而非想法摘要。
+
+您可以在要求設定中將 includeThoughts 設為 true，啟用思想摘要。接著，您可以透過重複執行 response 參數的 parts，並檢查 thought 布林值，存取摘要。
+
+以下範例說明如何在未啟用串流的情況下啟用及擷取思想摘要，這會透過回應傳回單一最終思想摘要：
+
+Python
+JavaScript
+Go
+
+import { GoogleGenAI } from "@google/genai";
+
+const ai = new GoogleGenAI({});
+
+async function main() {
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-pro",
+    contents: "What is the sum of the first 50 prime numbers?",
+    config: {
+      thinkingConfig: {
+        includeThoughts: true,
+      },
+    },
+  });
+
+  for (const part of response.candidates[0].content.parts) {
+    if (!part.text) {
+      continue;
+    }
+    else if (part.thought) {
+      console.log("Thoughts summary:");
+      console.log(part.text);
+    }
+    else {
+      console.log("Answer:");
+      console.log(part.text);
+    }
+  }
+}
+
+main();
+
+以下是使用串流思考方式的範例，可在產生期間傳回滾動式增量摘要：
+
+Python
+JavaScript
+Go
+
+import { GoogleGenAI } from "@google/genai";
+
+const ai = new GoogleGenAI({});
+
+const prompt = `Alice, Bob, and Carol each live in a different house on the same
+street: red, green, and blue. The person who lives in the red house owns a cat.
+Bob does not live in the green house. Carol owns a dog. The green house is to
+the left of the red house. Alice does not own a cat. Who lives in each house,
+and what pet do they own?`;
+
+let thoughts = "";
+let answer = "";
+
+async function main() {
+  const response = await ai.models.generateContentStream({
+    model: "gemini-2.5-pro",
+    contents: prompt,
+    config: {
+      thinkingConfig: {
+        includeThoughts: true,
+      },
+    },
+  });
+
+  for await (const chunk of response) {
+    for (const part of chunk.candidates[0].content.parts) {
+      if (!part.text) {
+        continue;
+      } else if (part.thought) {
+        if (!thoughts) {
+          console.log("Thoughts summary:");
+        }
+        console.log(part.text);
+        thoughts = thoughts + part.text;
+      } else {
+        if (!answer) {
+          console.log("Answer:");
+        }
+        console.log(part.text);
+        answer = answer + part.text;
+      }
+    }
+  }
+}
+
+await main();
+定價
+注意： 摘要可在 API 的免付費和付費層級中使用。
+啟用思考功能後，回應定價就是輸出符記和思考符記的總和。您可以從 thoughtsTokenCount 欄位取得產生的思考符記總數。
+
+Python
+JavaScript
+Go
+
+// ...
+console.log(`Thoughts tokens: ${response.usageMetadata.thoughtsTokenCount}`);
+console.log(`Output tokens: ${response.usageMetadata.candidatesTokenCount}`);
+思考模型會產生完整的思考內容，以提升最終回覆的品質，然後輸出摘要，提供思考過程的洞察資料。因此，定價會以模型建立摘要時需要產生的完整思想符記為依據，即使 API 只輸出摘要也一樣。
+
+如要進一步瞭解權杖，請參閱「權杖計數」指南。
+
+支援的模型
+所有 2.5 系列機型都支援思考功能。您可以在模型總覽頁面上找到所有模型功能。
+
+最佳做法
+本節提供一些指引，說明如何有效運用思考模式。一如往常，只要遵循我們的提示指南和最佳做法，就能獲得最佳成果。
+
+偵錯和轉向
+查看推論：如果思考模型未提供預期的回應，建議仔細分析 Gemini 的推論摘要。您可以查看系統如何分解工作並得出結論，並利用這些資訊修正正確的結果。
+
+提供推理指引：如果您希望輸出內容特別長，建議您在提示中提供指引，以限制模型使用的思考量。這樣一來，您就能為回應保留更多符號輸出內容。
+
+工作複雜度
+簡單工作 (思考可能關閉)：如果是不需要複雜推理，例如擷取事實或分類的簡單要求，則不需要思考。例如：
+「DeepMind 的創辦地點在哪裡？」
+「這封電子郵件是要求開會，還是只是提供資訊？」
+中等工作 (預設/部分思考)：許多常見要求都需要逐步處理或深入瞭解。Gemini 可靈活運用思考功能處理以下工作：
+將光合作用和生長過程做類比。
+比較電動汽車和油電混合車。
+困難任務 (最大思考能力)：對於真正複雜的挑戰，例如解決複雜的數學問題或程式碼編寫工作，建議設定較高的思考預算。這類工作需要模型充分發揮推理和規劃能力，通常在提供答案前會涉及許多內部步驟。例如：
+解答 AIME 2025 問題 1：找出所有大於 9 的整數基底 b，其中 17b 是 97b 的除數。
+為網頁應用程式編寫 Python 程式碼，以便將即時股票市場資料 (包括使用者驗證) 以圖形呈現。盡可能提高效率。
+運用工具和功能思考
+思考模型可搭配 Gemini 的所有工具和功能使用。這可讓模型與外部系統互動、執行程式碼或存取即時資訊，並將結果納入推理和最終回應。
+
+搜尋工具可讓模型查詢 Google 搜尋，找出最新資訊或訓練資料以外的資訊。這類問題適用於近期事件或非常具體的主題。
+
+程式碼執行工具可讓模型生成及執行 Python 程式碼，以便執行運算、操控資料，或解決以演算法最佳處理的問題。模型會接收程式碼的輸出內容，並可在回應中使用該輸出內容。
+
+您可以使用結構化輸出，限制 Gemini 以 JSON 回應。這對於將模型輸出內容整合至應用程式特別實用。
+
+函式呼叫可將思考模型連結至外部工具和 API，進而推斷何時呼叫正確的函式，以及要提供哪些參數。
+
+網址內容會將網址提供給模型，做為提示的額外內容。模型就能從網址擷取內容，並利用這些內容提供回應。
+
+您可以參考思考教戰手冊中的範例，瞭解如何使用工具搭配思考模式。
+
+後續步驟
+如要進一步瞭解其他範例，請參考以下內容：
+
+使用工具思考
+思考串流
+根據不同結果調整思考預算
+等內容，歡迎試試我們的思考食譜。
+
+思考涵蓋範圍現已納入 OpenAI 相容性指南。
+
+如要進一步瞭解 Gemini 2.5 Pro、Gemini Flash 2.5 和 Gemini 2.5 Flash-Lite，請參閱模型頁面。
+
+這對你有幫助嗎？
+首頁
+Gemini API
+模型
+這對你有幫助嗎？
+
+提供意見文字生成
+
+Gemini API 可利用 Gemini 模型，從各種輸入內容 (包括文字、圖片、影片和音訊) 產生文字輸出內容。
+
+以下是採用單一文字輸入內容的基本範例：
+
+Python
+JavaScript
+Go
+REST
+Apps Script
+
+import { GoogleGenAI } from "@google/genai";
+
+const ai = new GoogleGenAI({});
+
+async function main() {
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: "How does AI work?",
+  });
+  console.log(response.text);
+}
+
+await main();
+
+使用 Gemini 2.5 思考
+2.5 Flash 和 Pro 模型預設啟用「思考」功能，以提升品質，但可能會導致執行時間拉長，並增加符記用量。
+
+使用 2.5 Flash 時，您可以將思考預算設為零，藉此停用思考功能。
+
+詳情請參閱思考指南。
+
+Python
+JavaScript
+Go
+REST
+Apps Script
+
+import { GoogleGenAI } from "@google/genai";
+
+const ai = new GoogleGenAI({});
+
+async function main() {
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: "How does AI work?",
+    config: {
+      thinkingConfig: {
+        thinkingBudget: 0, // Disables thinking
+      },
+    }
+  });
+  console.log(response.text);
+}
+
+await main();
+系統操作說明和其他設定
+您可以透過系統指示引導 Gemini 模型的行為。如要這麼做，請傳遞 GenerateContentConfig 物件。
+
+Python
+JavaScript
+Go
+REST
+Apps Script
+
+import { GoogleGenAI } from "@google/genai";
+
+const ai = new GoogleGenAI({});
+
+async function main() {
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: "Hello there",
+    config: {
+      systemInstruction: "You are a cat. Your name is Neko.",
+    },
+  });
+  console.log(response.text);
+}
+
+await main();
+GenerateContentConfig 物件還可讓您覆寫預設產生參數，例如溫度。
+
+Python
+JavaScript
+Go
+REST
+Apps Script
+
+import { GoogleGenAI } from "@google/genai";
+
+const ai = new GoogleGenAI({});
+
+async function main() {
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: "Explain how AI works",
+    config: {
+      temperature: 0.1,
+    },
+  });
+  console.log(response.text);
+}
+
+await main();
+如需可設定參數和其說明的完整清單，請參閱 API 參考資料中的 GenerateContentConfig。
+
+多模態輸入
+Gemini API 支援多模態輸入內容，可讓您將文字與媒體檔案結合。以下範例說明如何提供圖片：
+
+Python
+JavaScript
+Go
+REST
+Apps Script
+
+import {
+  GoogleGenAI,
+  createUserContent,
+  createPartFromUri,
+} from "@google/genai";
+
+const ai = new GoogleGenAI({});
+
+async function main() {
+  const image = await ai.files.upload({
+    file: "/path/to/organ.png",
+  });
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: [
+      createUserContent([
+        "Tell me about this instrument",
+        createPartFromUri(image.uri, image.mimeType),
+      ]),
+    ],
+  });
+  console.log(response.text);
+}
+
+await main();
+如要瞭解提供圖片的其他方法，以及更進階的圖片處理作業，請參閱圖像理解指南。這個 API 也支援文件、影片和音訊輸入內容和理解。
+
+串流回應
+根據預設，模型只會在整個生成程序完成後傳回回覆。
+
+如要提供更流暢的互動體驗，請使用串流功能，在 GenerateContentResponse 例項產生時，逐漸接收這些例項。
+
+Python
+JavaScript
+Go
+REST
+Apps Script
+
+import { GoogleGenAI } from "@google/genai";
+
+const ai = new GoogleGenAI({});
+
+async function main() {
+  const response = await ai.models.generateContentStream({
+    model: "gemini-2.5-flash",
+    contents: "Explain how AI works",
+  });
+
+  for await (const chunk of response) {
+    console.log(chunk.text);
+  }
+}
+
+await main();
+多輪對話 (聊天)
+我們的 SDK 提供功能，可將多輪提示和回覆收集到聊天中，讓您輕鬆追蹤對話記錄。
+
+注意： 即時通訊功能僅會在 SDK 中實作。但在幕後，它仍會使用 generateContent API。對於多輪對話，系統會在每個後續回合中，將完整的對話記錄傳送至模型。
+Python
+JavaScript
+Go
+REST
+Apps Script
+
+import { GoogleGenAI } from "@google/genai";
+
+const ai = new GoogleGenAI({});
+
+async function main() {
+  const chat = ai.chats.create({
+    model: "gemini-2.5-flash",
+    history: [
+      {
+        role: "user",
+        parts: [{ text: "Hello" }],
+      },
+      {
+        role: "model",
+        parts: [{ text: "Great to meet you. What would you like to know?" }],
+      },
+    ],
+  });
+
+  const response1 = await chat.sendMessage({
+    message: "I have 2 dogs in my house.",
+  });
+  console.log("Chat response 1:", response1.text);
+
+  const response2 = await chat.sendMessage({
+    message: "How many paws are in my house?",
+  });
+  console.log("Chat response 2:", response2.text);
+}
+
+await main();
+也可以用於多輪對話。
+
+Python
+JavaScript
+Go
+REST
+Apps Script
+
+import { GoogleGenAI } from "@google/genai";
+
+const ai = new GoogleGenAI({});
+
+async function main() {
+  const chat = ai.chats.create({
+    model: "gemini-2.5-flash",
+    history: [
+      {
+        role: "user",
+        parts: [{ text: "Hello" }],
+      },
+      {
+        role: "model",
+        parts: [{ text: "Great to meet you. What would you like to know?" }],
+      },
+    ],
+  });
+
+  const stream1 = await chat.sendMessageStream({
+    message: "I have 2 dogs in my house.",
+  });
+  for await (const chunk of stream1) {
+    console.log(chunk.text);
+    console.log("_".repeat(80));
+  }
+
+  const stream2 = await chat.sendMessageStream({
+    message: "How many paws are in my house?",
+  });
+  for await (const chunk of stream2) {
+    console.log(chunk.text);
+    console.log("_".repeat(80));
+  }
+}
+
+await main();
+支援的模型
+Gemini 系列中的所有模型都支援文字生成功能。如要進一步瞭解模型及其功能，請參閱「模型」頁面。
+
+最佳做法
+提示訣竅
+對於基本文字生成作業，只要使用零樣本提示就足以完成，不需要範例、系統指示或特定格式。
+
+如需更貼近需求的輸出內容：
+
+使用系統指示來引導模型。
+提供一些輸入和輸出範例，引導模型。這通常稱為「少量樣本」提示。
+如需更多提示，請參閱提示工程指南。
+
+結構化輸出內容
+在某些情況下，您可能需要結構化輸出內容，例如 JSON。詳情請參閱結構化輸出內容指南。
+
+後續步驟
+請試試Gemini API 的 Colab 入門指南。
+探索 Gemini 的圖片、影片、音訊和文件理解能力。
+瞭解多模態檔案提示策略。
+這對你有幫助嗎？
+首頁
+Gemini API
+模型
+這對你有幫助嗎？
+
+提供意見圖像理解
+
+Gemini 模型從一開始就建構於多模態的基礎上，因此可執行各式各樣的圖像處理和電腦視覺工作，包括圖像說明、分類和圖像問題解答等，而且不需要訓練專門的機器學習模型。
+
+提示： 除了一般多模態功能外，Gemini 模型 (2.0 以上版本) 還可透過額外訓練，針對物件偵測和分割等特定用途提供更高準確度。詳情請參閱「功能」一節。
+將圖片傳送至 Gemini
+您可以透過兩種方式將圖片做為 Gemini 的輸入內容：
+
+傳遞內嵌圖片資料：適合較小的檔案 (總要求大小小於 20 MB，包括提示)。
+使用 File API 上傳圖片：建議用於上傳較大的檔案，或在多項要求中重複使用圖片。
+傳遞內嵌圖片資料
+您可以在要求中傳遞內嵌圖片資料至 generateContent。您可以將圖片資料以 Base64 編碼字串的形式提供，也可以直接讀取本機檔案 (視語言而定)。
+
+以下範例說明如何從本機檔案讀取圖片，並將圖片傳遞至 generateContent API 進行處理。
+
+Python
+JavaScript
+Go
+REST
+
+import { GoogleGenAI } from "@google/genai";
+import * as fs from "node:fs";
+
+const ai = new GoogleGenAI({});
+const base64ImageFile = fs.readFileSync("path/to/small-sample.jpg", {
+  encoding: "base64",
+});
+
+const contents = [
+  {
+    inlineData: {
+      mimeType: "image/jpeg",
+      data: base64ImageFile,
+    },
+  },
+  { text: "Caption this image." },
+];
+
+const response = await ai.models.generateContent({
+  model: "gemini-2.5-flash",
+  contents: contents,
+});
+console.log(response.text);
+您也可以從網址擷取圖片、將圖片轉換為位元組，然後傳遞至 generateContent，如以下範例所示。
+
+Python
+JavaScript
+Go
+REST
+
+import { GoogleGenAI } from "@google/genai";
+
+async function main() {
+  const ai = new GoogleGenAI({});
+
+  const imageUrl = "https://goo.gle/instrument-img";
+
+  const response = await fetch(imageUrl);
+  const imageArrayBuffer = await response.arrayBuffer();
+  const base64ImageData = Buffer.from(imageArrayBuffer).toString('base64');
+
+  const result = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: [
+    {
+      inlineData: {
+        mimeType: 'image/jpeg',
+        data: base64ImageData,
+      },
+    },
+    { text: "Caption this image." }
+  ],
+  });
+  console.log(result.text);
+}
+
+main();
+注意： 內嵌圖片資料會將要求總大小 (文字提示、系統指示和內嵌位元組) 限制在 20 MB 以內。如要處理較大的請求，請使用 File API 上傳圖片檔案。對於需要重複使用相同圖片的情況，Files API 的效率也更高。
+使用 File API 上傳圖片
+如果是大型檔案，或需要重複使用相同的圖片檔案，請使用 Files API。以下程式碼會上傳圖片檔案，然後在對 generateContent 的呼叫中使用該檔案。詳情請參閱 Files API 指南。
+
+Python
+JavaScript
+Go
+REST
+
+import {
+  GoogleGenAI,
+  createUserContent,
+  createPartFromUri,
+} from "@google/genai";
+
+const ai = new GoogleGenAI({});
+
+async function main() {
+  const myfile = await ai.files.upload({
+    file: "path/to/sample.jpg",
+    config: { mimeType: "image/jpeg" },
+  });
+
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: createUserContent([
+      createPartFromUri(myfile.uri, myfile.mimeType),
+      "Caption this image.",
+    ]),
+  });
+  console.log(response.text);
+}
+
+await main();
+使用多張圖片提示
+您可以在 contents 陣列中加入多個圖片 Part 物件，在單一提示中提供多張圖片。這些資料可以是內嵌資料 (本機檔案或網址) 和 File API 參照資料的組合。
+
+Python
+JavaScript
+Go
+REST
+
+import {
+  GoogleGenAI,
+  createUserContent,
+  createPartFromUri,
+} from "@google/genai";
+import * as fs from "node:fs";
+
+const ai = new GoogleGenAI({});
+
+async function main() {
+  // Upload the first image
+  const image1_path = "path/to/image1.jpg";
+  const uploadedFile = await ai.files.upload({
+    file: image1_path,
+    config: { mimeType: "image/jpeg" },
+  });
+
+  // Prepare the second image as inline data
+  const image2_path = "path/to/image2.png";
+  const base64Image2File = fs.readFileSync(image2_path, {
+    encoding: "base64",
+  });
+
+  // Create the prompt with text and multiple images
+
+  const response = await ai.models.generateContent({
+
+    model: "gemini-2.5-flash",
+    contents: createUserContent([
+      "What is different between these two images?",
+      createPartFromUri(uploadedFile.uri, uploadedFile.mimeType),
+      {
+        inlineData: {
+          mimeType: "image/png",
+          data: base64Image2File,
+        },
+      },
+    ]),
+  });
+  console.log(response.text);
+}
+
+await main();
+物件偵測
+從 Gemini 2.0 起，模型會進一步接受訓練，以便偵測圖片中的物件，並取得定界框座標。相對於圖片尺寸的座標，縮放至 [0, 1000]。您必須根據原始圖片大小縮小這些座標。
+
+Python
+
+from google import genai
+from google.genai import types
+from PIL import Image
+import json
+
+client = genai.Client()
+prompt = "Detect the all of the prominent items in the image. The box_2d should be [ymin, xmin, ymax, xmax] normalized to 0-1000."
+
+image = Image.open("/path/to/image.png")
+
+config = types.GenerateContentConfig(
+  response_mime_type="application/json"
+  ) 
+
+response = client.models.generate_content(model="gemini-2.5-flash",
+                                          contents=[image, prompt],
+                                          config=config
+                                          )
+
+width, height = image.size
+bounding_boxes = json.loads(response.text)
+
+converted_bounding_boxes = []
+for bounding_box in bounding_boxes:
+    abs_y1 = int(bounding_box["box_2d"][0]/1000 * height)
+    abs_x1 = int(bounding_box["box_2d"][1]/1000 * width)
+    abs_y2 = int(bounding_box["box_2d"][2]/1000 * height)
+    abs_x2 = int(bounding_box["box_2d"][3]/1000 * width)
+    converted_bounding_boxes.append([abs_x1, abs_y1, abs_x2, abs_y2])
+
+print("Image size: ", width, height)
+print("Bounding boxes:", converted_bounding_boxes)
+
+注意： 模型也支援根據自訂指示產生定界框，例如：「顯示此圖片中所有綠色物件的定界框」。
+如需更多範例，請查看下列食譜：
+
+2D 空間理解筆記本
+實驗性 3D 指標筆記本
+區隔
+從 Gemini 2.5 開始，模型不僅會偵測項目，還會區隔項目並提供輪廓遮罩。
+
+模型會預測 JSON 清單，其中每個項目代表一個區隔遮罩。每個項目都有一個定界框 ("box_2d")，格式為 [y0, x0, y1, x1]，其規範化座標介於 0 和 1000 之間，標籤 ("label") 可識別物件，最後是定界框內的區隔遮罩，以 base64 編碼的 png 為基礎，這是值介於 0 和 255 之間的機率圖。遮罩的大小必須與邊界框尺寸相符，然後以可信度門檻 (中點為 127) 進行二值化。
+
+注意： 為獲得更出色的結果，請將思考預算設為 0，停用思考功能。請參閱下方的程式碼範例。
+Python
+
+from google import genai
+from google.genai import types
+from PIL import Image, ImageDraw    
+import io
+import base64
+import json
+import numpy as np
+import os    
+
+client = genai.Client()
+
+def parse_json(json_output: str):
+  # Parsing out the markdown fencing
+  lines = json_output.splitlines()
+  for i, line in enumerate(lines):
+      if line == "```json":
+          json_output = "\n".join(lines[i+1:])  # Remove everything before "```json"
+          json_output = json_output.split("```")[0]  # Remove everything after the closing "```"
+          break  # Exit the loop once "```json" is found
+  return json_output
+
+def extract_segmentation_masks(image_path: str, output_dir: str = "segmentation_outputs"):
+  # Load and resize image
+  im = Image.open(image_path)
+  im.thumbnail([1024, 1024], Image.Resampling.LANCZOS)
+
+  prompt = """
+  Give the segmentation masks for the wooden and glass items.
+  Output a JSON list of segmentation masks where each entry contains the 2D
+  bounding box in the key "box_2d", the segmentation mask in key "mask", and
+  the text label in the key "label". Use descriptive labels.
+  """
+
+  config = types.GenerateContentConfig(      
+    thinking_config=types.ThinkingConfig(thinking_budget=0) # set thinking_budget to 0 for better results in object detection
+  ) 
+
+  response = client.models.generate_content(
+    model="gemini-2.5-flash",
+    contents=[prompt, im], # Pillow images can be directly passed as inputs (which will be converted by the SDK)
+    config=config
+  )
+
+  # Parse JSON response
+  items = json.loads(parse_json(response.text))
+
+  # Create output directory
+  os.makedirs(output_dir, exist_ok=True)
+
+  # Process each mask
+  for i, item in enumerate(items):
+      # Get bounding box coordinates
+      box = item["box_2d"]
+      y0 = int(box[0] / 1000 * im.size[1])
+      x0 = int(box[1] / 1000 * im.size[0])
+      y1 = int(box[2] / 1000 * im.size[1])
+      x1 = int(box[3] / 1000 * im.size[0])
+
+      # Skip invalid boxes
+      if y0 >= y1 or x0 >= x1:
+          continue
+
+      # Process mask
+      png_str = item["mask"]
+      if not png_str.startswith("data:image/png;base64,"):
+          continue
+
+      # Remove prefix
+      png_str = png_str.removeprefix("data:image/png;base64,")
+      mask_data = base64.b64decode(png_str)
+      mask = Image.open(io.BytesIO(mask_data))
+
+      # Resize mask to match bounding box
+      mask = mask.resize((x1 - x0, y1 - y0), Image.Resampling.BILINEAR)
+
+      # Convert mask to numpy array for processing
+      mask_array = np.array(mask)
+
+      # Create overlay for this mask
+      overlay = Image.new('RGBA', im.size, (0, 0, 0, 0))
+      overlay_draw = ImageDraw.Draw(overlay)
+
+      # Create overlay for the mask
+      color = (255, 255, 255, 200)
+      for y in range(y0, y1):
+          for x in range(x0, x1):
+              if mask_array[y - y0, x - x0] > 128:  # Threshold for mask
+                  overlay_draw.point((x, y), fill=color)
+
+      # Save individual mask and its overlay
+      mask_filename = f"{item['label']}_{i}_mask.png"
+      overlay_filename = f"{item['label']}_{i}_overlay.png"
+
+      mask.save(os.path.join(output_dir, mask_filename))
+
+      # Create and save overlay
+      composite = Image.alpha_composite(im.convert('RGBA'), overlay)
+      composite.save(os.path.join(output_dir, overlay_filename))
+      print(f"Saved mask and overlay for {item['label']} to {output_dir}")
+
+# Example usage
+if __name__ == "__main__":
+  extract_segmentation_masks("path/to/image.png")
+
+如需更詳細的範例，請參閱食譜指南中的區隔範例。
+
+桌上擺有杯子蛋糕，並以木頭和玻璃物品做為重點
+含有物件和區隔遮罩的區隔輸出範例
+支援的圖片格式
+Gemini 支援下列圖片格式的 MIME 類型：
+
+PNG - image/png
+JPEG - image/jpeg
+WEBP - image/webp
+HEIC - image/heic
+HEIF - image/heif
+功能
+所有 Gemini 模型版本都是多模態模型，可用於各種圖像處理和電腦視覺工作，包括但不限於圖像字幕、圖像問題和回答、圖像分類、物件偵測和分割。
+
+視您的品質和效能需求而定，Gemini 可減少使用專門機器學習模型的需求。
+
+部分較新的模型版本除了通用功能外，還經過特別訓練，可提升專門工作的準確度：
+
+Gemini 2.0 模型經過進一步訓練，可支援進階物件偵測功能。
+
+Gemini 2.5 模型經過進一步訓練，除了物件偵測，還支援進階區隔功能。
+
+限制和重要技術資訊
+檔案限制
+Gemini 2.5 Pro/Flash、2.0 Flash、1.5 Pro 和 1.5 Flash 支援每個要求最多 3,600 個圖片檔案。
+
+符記計算
+Gemini 1.5 Flash 和 Gemini 1.5 Pro：如果兩個尺寸均小於 384 像素，則為 258 個符記。較大的圖片會以平鋪方式顯示 (最小圖塊 256 像素，最大 768 像素，並調整為 768x768 像素)，每個圖塊的符記費用為 258 個。
+Gemini 2.0 Flash 和 Gemini 2.5 Flash/Pro：如果兩個尺寸都小於 384 像素，則為 258 個符記。較大的圖片會分割成 768x768 像素的圖塊，每個圖塊的符記費用為 258 個。
+提示與最佳做法
+確認圖片是否正確旋轉。
+使用清晰、不模糊的圖片。
+使用單張含文字圖片時，請將文字提示放在 contents 陣列中的圖片部分後方。
+後續步驟
+本指南將說明如何上傳圖片檔案，並從圖片輸入內容產生文字輸出內容。如要進一步瞭解相關內容，請參閱下列資源：
+
+Files API：進一步瞭解如何上傳及管理用於 Gemini 的檔案。
+系統指示：系統指示可讓您根據特定需求和用途，控制模型的行為。
+檔案提示策略：Gemini API 支援使用文字、圖片、音訊和影片資料提示，這也稱為多模態提示。
+安全指南：生成式 AI 模型有時會產生不預期的輸出內容，例如不準確、有偏見或令人反感的輸出內容。後續處理和人工評估是限制這類輸出內容造成危害風險的必要措施。
+首頁
+Gemini API
+模型
+這對你有幫助嗎？
+
+提供意見詳細背景資訊
+
+許多 Gemini 模型都提供 100 萬個以上詞元的大型脈絡窗口。以往，大型語言模型 (LLM) 會受到一次可傳送至模型的文字 (或符記) 數量限制。Gemini 長脈絡窗口可發掘許多新用途和開發人員模式。
+
+您已在 文字產生或多模輸入等情況下使用程式碼，在長時間的背景下，這些程式碼將繼續運作，無須進行任何變更。
+
+這份文件將概略說明您可以使用脈絡窗口為 100 萬個以上符號的模型，達成哪些成就。本頁面簡要介紹脈絡視窗，並探討開發人員應如何思考長脈絡、長脈絡的各種實際用途，以及如何最佳化長脈絡的使用方式。
+
+如要瞭解特定型號的內容視窗大小，請參閱「型號」頁面。
+
+什麼是脈絡窗口？
+使用 Gemini 模型的基本方式，就是將資訊 (脈絡) 傳遞至模型，讓模型隨後產生回應。將情境視窗比喻為短期記憶。人類的短期記憶容量有限，生成式模型也是如此。
+
+如要進一步瞭解模型的運作方式，請參閱生成式模型指南。
+
+開始使用長時間內容
+舊版生成式模型一次只能處理 8,000 個符記。新款型號則進一步接受 32,000 甚至 128,000 個符記。Gemini 是第一個可接受 100 萬個符號的模型。
+
+實際上，100 萬個符記會如下所示：
+
+50,000 行程式碼 (每行標準 80 個半形字元)
+過去 5 年內傳送的所有簡訊
+8 本平均長度的英文小說
+超過 200 份平均長度的 Podcast 節目轉錄稿
+許多其他模型的脈絡視窗較為受限，因此通常需要採用策略，例如任意捨棄舊訊息、摘要內容、搭配向量資料庫使用 RAG，或是篩除提示訊息來儲存符記。
+
+雖然這些技巧在特定情況下仍有其價值，但 Gemini 的廣泛脈絡窗口採用更直接的方式：預先提供所有相關資訊。由於 Gemini 模型是專門設計用於處理大量的上下文功能，因此可提供強大的上下文學習功能。舉例來說，Gemini 只使用情境內的教材 (500 頁的參考文法、字典和約 400 個平行句子)，學會翻譯從英文翻譯成 Kalamang 的內容，而 Kalamang 是一種使用者不到 200 人的巴布亞語言，翻譯品質與使用相同教材的人工學習者相似。這說明瞭 Gemini 的長篇脈絡資料可帶來的典範轉變，透過強大的使用過程教學功能，開啟全新可能性。
+
+長脈絡用途
+雖然大多數生成式模型的標準用途仍是文字輸入，但 Gemini 模型系列可支援多模態用途的新典範。這些模型可原生解讀文字、影片、音訊和圖片。為了方便使用者，這些模型會搭配 Gemini API，可處理多模態檔案類型。
+
+長篇文字
+文字已證明是 LLM 的動力來源之一，為其提供智慧層支援。如前文所述，LLM 的實際限制大多是因為沒有足夠大的背景資訊視窗來執行特定工作。因此，我們迅速採用檢索增強生成 (RAG) 和其他技術，以動態方式為模型提供相關的背景資訊。如今，隨著脈絡視窗越來越大，我們也推出了可發掘新用途的新技術。
+
+文字型長篇幅背景資訊的部分新興和標準用途包括：
+
+摘錄大量文字的語料庫
+先前的摘要選項採用較小的脈絡模型，因此需要使用滑動視窗或其他技巧，在將新符記傳遞至模型時，保留先前部分的狀態
+問與答
+以往，由於背景資訊有限，且模型的事實回憶率偏低，因此只有 RAG 能夠做到這一點
+代理工作流程
+文字是代理程式記錄自身所做及需要做的事的基礎；如果沒有足夠的資訊，代理程式就無法瞭解環境和自身目標，這會影響代理程式的可靠性
+多樣本情境學習是長篇幅情境模型最獨特的功能之一。研究顯示，採用常見的「單樣本」或「多樣本」示例模式，也就是向模型提供一或數個任務範例，並將範例數量擴大至數百、數千或數十萬個，可帶來新穎的模型功能。這項多鏡頭方法的效能也與針對特定任務精細調整的模型相似。如果 Gemini 模型的效能尚不足以在實際工作環境中推廣，您可以嘗試多拍法。稍後您將在長時間背景資訊最佳化部分中瞭解，背景資訊快取可讓這類高輸入符記工作負載的經濟效益更高，在某些情況下甚至可縮短延遲時間。
+
+長篇影片
+長期以來，影片內容的實用性一直受到媒體本身缺乏無障礙性的問題所限制。內容難以瀏覽、轉錄稿通常無法捕捉影片的細微差異，而且大多數工具不會同時處理圖片、文字和音訊。有了 Gemini，長文字內容功能就能轉換為推理能力，並持續以多模態輸入內容回答問題。
+
+以下是一些新興和標準的長篇影片背景資訊用途：
+
+影片問題與解答
+Google Project Astra 顯示的影片記憶體
+影片字幕
+影片推薦系統，透過新多模態理解功能豐富現有中繼資料
+影片客製化功能：查看資料集和相關影片中繼資料，然後移除與觀眾不相關的影片片段
+影片內容審查
+即時處理影片
+處理影片時，請務必考量影片如何轉換為符記，這會影響帳單和使用限制。如要進一步瞭解如何使用影片檔案提示，請參閱提示指南。
+
+長篇音訊
+Gemini 模型是第一個可理解音訊的本機多模態大型語言模型。以往，開發人員為了處理音訊，通常會將多個特定領域模型 (例如語音轉文字模型和文字轉文字模型) 串連在一起。這會導致執行多個往返要求所需的延遲時間增加，並降低效能，這通常是因為多個模型設定的架構未連結。
+
+音訊背景資訊的一些新興和標準用途包括：
+
+即時語音轉錄和翻譯
+Podcast / 影片問答
+會議語音轉錄和摘要
+語音助理
+如要進一步瞭解如何使用音訊檔案提示，請參閱提示指南。
+
+長文字背景最佳化
+使用長脈絡和 Gemini 模型時，主要的最佳化方式是使用脈絡快取。除了先前提到的在單一要求中處理大量符記的可能性之外，成本也是另一個主要限制。如果您有一個「與資料對話」應用程式，使用者上傳 10 個 PDF、一個影片和一些工作文件，過去您必須使用更複雜的檢索增強生成 (RAG) 工具/架構，才能處理這些要求，並為移至內容視窗的符記支付大量費用。您現在可以將使用者上傳的檔案快取，並以每小時付費的方式儲存檔案。舉例來說，Gemini Flash 每個要求的輸入 / 輸出成本約為標準輸入 / 輸出成本的 4 倍，因此如果使用者與自己的資料進行對話，開發人員就能節省大量成本。
+
+長脈絡限制
+在本指南的各個部分，我們討論了 Gemini 模型如何在各種針尖上的芝麻疹擷取評估中，達成高效能。這些測試會考量最基本的設定，也就是您要尋找單一針狀物體。如果您可能有多個「針」或特定資訊，模型的準確度就不會相同。成效可能會因脈絡而有極大差異。這點相當重要，因為取得正確的擷取資訊與成本之間存在著天生的權衡。您可以透過單一查詢取得約 99% 的結果，但每次傳送該查詢時，都必須支付輸入符記費用。因此，如果要擷取 100 個資訊，如果您需要 99% 的成效，可能就需要傳送 100 個要求。這就是一個很好的例子，說明在使用 Gemini 模型時，內容快取功能可大幅降低相關成本，同時維持高效能。
+
+常見問題
+在脈絡視窗中，哪裡是放置查詢的最佳位置？
+在大多數情況下，尤其是在總背景資訊很長的情況下，如果將查詢 / 問題放在提示訊息的結尾 (所有其他背景資訊之後)，模型的效能會更好。
+
+在查詢中加入更多符記會降低模型效能嗎？
+一般來說，如果您不需要將符記傳遞至模型，最好避免傳遞符記。不過，如果您有大量含有部分資訊的符記，且想針對該資訊提出問題，模型就能有效地擷取該資訊 (在許多情況下，準確度可達 99%)。
+
+如何透過長式內容查詢降低成本？
+如果您有要多次重複使用的類似符號 / 內容，內容快取功能可協助降低與該資訊相關的查詢成本。
+
+背景資訊長度會影響模型延遲時間嗎？
+無論大小為何，任何指定要求都會產生固定延遲時間，但一般來說，查詢越長，延遲時間就越長 (到達第一個符記的時間)。
