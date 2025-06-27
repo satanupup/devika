@@ -66,6 +66,30 @@
         "command": "devika.scanTodos",
         "title": "掃描 TODO 項目",
         "category": "Devika"
+      },
+      {
+        "command": "devika.showPlugins",
+        "title": "顯示 Augment 插件",
+        "category": "Devika",
+        "icon": "$(extensions)"
+      },
+      {
+        "command": "devika.generateContributing",
+        "title": "生成貢獻指南 (CONTRIBUTING.md)",
+        "category": "Devika",
+        "icon": "$(book)"
+      },
+      {
+        "command": "devika.generateRoadmap",
+        "title": "生成開發路線圖 (ROADMAP.md)",
+        "category": "Devika",
+        "icon": "$(milestone)"
+      },
+      {
+        "command": "devika.generateChangelog",
+        "title": "生成變更日誌 (CHANGELOG.md)",
+        "category": "Devika",
+        "icon": "$(history)"
       }
     ],
     "menus": {
