@@ -22,7 +22,11 @@
     "typescript"
   ],
   "activationEvents": [
-    "onStartupFinished"
+    "onStartupFinished",
+    "onCommand:devika.start",
+    "onLanguage:typescript",
+    "onLanguage:javascript",
+    "onLanguage:python"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -173,21 +177,34 @@
         }
       }
     },
-    "views": {
-      "explorer": [
-        {
-          "id": "devika.tasks",
-          "name": "Devika 任務",
-          "when": "devika.activated"
-        }
-      ]
-    },
     "viewsContainers": {
       "activitybar": [
         {
           "id": "devika",
           "title": "Devika AI",
           "icon": "$(robot)"
+        }
+      ]
+    },
+    "views": {
+      "devika": [
+        {
+          "id": "devika.tasks",
+          "name": "任務列表",
+          "when": "devika.activated",
+          "icon": "$(checklist)"
+        },
+        {
+          "id": "devika.chat",
+          "name": "AI 助理",
+          "when": "devika.activated",
+          "icon": "$(comment-discussion)"
+        },
+        {
+          "id": "devika.context",
+          "name": "代碼上下文",
+          "when": "devika.activated",
+          "icon": "$(code)"
         }
       ]
     }

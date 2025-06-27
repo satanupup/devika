@@ -6,9 +6,13 @@ import { TaskManager } from './tasks/TaskManager';
 import { GitService } from './git/GitService';
 import { CodeContextService } from './context/CodeContextService';
 import { PluginManager } from './plugins/PluginManager';
+import { DevikaTaskProvider, DevikaChatProvider, DevikaContextProvider } from './ui/ViewProviders';
 
 let devikaCoreManager: DevikaCoreManager;
 let pluginManager: PluginManager;
+let taskProvider: DevikaTaskProvider;
+let chatProvider: DevikaChatProvider;
+let contextProvider: DevikaContextProvider;
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('Devika AI 助理正在啟動...');
@@ -27,6 +31,9 @@ export function activate(context: vscode.ExtensionContext) {
 
     // 初始化服務
     initializeServices(context);
+
+    // 註冊視圖提供者
+    registerViewProviders(context);
 
     console.log('Devika AI 助理已成功啟動！');
 }
@@ -258,4 +265,28 @@ function initializeServices(context: vscode.ExtensionContext) {
     });
 
     context.subscriptions.push(onSaveListener, onChangeListener);
+}
+
+function registerViewProviders(context: vscode.ExtensionContext): void {
+    try {
+        // 創建視圖提供者
+        taskProvider = new DevikaTaskProvider();
+        chatProvider = new DevikaChatProvider();
+        contextProvider = new DevikaContextProvider();
+
+        // 註冊視圖提供者
+        context.subscriptions.push(
+            vscode.window.registerTreeDataProvider('devika.tasks', taskProvider),
+            vscode.window.registerTreeDataProvider('devika.chat', chatProvider),
+            vscode.window.registerTreeDataProvider('devika.context', contextProvider)
+        );
+
+        // 設置上下文變量以顯示視圖
+        vscode.commands.executeCommand('setContext', 'devika.activated', true);
+
+        console.log('視圖提供者已成功註冊');
+    } catch (error) {
+        console.error('視圖提供者註冊失敗:', error);
+        vscode.window.showErrorMessage(`Devika 視圖註冊失敗: ${error}`);
+    }
 }

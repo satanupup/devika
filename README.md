@@ -9,6 +9,14 @@
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/版本-v0.1.0-blue.svg" alt="Version">
+  <img src="https://img.shields.io/badge/狀態-生產就緒-green.svg" alt="Status">
+  <img src="https://img.shields.io/badge/包大小-6.64MB-orange.svg" alt="Package Size">
+  <img src="https://img.shields.io/badge/文件數-78-lightgrey.svg" alt="File Count">
+  <img src="https://img.shields.io/badge/TypeScript-100%25-blue.svg" alt="TypeScript">
+</p>
+
+<p align="center">
   <a href="#快速開始">快速開始</a> •
   <a href="#核心功能">功能特色</a> •
   <a href="#安裝指南">安裝指南</a> •
@@ -262,12 +270,51 @@ src/
 ### 初次設定
 
 1. **安裝完成後**，VS Code 會顯示歡迎通知
-2. **開啟指令面板** (`Ctrl+Shift+P` 或 `Cmd+Shift+P`)
-3. **執行指令**: `Devika: 啟動 AI 助理`
-4. **設定 API 金鑰**:
+2. **重新載入 VS Code** (重要！)
+3. **查找 Devika 圖標**：在活動欄中尋找 🤖 圖標
+4. **開啟指令面板** (`Ctrl+Shift+P` 或 `Cmd+Shift+P`)
+5. **執行指令**: `Devika: 啟動 AI 助理`
+6. **設定 API 金鑰**:
    - 點擊設定圖示
    - 選擇要設定的 AI 提供商
    - 輸入您的 API 金鑰
+
+### 🔧 故障排除：看不到 Devika
+
+如果安裝後在 VS Code 中看不到 Devika 圖標或功能，請嘗試以下步驟：
+
+#### 1. 檢查擴展狀態
+- 按 `Ctrl+Shift+X` 打開擴展面板
+- 搜索 "Devika"
+- 確保擴展已啟用（沒有 "啟用" 按鈕）
+
+#### 2. 手動激活擴展
+- 按 `Ctrl+Shift+P` 打開命令面板
+- 輸入 "Devika: 啟動 AI 助理"
+- 執行命令
+
+#### 3. 重新載入窗口
+- 按 `Ctrl+Shift+P`
+- 輸入 "Developer: Reload Window"
+- 執行命令
+
+#### 4. 檢查輸出面板
+- 按 `Ctrl+Shift+U` 打開輸出面板
+- 在下拉菜單中選擇 "Devika"
+- 查看是否有錯誤信息
+
+#### 5. 完全重啟 VS Code
+- 關閉所有 VS Code 窗口
+- 重新打開 VS Code
+- 等待幾秒鐘讓擴展完全加載
+
+#### 6. 檢查 VS Code 版本
+- 確保您的 VS Code 版本是 1.74.0 或更高
+- 如果版本過舊，請更新 VS Code
+
+#### 7. 查看活動欄
+- Devika 圖標 🤖 應該出現在左側活動欄中
+- 如果沒有看到，嘗試右鍵點擊活動欄並檢查是否被隱藏
 
 ### 驗證安裝
 
