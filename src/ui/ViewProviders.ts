@@ -27,19 +27,14 @@ export class DevikaTaskProvider implements vscode.TreeDataProvider<TaskItem> {
 
     private getTasks(): TaskItem[] {
         return [
-            new TaskItem('開始使用 Devika', '點擊開始使用 AI 助理', vscode.TreeItemCollapsibleState.None, {
+            new TaskItem('🤖 與 AI 助理對話', '智能對話，自動分析和解決問題', vscode.TreeItemCollapsibleState.None, {
                 command: 'devika.start',
                 title: '啟動 Devika',
                 arguments: []
             }),
-            new TaskItem('分析代碼', '選擇代碼後點擊分析', vscode.TreeItemCollapsibleState.None, {
-                command: 'devika.analyzeCode',
-                title: '分析代碼',
-                arguments: []
-            }),
-            new TaskItem('生成文檔', '自動生成項目文檔', vscode.TreeItemCollapsibleState.None, {
-                command: 'devika.showPlugins',
-                title: '顯示插件',
+            new TaskItem('📊 項目狀態', '查看項目索引和分析狀態', vscode.TreeItemCollapsibleState.None, {
+                command: 'devika.showProjectStatus',
+                title: '項目狀態',
                 arguments: []
             })
         ];
@@ -84,7 +79,21 @@ export class DevikaChatProvider implements vscode.TreeDataProvider<ChatItem> {
                 title: '開始對話',
                 arguments: []
             }),
-            new ChatItem('📝 查看歷史', '查看對話歷史', vscode.TreeItemCollapsibleState.None),
+            new ChatItem('🔄 切換 LLM 模型', '快速切換 OpenAI、Claude 或 Gemini', vscode.TreeItemCollapsibleState.None, {
+                command: 'devika.switchLLM',
+                title: '切換 LLM 模型',
+                arguments: []
+            }),
+            new ChatItem('🔑 設置 API 密鑰', '配置 OpenAI、Claude 或 Gemini API 密鑰', vscode.TreeItemCollapsibleState.None, {
+                command: 'devika.setupApiKeys',
+                title: '設置 API 密鑰',
+                arguments: []
+            }),
+            new ChatItem('🔌 測試連接', '測試當前 LLM 模型的 API 連接', vscode.TreeItemCollapsibleState.None, {
+                command: 'devika.testApiConnection',
+                title: '測試 API 連接',
+                arguments: []
+            }),
             new ChatItem('⚙️ 設置', '配置 AI 助理', vscode.TreeItemCollapsibleState.None, {
                 command: 'workbench.action.openSettings',
                 title: '打開設置',

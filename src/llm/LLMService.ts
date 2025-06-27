@@ -148,19 +148,27 @@ export class LLMService {
             throw new Error('請設定 Claude API 金鑰');
         }
 
+        // 確保使用正確的模型名稱
+        const validModel = model || 'claude-3-5-sonnet-20241022';
+
         try {
+            console.log(`調用 Claude API，模型: ${validModel}`);
+
+            const requestData = {
+                model: validModel,
+                max_tokens: options.maxTokens || 4000,
+                temperature: options.temperature || 0.7,
+                messages: [
+                    {
+                        role: 'user',
+                        content: prompt
+                    }
+                ]
+            };
+
             const response = await axios.post(
                 'https://api.anthropic.com/v1/messages',
-                {
-                    model: model,
-                    max_tokens: options.maxTokens || 4000,
-                    messages: [
-                        {
-                            role: 'user',
-                            content: prompt
-                        }
-                    ]
-                },
+                requestData,
                 {
                     headers: {
                         'x-api-key': apiKey,
@@ -170,6 +178,8 @@ export class LLMService {
                     timeout: options.timeout || 30000
                 }
             );
+
+            console.log('Claude API 響應成功');
 
             return {
                 content: response.data.content[0].text,
@@ -182,10 +192,31 @@ export class LLMService {
                 } : undefined
             };
         } catch (error: any) {
+            console.error('Claude API 錯誤:', error);
+
             if (error.response) {
-                throw new Error(`Claude API 錯誤: ${error.response.data.error?.message || error.response.statusText}`);
+                const errorMessage = error.response.data?.error?.message ||
+                                   error.response.data?.message ||
+                                   error.response.statusText ||
+                                   '未知錯誤';
+                const statusCode = error.response.status;
+
+                console.error('Claude API 響應錯誤:', {
+                    status: statusCode,
+                    data: error.response.data
+                });
+
+                if (statusCode === 401) {
+                    throw new Error('Claude API 金鑰無效，請檢查您的 API 金鑰');
+                } else if (statusCode === 429) {
+                    throw new Error('Claude API 請求頻率過高，請稍後再試');
+                } else if (statusCode === 400) {
+                    throw new Error(`Claude API 請求格式錯誤: ${errorMessage}`);
+                } else {
+                    throw new Error(`Claude API 錯誤 (${statusCode}): ${errorMessage}`);
+                }
             } else if (error.request) {
-                throw new Error('無法連接到 Claude API');
+                throw new Error('無法連接到 Claude API，請檢查網路連接');
             } else {
                 throw new Error(`請求錯誤: ${error.message}`);
             }

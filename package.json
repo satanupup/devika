@@ -74,6 +74,42 @@
         "icon": "$(key)"
       },
       {
+        "command": "devika.switchLLM",
+        "title": "切換 LLM 模型",
+        "category": "Devika",
+        "icon": "$(arrow-swap)"
+      },
+      {
+        "command": "devika.testApiConnection",
+        "title": "測試 API 連接",
+        "category": "Devika",
+        "icon": "$(plug)"
+      },
+      {
+        "command": "devika.showProjectStatus",
+        "title": "顯示項目狀態",
+        "category": "Devika",
+        "icon": "$(info)"
+      },
+      {
+        "command": "devika.analyzeProject",
+        "title": "分析項目結構",
+        "category": "Devika",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "devika.showGitHistory",
+        "title": "查看 Git 歷史",
+        "category": "Devika",
+        "icon": "$(git-commit)"
+      },
+      {
+        "command": "devika.showFileHistory",
+        "title": "查看文件歷史",
+        "category": "Devika",
+        "icon": "$(history)"
+      },
+      {
         "command": "devika.showPlugins",
         "title": "顯示 Augment 插件",
         "category": "Devika",
@@ -154,12 +190,16 @@
           "type": "string",
           "enum": [
             "gpt-4",
+            "gpt-4-turbo",
             "gpt-3.5-turbo",
-            "claude-3-opus",
-            "claude-3-sonnet",
-            "gemini-pro"
+            "claude-3-5-sonnet-20241022",
+            "claude-3-opus-20240229",
+            "claude-3-sonnet-20240229",
+            "claude-3-haiku-20240307",
+            "gemini-pro",
+            "gemini-1.5-pro"
           ],
-          "default": "claude-3-sonnet",
+          "default": "claude-3-5-sonnet-20241022",
           "description": "偏好的 AI 模型"
         },
         "devika.autoScanTodos": {

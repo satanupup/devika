@@ -6,6 +6,7 @@ import { TaskManager } from '../tasks/TaskManager';
 import { GitService } from '../git/GitService';
 import { CodeContextService } from '../context/CodeContextService';
 import { CodeParser } from '../context/CodeParser';
+import { IntelligentTaskDispatcher } from '../ai/IntelligentTaskDispatcher';
 
 export class DevikaCoreManager {
     private llmService: LLMService;
@@ -15,6 +16,7 @@ export class DevikaCoreManager {
     private gitService: GitService;
     private codeContextService: CodeContextService;
     private codeParser: CodeParser;
+    private intelligentDispatcher: IntelligentTaskDispatcher;
     private initializationPromise: Promise<void>;
 
     constructor(private context: vscode.ExtensionContext) {
@@ -25,12 +27,27 @@ export class DevikaCoreManager {
         this.gitService = new GitService();
         this.codeContextService = new CodeContextService();
         this.codeParser = new CodeParser();
+        this.intelligentDispatcher = new IntelligentTaskDispatcher(
+            this.llmService,
+            this.codeContextService
+        );
+
+        // 設置 UIManager 的核心管理器引用
+        this.uiManager.setCoreManager(this);
 
         this.initializationPromise = this.initialize();
     }
 
     async waitForInitialization(): Promise<void> {
         return this.initializationPromise;
+    }
+
+    getCodeContextService(): CodeContextService {
+        return this.codeContextService;
+    }
+
+    async processIntelligentQuery(query: string): Promise<string> {
+        return await this.intelligentDispatcher.processUserQuery(query);
     }
 
     private async initialize() {

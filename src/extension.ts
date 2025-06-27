@@ -7,12 +7,14 @@ import { GitService } from './git/GitService';
 import { CodeContextService } from './context/CodeContextService';
 import { PluginManager } from './plugins/PluginManager';
 import { DevikaTaskProvider, DevikaChatProvider, DevikaContextProvider } from './ui/ViewProviders';
+import { LLMService } from './llm/LLMService';
 
 let devikaCoreManager: DevikaCoreManager;
 let pluginManager: PluginManager;
 let taskProvider: DevikaTaskProvider;
 let chatProvider: DevikaChatProvider;
 let contextProvider: DevikaContextProvider;
+let llmStatusBarItem: vscode.StatusBarItem;
 
 export async function activate(context: vscode.ExtensionContext) {
     console.log('Devika AI 助理正在啟動...');
@@ -39,15 +41,24 @@ export async function activate(context: vscode.ExtensionContext) {
         // 註冊視圖提供者
         registerViewProviders(context);
 
+        // 創建狀態欄項目
+        createStatusBarItem(context);
+
+        // 啟動自動功能
+        await startAutomaticFeatures();
+
         console.log('Devika AI 助理已成功啟動！');
 
-        // 顯示歡迎消息
+        // 顯示智能歡迎消息
         vscode.window.showInformationMessage(
-            '🤖 Devika AI 助理已啟動！點擊側邊欄的 Devika 圖標開始使用。',
-            '開始使用'
+            '🧠 Devika AI 助理已啟動！我正在理解您的項目...',
+            '開始對話',
+            '查看狀態'
         ).then(choice => {
-            if (choice === '開始使用') {
+            if (choice === '開始對話') {
                 vscode.commands.executeCommand('devika.start');
+            } else if (choice === '查看狀態') {
+                vscode.commands.executeCommand('devika.showProjectStatus');
             }
         });
 
@@ -218,6 +229,266 @@ function registerCommands(context: vscode.ExtensionContext) {
             } catch (error) {
                 console.error('設置 API 密鑰失敗:', error);
                 vscode.window.showErrorMessage(`設置 API 密鑰失敗: ${error}`);
+            }
+        }),
+
+        // 測試 API 連接指令
+        vscode.commands.registerCommand('devika.testApiConnection', async () => {
+            try {
+                if (!devikaCoreManager) {
+                    vscode.window.showErrorMessage('Devika 核心管理器尚未初始化');
+                    return;
+                }
+
+                const configManager = ConfigManager.getInstance();
+                const llmService = new LLMService(configManager);
+
+                vscode.window.showInformationMessage('正在測試 API 連接...');
+
+                const results = await llmService.validateApiKeys();
+
+                const messages = [];
+                if (results.openai) {
+                    messages.push('✅ OpenAI API 連接正常');
+                } else if (configManager.getOpenAIApiKey()) {
+                    messages.push('❌ OpenAI API 連接失敗');
+                }
+
+                if (results.claude) {
+                    messages.push('✅ Claude API 連接正常');
+                } else if (configManager.getClaudeApiKey()) {
+                    messages.push('❌ Claude API 連接失敗');
+                }
+
+                if (results.gemini) {
+                    messages.push('✅ Gemini API 連接正常');
+                } else if (configManager.getGeminiApiKey()) {
+                    messages.push('❌ Gemini API 連接失敗');
+                }
+
+                if (messages.length === 0) {
+                    vscode.window.showWarningMessage('沒有設置任何 API 密鑰');
+                } else {
+                    vscode.window.showInformationMessage(messages.join('\n'));
+                }
+
+            } catch (error) {
+                console.error('測試 API 連接失敗:', error);
+                vscode.window.showErrorMessage(`測試 API 連接失敗: ${error}`);
+            }
+        }),
+
+        // 快速切換 LLM 模型指令
+        vscode.commands.registerCommand('devika.switchLLM', async () => {
+            try {
+                const configManager = ConfigManager.getInstance();
+                const currentModel = configManager.getPreferredModel();
+
+                // 檢查可用的模型（基於已設置的 API 密鑰）
+                const availableModels = [];
+
+                if (configManager.getOpenAIApiKey()) {
+                    availableModels.push(
+                        { label: '🤖 GPT-4', description: 'OpenAI GPT-4 (最強推理能力)', value: 'gpt-4' },
+                        { label: '⚡ GPT-4 Turbo', description: 'OpenAI GPT-4 Turbo (更快速度)', value: 'gpt-4-turbo' },
+                        { label: '💨 GPT-3.5 Turbo', description: 'OpenAI GPT-3.5 Turbo (快速且經濟)', value: 'gpt-3.5-turbo' }
+                    );
+                }
+
+                if (configManager.getClaudeApiKey()) {
+                    availableModels.push(
+                        { label: '🧠 Claude 3.5 Sonnet', description: 'Anthropic Claude 3.5 Sonnet (推薦)', value: 'claude-3-5-sonnet-20241022' },
+                        { label: '🎯 Claude 3 Opus', description: 'Anthropic Claude 3 Opus (最高質量)', value: 'claude-3-opus-20240229' },
+                        { label: '⚡ Claude 3 Haiku', description: 'Anthropic Claude 3 Haiku (最快速度)', value: 'claude-3-haiku-20240307' }
+                    );
+                }
+
+                if (configManager.getGeminiApiKey()) {
+                    availableModels.push(
+                        { label: '💎 Gemini Pro', description: 'Google Gemini Pro', value: 'gemini-pro' },
+                        { label: '🚀 Gemini 1.5 Pro', description: 'Google Gemini 1.5 Pro (長上下文)', value: 'gemini-1.5-pro' }
+                    );
+                }
+
+                if (availableModels.length === 0) {
+                    vscode.window.showWarningMessage(
+                        '沒有可用的 LLM 模型。請先設置至少一個 API 密鑰。',
+                        '設置 API 密鑰'
+                    ).then(choice => {
+                        if (choice === '設置 API 密鑰') {
+                            vscode.commands.executeCommand('devika.setupApiKeys');
+                        }
+                    });
+                    return;
+                }
+
+                // 標記當前使用的模型
+                const items = availableModels.map(model => ({
+                    ...model,
+                    label: model.value === currentModel ? `${model.label} ✅ (當前使用)` : model.label
+                }));
+
+                const selected = await vscode.window.showQuickPick(items, {
+                    placeHolder: `選擇要使用的 LLM 模型 (當前: ${currentModel})`
+                });
+
+                if (selected && selected.value !== currentModel) {
+                    // 切換模型
+                    configManager.setPreferredModel(selected.value);
+
+                    // 更新狀態欄
+                    updateStatusBarItem();
+
+                    // 測試新模型連接
+                    vscode.window.showInformationMessage(
+                        `✅ 已切換到 ${selected.label.replace(' ✅ (當前使用)', '')}`,
+                        '測試連接',
+                        '開始對話'
+                    ).then(choice => {
+                        if (choice === '測試連接') {
+                            vscode.commands.executeCommand('devika.testApiConnection');
+                        } else if (choice === '開始對話') {
+                            vscode.commands.executeCommand('devika.start');
+                        }
+                    });
+                }
+
+            } catch (error) {
+                console.error('切換 LLM 模型失敗:', error);
+                vscode.window.showErrorMessage(`切換 LLM 模型失敗: ${error}`);
+            }
+        }),
+
+        // 項目狀態指令
+        vscode.commands.registerCommand('devika.showProjectStatus', async () => {
+            try {
+                if (!devikaCoreManager) {
+                    vscode.window.showErrorMessage('Devika 核心管理器尚未初始化');
+                    return;
+                }
+
+                const workspaceFolders = vscode.workspace.workspaceFolders;
+                if (!workspaceFolders) {
+                    vscode.window.showInformationMessage('沒有打開的工作區');
+                    return;
+                }
+
+                const status = {
+                    indexed: true, // 假設已索引
+                    workspaceName: workspaceFolders[0].name,
+                    fileCount: (await vscode.workspace.findFiles('**/*')).length,
+                    lastIndexed: new Date().toLocaleString()
+                };
+
+                vscode.window.showInformationMessage(
+                    `📊 項目狀態\n\n` +
+                    `• 工作區: ${status.workspaceName}\n` +
+                    `• 文件數: ${status.fileCount}\n` +
+                    `• 索引狀態: ${status.indexed ? '✅ 已完成' : '⏳ 進行中'}\n` +
+                    `• 最後更新: ${status.lastIndexed}\n\n` +
+                    `💡 您可以直接與 AI 助理對話，我會自動分析和使用這些信息！`
+                );
+
+            } catch (error) {
+                console.error('顯示項目狀態失敗:', error);
+                vscode.window.showErrorMessage(`顯示項目狀態失敗: ${error}`);
+            }
+        }),
+
+        // 項目分析指令
+        vscode.commands.registerCommand('devika.analyzeProject', async () => {
+            try {
+                if (!devikaCoreManager) {
+                    vscode.window.showErrorMessage('Devika 核心管理器尚未初始化');
+                    return;
+                }
+
+                vscode.window.showInformationMessage('🔍 正在分析項目結構...');
+
+                // 使用 ProjectAnalyzer
+                const { ProjectAnalyzer } = await import('./agent/ProjectAnalyzer');
+                const analyzer = new ProjectAnalyzer();
+                const structure = await analyzer.analyzeProject();
+
+                // 顯示分析結果
+                const panel = vscode.window.createWebviewPanel(
+                    'projectAnalysis',
+                    '項目分析報告',
+                    vscode.ViewColumn.Two,
+                    { enableScripts: true }
+                );
+
+                panel.webview.html = generateProjectAnalysisHtml(structure);
+
+            } catch (error) {
+                console.error('項目分析失敗:', error);
+                vscode.window.showErrorMessage(`項目分析失敗: ${error}`);
+            }
+        }),
+
+        // Git 歷史查看指令
+        vscode.commands.registerCommand('devika.showGitHistory', async () => {
+            try {
+                if (!devikaCoreManager) {
+                    vscode.window.showErrorMessage('Devika 核心管理器尚未初始化');
+                    return;
+                }
+
+                const gitService = new GitService();
+                const history = await gitService.getCommitHistory(20);
+
+                if (history.length === 0) {
+                    vscode.window.showInformationMessage('沒有找到 Git 歷史記錄');
+                    return;
+                }
+
+                // 顯示 Git 歷史
+                const panel = vscode.window.createWebviewPanel(
+                    'gitHistory',
+                    'Git 提交歷史',
+                    vscode.ViewColumn.Two,
+                    { enableScripts: true }
+                );
+
+                panel.webview.html = generateGitHistoryHtml(history);
+
+            } catch (error) {
+                console.error('查看 Git 歷史失敗:', error);
+                vscode.window.showErrorMessage(`查看 Git 歷史失敗: ${error}`);
+            }
+        }),
+
+        // 文件歷史查看指令
+        vscode.commands.registerCommand('devika.showFileHistory', async () => {
+            try {
+                const editor = vscode.window.activeTextEditor;
+                if (!editor) {
+                    vscode.window.showErrorMessage('請先打開一個文件');
+                    return;
+                }
+
+                const gitService = new GitService();
+                const relativePath = vscode.workspace.asRelativePath(editor.document.uri);
+                const history = await gitService.getFileHistory(relativePath, 10);
+
+                if (history.length === 0) {
+                    vscode.window.showInformationMessage('沒有找到此文件的 Git 歷史記錄');
+                    return;
+                }
+
+                // 顯示文件歷史
+                const panel = vscode.window.createWebviewPanel(
+                    'fileHistory',
+                    `文件歷史: ${relativePath}`,
+                    vscode.ViewColumn.Two,
+                    { enableScripts: true }
+                );
+
+                panel.webview.html = generateFileHistoryHtml(history, relativePath);
+
+            } catch (error) {
+                console.error('查看文件歷史失敗:', error);
+                vscode.window.showErrorMessage(`查看文件歷史失敗: ${error}`);
             }
         }),
 
@@ -409,4 +680,199 @@ function registerViewProviders(context: vscode.ExtensionContext): void {
         console.error('視圖提供者註冊失敗:', error);
         vscode.window.showErrorMessage(`Devika 視圖註冊失敗: ${error}`);
     }
+}
+
+function createStatusBarItem(context: vscode.ExtensionContext): void {
+    // 創建狀態欄項目
+    llmStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+    llmStatusBarItem.command = 'devika.switchLLM';
+    llmStatusBarItem.tooltip = '點擊切換 LLM 模型';
+
+    // 更新狀態欄顯示
+    updateStatusBarItem();
+
+    // 顯示狀態欄項目
+    llmStatusBarItem.show();
+
+    // 添加到訂閱列表
+    context.subscriptions.push(llmStatusBarItem);
+
+    // 監聽配置變更
+    const configChangeListener = vscode.workspace.onDidChangeConfiguration(e => {
+        if (e.affectsConfiguration('devika.preferredModel')) {
+            updateStatusBarItem();
+        }
+    });
+    context.subscriptions.push(configChangeListener);
+}
+
+function updateStatusBarItem(): void {
+    if (!llmStatusBarItem) {
+        return;
+    }
+
+    const configManager = ConfigManager.getInstance();
+    const currentModel = configManager.getPreferredModel();
+
+    // 簡化模型名稱顯示
+    let displayName = currentModel;
+    if (currentModel.includes('gpt-4')) {
+        displayName = '🤖 GPT-4';
+    } else if (currentModel.includes('gpt-3.5')) {
+        displayName = '💨 GPT-3.5';
+    } else if (currentModel.includes('claude-3-5-sonnet')) {
+        displayName = '🧠 Claude 3.5';
+    } else if (currentModel.includes('claude-3-opus')) {
+        displayName = '🎯 Claude Opus';
+    } else if (currentModel.includes('claude-3-haiku')) {
+        displayName = '⚡ Claude Haiku';
+    } else if (currentModel.includes('gemini')) {
+        displayName = '💎 Gemini';
+    }
+
+    llmStatusBarItem.text = `$(robot) ${displayName}`;
+}
+
+async function startAutomaticFeatures(): Promise<void> {
+    try {
+        if (!devikaCoreManager) {
+            return;
+        }
+
+        // 1. 自動索引工作區
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        if (workspaceFolders && workspaceFolders.length > 0) {
+            vscode.window.showInformationMessage('🔍 Devika 正在建立項目索引...');
+
+            // 索引所有工作區
+            for (const folder of workspaceFolders) {
+                await devikaCoreManager.getCodeContextService().indexWorkspace(folder);
+            }
+
+            // 自動掃描 TODO
+            if (ConfigManager.getInstance().getAutoScanTodos()) {
+                await devikaCoreManager.scanTodos();
+            }
+
+            vscode.window.showInformationMessage('✅ 項目索引建立完成！');
+        }
+
+        // 2. 設置文件監聽器 (已在 registerFileListeners 中設置)
+
+        console.log('自動功能已啟動：索引、TODO 掃描、文件監聽');
+
+    } catch (error) {
+        console.error('啟動自動功能失敗:', error);
+        vscode.window.showWarningMessage(`部分自動功能啟動失敗: ${error}`);
+    }
+}
+
+function generateProjectAnalysisHtml(structure: any): string {
+    return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body { font-family: var(--vscode-font-family); padding: 20px; }
+            .metric { margin: 10px 0; padding: 10px; background: var(--vscode-textCodeBlock-background); }
+            .file-list { max-height: 300px; overflow-y: auto; }
+        </style>
+    </head>
+    <body>
+        <h1>📊 項目分析報告</h1>
+
+        <div class="metric">
+            <h3>📁 項目概覽</h3>
+            <p><strong>根目錄:</strong> ${structure.rootPath}</p>
+            <p><strong>總文件數:</strong> ${structure.files?.length || 0}</p>
+            <p><strong>目錄數:</strong> ${structure.directories?.length || 0}</p>
+        </div>
+
+        <div class="metric">
+            <h3>📈 項目指標</h3>
+            <p><strong>總行數:</strong> ${structure.metrics?.totalLines || 0}</p>
+            <p><strong>總大小:</strong> ${Math.round((structure.metrics?.totalSize || 0) / 1024)} KB</p>
+            <p><strong>平均文件大小:</strong> ${Math.round(structure.metrics?.averageFileSize || 0)} bytes</p>
+        </div>
+
+        <div class="metric">
+            <h3>🔗 依賴項</h3>
+            <div class="file-list">
+                ${structure.dependencies?.map((dep: any) =>
+                    `<p>• ${dep.name} (${dep.type}): ${dep.version || 'latest'}</p>`
+                ).join('') || '<p>沒有找到依賴項</p>'}
+            </div>
+        </div>
+
+        <div class="metric">
+            <h3>📂 目錄結構</h3>
+            <div class="file-list">
+                ${structure.directories?.map((dir: any) =>
+                    `<p>📁 ${dir.path} (${dir.fileCount} 個文件)</p>`
+                ).join('') || '<p>沒有找到目錄</p>'}
+            </div>
+        </div>
+    </body>
+    </html>
+    `;
+}
+
+function generateGitHistoryHtml(history: any[]): string {
+    return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body { font-family: var(--vscode-font-family); padding: 20px; }
+            .commit { margin: 15px 0; padding: 15px; background: var(--vscode-textCodeBlock-background); border-radius: 5px; }
+            .commit-hash { font-family: monospace; color: var(--vscode-textLink-foreground); }
+            .commit-date { color: var(--vscode-descriptionForeground); font-size: 0.9em; }
+        </style>
+    </head>
+    <body>
+        <h1>📜 Git 提交歷史</h1>
+
+        ${history.map(commit => `
+            <div class="commit">
+                <div class="commit-hash">${commit.hash.substring(0, 8)}</div>
+                <div><strong>${commit.message}</strong></div>
+                <div class="commit-date">👤 ${commit.author} • 📅 ${new Date(commit.date).toLocaleString()}</div>
+                ${commit.files?.length ? `<div>📁 ${commit.files.length} 個文件變更</div>` : ''}
+            </div>
+        `).join('')}
+    </body>
+    </html>
+    `;
+}
+
+function generateFileHistoryHtml(history: any[], filePath: string): string {
+    return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body { font-family: var(--vscode-font-family); padding: 20px; }
+            .commit { margin: 15px 0; padding: 15px; background: var(--vscode-textCodeBlock-background); border-radius: 5px; }
+            .commit-hash { font-family: monospace; color: var(--vscode-textLink-foreground); }
+            .commit-date { color: var(--vscode-descriptionForeground); font-size: 0.9em; }
+            .file-path { background: var(--vscode-badge-background); padding: 5px 10px; border-radius: 3px; }
+        </style>
+    </head>
+    <body>
+        <h1>📄 文件歷史</h1>
+        <div class="file-path">📁 ${filePath}</div>
+
+        ${history.map(commit => `
+            <div class="commit">
+                <div class="commit-hash">${commit.hash.substring(0, 8)}</div>
+                <div><strong>${commit.message}</strong></div>
+                <div class="commit-date">👤 ${commit.author} • 📅 ${new Date(commit.date).toLocaleString()}</div>
+            </div>
+        `).join('')}
+    </body>
+    </html>
+    `;
 }

@@ -5,9 +5,14 @@ export class UIManager {
     private context: vscode.ExtensionContext;
     private mainPanel: vscode.WebviewPanel | undefined;
     private taskPanel: vscode.WebviewPanel | undefined;
+    private coreManager: any; // 避免循環依賴
 
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
+    }
+
+    setCoreManager(coreManager: any): void {
+        this.coreManager = coreManager;
     }
 
     async showMainPanel(): Promise<void> {
@@ -208,17 +213,23 @@ export class UIManager {
             // Create abort controller for this chat request
             this.currentChatAbortController = new AbortController();
 
-            // Import LLMService and ConfigManager dynamically to avoid circular dependencies
-            const { LLMService } = await import('../llm/LLMService');
-            const { ConfigManager } = await import('../config/ConfigManager');
-            const configManager = ConfigManager.getInstance();
-            const llmService = new LLMService(configManager);
+            let response: string;
 
-            // Generate response
-            const result = await llmService.generateCompletion(
-                `作為一個 AI 程式開發助理，請回答以下問題：${message}`
-            );
-            const response = result.content;
+            if (this.coreManager) {
+                // 使用智能分派器處理查詢
+                response = await this.coreManager.processIntelligentQuery(message);
+            } else {
+                // 後備方案：使用基本 LLM 服務
+                const { LLMService } = await import('../llm/LLMService');
+                const { ConfigManager } = await import('../config/ConfigManager');
+                const configManager = ConfigManager.getInstance();
+                const llmService = new LLMService(configManager);
+
+                const result = await llmService.generateCompletion(
+                    `作為一個 AI 程式開發助理，請回答以下問題：${message}`
+                );
+                response = result.content;
+            }
 
             // Send response back to webview
             if (this.mainPanel) {
