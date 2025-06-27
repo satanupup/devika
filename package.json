@@ -92,6 +92,12 @@
         "icon": "$(info)"
       },
       {
+        "command": "devika.analyzeMarkdown",
+        "title": "分析 Markdown 文件",
+        "category": "Devika",
+        "icon": "$(markdown)"
+      },
+      {
         "command": "devika.analyzeProject",
         "title": "分析項目結構",
         "category": "Devika",

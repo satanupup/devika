@@ -365,6 +365,55 @@ function registerCommands(context: vscode.ExtensionContext) {
             }
         }),
 
+        // Markdown 文件分析指令
+        vscode.commands.registerCommand('devika.analyzeMarkdown', async () => {
+            try {
+                const editor = vscode.window.activeTextEditor;
+                if (!editor) {
+                    vscode.window.showWarningMessage('請先打開一個 Markdown 文件');
+                    return;
+                }
+
+                const document = editor.document;
+                if (!document.fileName.endsWith('.md') && !document.fileName.endsWith('.markdown')) {
+                    vscode.window.showWarningMessage('當前文件不是 Markdown 文件');
+                    return;
+                }
+
+                // 動態導入 MarkdownAnalyzer
+                const { MarkdownAnalyzer } = await import('./analyzer/MarkdownAnalyzer');
+                const analyzer = new MarkdownAnalyzer();
+
+                vscode.window.withProgress({
+                    location: vscode.ProgressLocation.Notification,
+                    title: "🔍 分析 Markdown 文件...",
+                    cancellable: false
+                }, async (progress) => {
+                    progress.report({ increment: 0, message: "解析文件結構..." });
+
+                    const analysis = await analyzer.analyzeMarkdownFile(document.fileName);
+
+                    progress.report({ increment: 50, message: "生成分析報告..." });
+
+                    const summary = analyzer.generateSummary(analysis);
+
+                    progress.report({ increment: 100, message: "完成！" });
+
+                    // 創建新的文檔顯示分析結果
+                    const resultDoc = await vscode.workspace.openTextDocument({
+                        content: summary,
+                        language: 'markdown'
+                    });
+
+                    await vscode.window.showTextDocument(resultDoc, vscode.ViewColumn.Beside);
+                });
+
+            } catch (error) {
+                console.error('分析 Markdown 文件失敗:', error);
+                vscode.window.showErrorMessage(`分析 Markdown 文件失敗: ${error}`);
+            }
+        }),
+
         // 項目狀態指令
         vscode.commands.registerCommand('devika.showProjectStatus', async () => {
             try {

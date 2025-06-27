@@ -6,6 +6,7 @@ import { MultiProjectAnalyzer, ProjectInfo } from '../agent/MultiProjectAnalyzer
 import { GitService } from '../git/GitService';
 import { CodeContextService } from '../context/CodeContextService';
 import { SmartCodeAnalyzer } from './SmartCodeAnalyzer';
+import { MarkdownAnalyzer } from '../analyzer/MarkdownAnalyzer';
 
 export interface UserIntent {
     type: 'code_analysis' | 'project_overview' | 'git_history' | 'file_search' | 'refactor' | 'debug' | 'general';
@@ -28,6 +29,7 @@ export class IntelligentTaskDispatcher {
     private gitService: GitService;
     private codeContextService: CodeContextService;
     private smartCodeAnalyzer: SmartCodeAnalyzer;
+    private markdownAnalyzer: MarkdownAnalyzer;
     private projectIndexed: boolean = false;
 
     constructor(
@@ -40,6 +42,7 @@ export class IntelligentTaskDispatcher {
         this.gitService = new GitService();
         this.codeContextService = codeContextService;
         this.smartCodeAnalyzer = new SmartCodeAnalyzer(llmService);
+        this.markdownAnalyzer = new MarkdownAnalyzer();
     }
 
     async processUserQuery(query: string): Promise<string> {
@@ -193,6 +196,18 @@ export class IntelligentTaskDispatcher {
             };
         }
 
+        // Markdown 文件分析相關
+        if (lowerQuery.includes('markdown') || lowerQuery.includes('md文件') || lowerQuery.includes('readme') ||
+            lowerQuery.includes('分析文檔') || lowerQuery.includes('文檔分析') || lowerQuery.includes('文檔結構') ||
+            lowerQuery.includes('analyze document') || lowerQuery.includes('document analysis')) {
+            return {
+                type: 'markdown_analysis',
+                confidence: 0.9,
+                parameters: {},
+                requiredActions: ['analyze_markdown']
+            };
+        }
+
         // 問候和身份相關
         if (lowerQuery.includes('你好') || lowerQuery.includes('hello') || lowerQuery.includes('hi') ||
             lowerQuery.includes('哪家公司') || lowerQuery.includes('什麼') || lowerQuery.includes('who') ||
@@ -237,6 +252,10 @@ export class IntelligentTaskDispatcher {
 
                     case 'search_files':
                         results.searchResults = await this.searchInProject(intent.parameters.searchTerm);
+                        break;
+
+                    case 'analyze_markdown':
+                        results.markdownAnalysis = await this.analyzeMarkdownFiles();
                         break;
 
                     case 'general_response':
@@ -354,6 +373,33 @@ export class IntelligentTaskDispatcher {
                 const searchResults = result.data.searchResults;
                 return `🔍 **搜索結果**\n\n找到 ${searchResults?.count || 0} 個相關項目。`;
 
+            case 'markdown_analysis':
+                const markdownAnalysis = result.data.markdownAnalysis;
+                if (markdownAnalysis && markdownAnalysis.length > 0) {
+                    let response = `📄 **Markdown 文件分析**\n\n`;
+                    response += `📁 **找到 ${markdownAnalysis.length} 個 Markdown 文件**\n\n`;
+
+                    markdownAnalysis.forEach((analysis: any, index: number) => {
+                        response += `**${index + 1}. ${analysis.fileName}**\n`;
+                        if (analysis.title) {
+                            response += `   📋 標題: ${analysis.title}\n`;
+                        }
+                        if (analysis.description) {
+                            response += `   📝 描述: ${analysis.description.substring(0, 100)}...\n`;
+                        }
+                        response += `   📊 統計: ${analysis.statistics.totalLines} 行, ${analysis.statistics.totalWords} 字\n`;
+                        response += `   ⭐ 質量: ${analysis.quality.score}/100\n`;
+                        if (analysis.quality.issues.length > 0) {
+                            response += `   ⚠️ 問題: ${analysis.quality.issues.slice(0, 2).join(', ')}\n`;
+                        }
+                        response += '\n';
+                    });
+
+                    return response;
+                } else {
+                    return `📄 **Markdown 分析**\n\n未找到 Markdown 文件或分析失敗。`;
+                }
+
             default:
                 // 對於一般查詢，嘗試直接使用 LLM 回應
                 return this.handleGeneralQuery(intent, result);
@@ -402,6 +448,36 @@ export class IntelligentTaskDispatcher {
         // 實現項目內搜索
         const symbols = this.codeContextService.searchSymbols(searchTerm);
         return { symbols, count: symbols.length };
+    }
+
+    private async analyzeMarkdownFiles(): Promise<any[]> {
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        if (!workspaceFolders) return [];
+
+        try {
+            // 查找所有 Markdown 文件
+            const markdownFiles = await vscode.workspace.findFiles(
+                '**/*.{md,markdown}',
+                '**/node_modules/**'
+            );
+
+            const analyses = [];
+
+            // 分析每個 Markdown 文件
+            for (const file of markdownFiles.slice(0, 10)) { // 限制最多分析10個文件
+                try {
+                    const analysis = await this.markdownAnalyzer.analyzeMarkdownFile(file.fsPath);
+                    analyses.push(analysis);
+                } catch (error) {
+                    console.error(`分析 Markdown 文件失敗 ${file.fsPath}:`, error);
+                }
+            }
+
+            return analyses;
+        } catch (error) {
+            console.error('查找 Markdown 文件失敗:', error);
+            return [];
+        }
     }
 
     private async getBasicProjectInfo(): Promise<any> {
