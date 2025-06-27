@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { LLMService } from '../llm/LLMService';
 import { ConfigManager } from '../config/ConfigManager';
 import { ProjectAnalyzer } from '../agent/ProjectAnalyzer';
+import { MultiProjectAnalyzer, ProjectInfo } from '../agent/MultiProjectAnalyzer';
 import { GitService } from '../git/GitService';
 import { CodeContextService } from '../context/CodeContextService';
 import { SmartCodeAnalyzer } from './SmartCodeAnalyzer';
@@ -23,6 +24,7 @@ export interface TaskResult {
 export class IntelligentTaskDispatcher {
     private llmService: LLMService;
     private projectAnalyzer: ProjectAnalyzer;
+    private multiProjectAnalyzer: MultiProjectAnalyzer;
     private gitService: GitService;
     private codeContextService: CodeContextService;
     private smartCodeAnalyzer: SmartCodeAnalyzer;
@@ -34,6 +36,7 @@ export class IntelligentTaskDispatcher {
     ) {
         this.llmService = llmService;
         this.projectAnalyzer = new ProjectAnalyzer();
+        this.multiProjectAnalyzer = new MultiProjectAnalyzer();
         this.gitService = new GitService();
         this.codeContextService = codeContextService;
         this.smartCodeAnalyzer = new SmartCodeAnalyzer(llmService);
@@ -218,6 +221,7 @@ export class IntelligentTaskDispatcher {
                 switch (action) {
                     case 'analyze_project_structure':
                         results.projectStructure = await this.projectAnalyzer.analyzeProject();
+                        results.multiProjectStructure = await this.multiProjectAnalyzer.analyzeWorkspace();
                         break;
 
                     case 'get_git_history':
@@ -297,12 +301,44 @@ export class IntelligentTaskDispatcher {
 
         switch (intent.type) {
             case 'project_overview':
+                const multiProject = result.data.multiProjectStructure;
                 const project = result.data.projectStructure;
-                return `📊 **項目概覽**\n\n` +
-                       `• 總文件數: ${project?.files?.length || 0}\n` +
-                       `• 目錄數: ${project?.directories?.length || 0}\n` +
-                       `• 依賴項: ${project?.dependencies?.length || 0}\n` +
-                       `• 總行數: ${project?.metrics?.totalLines || 0}`;
+
+                if (multiProject && multiProject.projects.length > 0) {
+                    let response = `📊 **多項目工作區分析**\n\n`;
+                    response += `🏠 **工作區**: ${multiProject.workspaceName}\n`;
+                    response += `📁 **總項目數**: ${multiProject.totalProjects}\n\n`;
+
+                    response += `🎯 **項目詳情**:\n`;
+                    multiProject.projects.forEach((proj: ProjectInfo, index: number) => {
+                        response += `\n**${index + 1}. ${proj.name}**\n`;
+                        response += `   • 類型: ${proj.type}\n`;
+                        response += `   • 語言: ${proj.language.join(', ') || '未知'}\n`;
+                        response += `   • 源文件: ${proj.sourceFiles} 個\n`;
+                        if (proj.testFiles > 0) {
+                            response += `   • 測試文件: ${proj.testFiles} 個\n`;
+                        }
+                        if (proj.description) {
+                            response += `   • 描述: ${proj.description}\n`;
+                        }
+                        if (proj.dependencies.length > 0) {
+                            response += `   • 主要依賴: ${proj.dependencies.slice(0, 3).join(', ')}\n`;
+                        }
+                    });
+
+                    if (multiProject.sharedFiles.length > 0) {
+                        response += `\n📋 **共享文件**: ${multiProject.sharedFiles.join(', ')}\n`;
+                    }
+
+                    response += `\n📈 **總結**: ${multiProject.summary}`;
+                    return response;
+                } else {
+                    return `📊 **項目概覽**\n\n` +
+                           `• 總文件數: ${project?.files?.length || 0}\n` +
+                           `• 目錄數: ${project?.directories?.length || 0}\n` +
+                           `• 依賴項: ${project?.dependencies?.length || 0}\n` +
+                           `• 總行數: ${project?.metrics?.totalLines || 0}`;
+                }
 
             case 'git_history':
                 const history = result.data.gitHistory;
