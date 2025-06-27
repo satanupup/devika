@@ -47,7 +47,7 @@ export class ModernUIManager {
 
     constructor(private context: vscode.ExtensionContext) {
         this.initializeDefaultThemes();
-        this.loadUserPreferences();
+        // this.loadUserPreferences(); // TODO: Implement user preferences loading
     }
 
     private initializeDefaultThemes(): void {

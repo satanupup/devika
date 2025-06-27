@@ -260,7 +260,10 @@ export class AdvancedConfigManager {
         // Get all Devika-related settings
         const inspect = config.inspect('');
         if (inspect) {
-            const allSettings = { ...inspect.globalValue, ...inspect.workspaceValue };
+            const allSettings = {
+                ...(inspect.globalValue || {}),
+                ...(inspect.workspaceValue || {})
+            };
             for (const [key, value] of Object.entries(allSettings)) {
                 settings[`${this.configPrefix}.${key}`] = value;
             }
