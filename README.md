@@ -179,13 +179,13 @@ src/
 
 ### 📅 開發時程
 
-- **Sprint 1** (第 1-3 週): 建立基礎架構 (MVP) - 🟡 **進行中**
-- **Sprint 2** (第 4-6 週): 程式碼情境智能 - ⚪ 待開始
-- **Sprint 3** (第 7-9 週): 任務管理與 Git 整合 - ⚪ 待開始
-- **Sprint 4** (第 10-12 週): 進階功能與工作流 - ⚪ 待開始
-- **Sprint 5** (第 13-15 週): 優化與發布準備 - ⚪ 待開始
+- **Sprint 1** (第 1-2 週): 建立基礎架構 (MVP) - 🟡 **進行中**
+- **Sprint 2** (第 3-4 週): 第一個 Augment 插件 - ⚪ 待開始
+- **Sprint 3** (第 5-6 週): 任務模組系統 - ⚪ 待開始
+- **Sprint 4** (第 7-8 週): 工作流自動化 - ⚪ 待開始
+- **Sprint 5** (第 9-10 週): 優化與發布 - ⚪ 待開始
 
-詳細開發計畫請參閱 [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)
+詳細開發計畫請參閱 [DEVELOPMENT_GUIDE.md](DEVELOPMENT_GUIDE.md)
 
 ### 🎯 近期里程碑
 
@@ -488,12 +488,9 @@ devika/
 │   └── README.md                # VS Code 擴充功能說明
 │
 ├── docs/                        # 📚 專案文件
-│   ├── ARCHITECTURE_SEPARATION.md # 架構分離計畫
-│   ├── DEVELOPMENT_PLAN.md      # 開發計畫
-│   ├── AUGMENT_PLUGIN_GUIDE.md  # Augment 插件開發指南
-│   └── API.md                   # API 文件
+│   └── AUGMENT_PLUGIN_GUIDE.md  # Augment 插件開發指南
 │
-├── ROADMAP.md                   # 發展路線圖
+├── DEVELOPMENT_GUIDE.md         # 開發指南 (整合版)
 ├── CONTRIBUTING.md              # 貢獻指南
 └── README.md                    # 主專案說明
 ```
@@ -648,126 +645,25 @@ outputChannel.appendLine('Log message');
 
 ## 開發計畫
 
-### 📋 敏捷開發方法
+本專案採用**個體戶友善的敏捷開發方法**，分為 5 個 Sprint 週期，每個週期約 1-2 週，總計 80-110 小時的開發時間。
 
-我們採用敏捷開發方法，將整個專案分為 5 個 Sprint 週期，每個週期約 2-3 週。每個 Sprint 都有明確的目標和可交付成果。
+### 🎯 當前狀態
+- **Sprint 1**: 建立基礎架構 (MVP) - 🟡 **進行中**
+- 已完成：專案設定、配置管理、LLM 服務架構
+- 進行中：第一個 Augment 插件、基本 UI
 
-### 🎯 Sprint 概覽
+### 📋 下一步計畫
+- **Sprint 2**: 完成第一個可用的 Augment 插件
+- **Sprint 3**: 實作任務模組系統
+- **Sprint 4**: 程式碼分析和工作流自動化
+- **Sprint 5**: 優化與發布準備
 
-#### Sprint 1: 建立基礎架構 (MVP) - 🟡 進行中
-**時間**: 第 1-3 週
-**目標**: 建立可運作的基礎骨架，實現核心功能的最小可行版本
-
-**主要任務**:
-- [x] TypeScript 專案設定和配置
-- [x] ConfigManager 實作 (API 金鑰管理)
-- [🟡] LLMService 基礎實作
-- [ ] 基本 UI 框架 (Webview)
-- [ ] 指令註冊系統
-
-**成功標準**:
-- 擴充功能可以在 VS Code 中正常載入
-- 可以設定和驗證 API 金鑰
-- 基本的 AI 對話功能運作
-
-#### Sprint 2: 程式碼情境智能 - ⚪ 待開始
-**時間**: 第 4-6 週
-**目標**: 實作程式碼分析和上下文理解的核心功能
-
-**主要任務**:
-- [ ] Tree-sitter 語法分析整合
-- [ ] CodeParser 核心功能 (符號提取、TODO 掃描)
-- [ ] CodeContextService (智能上下文提取)
-- [ ] 程式碼分析功能實作
-
-**成功標準**:
-- 可以正確解析主要程式語言的語法樹
-- 能夠提取函式、類別等符號資訊
-- 智能上下文提取功能運作正常
-
-#### Sprint 3: 任務管理與 Git 整合 - ⚪ 待開始
-**時間**: 第 7-9 週
-**目標**: 實作任務代理系統和深度 Git 整合功能
-
-**主要任務**:
-- [ ] TaskManager 系統 (CRUD、狀態管理)
-- [ ] GitService 核心功能 (狀態檢測、diff 分析)
-- [ ] AI 回應解析器 (建議轉任務)
-- [ ] 任務 UI 整合
-
-**成功標準**:
-- 任務管理系統完全運作
-- Git 整合功能可以生成有意義的 commit 訊息
-- AI 建議可以自動轉換為可管理的任務
-
-#### Sprint 4: 進階功能與工作流 - ⚪ 待開始
-**時間**: 第 10-12 週
-**目標**: 實作程式碼重構、測試生成和完整工作流
-
-**主要任務**:
-- [ ] 程式碼重構功能 (建議生成、一鍵應用)
-- [ ] 測試生成系統 (單元測試、測試檔案建立)
-- [ ] 自動 TODO 掃描 (背景監聽)
-- [ ] Git 工作流完善 (一鍵 commit、分支管理)
-
-**成功標準**:
-- 程式碼重構功能可以正確應用變更
-- 測試生成功能產生可執行的測試
-- 自動 TODO 掃描不會影響效能
-
-#### Sprint 5: 優化與發布準備 - ⚪ 待開始
-**時間**: 第 13-15 週
-**目標**: 效能優化、測試完善、文件更新和發布準備
-
-**主要任務**:
-- [ ] 效能優化與錯誤處理
-- [ ] 測試覆蓋率完善 (目標 >80%)
-- [ ] UI/UX 優化
-- [ ] 文件與範例完善
-- [ ] 發布準備 (Marketplace)
-
-**成功標準**:
-- 擴充功能效能達到生產級別
-- 測試覆蓋率達到 80% 以上
-- 準備好發布到 VS Code Marketplace
-
-### 📊 進度追蹤
-
-我們使用 GitHub Issues 和 Project Board 來追蹤開發進度：
-
-- **Issues**: 功能需求、錯誤回報、改進建議
-- **Pull Requests**: 程式碼審查和協作開發
-- **Milestones**: Sprint 里程碑和版本發布
-- **Project Board**: 視覺化任務狀態和進度
-
-### 🤝 參與開發
-
-如果您想參與開發，請：
-
-1. 查看 [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md) 了解詳細計畫
-2. 選擇適合的 [Good First Issue](https://github.com/satanupup/devika/labels/good%20first%20issue)
-3. 在 Issue 中留言表示您要處理
-4. Fork 專案並建立功能分支
-5. 提交 Pull Request
-
-詳細的貢獻指南請參閱 [貢獻指南](#貢獻指南) 部分。
+詳細的開發計畫、技術架構和版本路線圖請參閱 **[DEVELOPMENT_GUIDE.md](DEVELOPMENT_GUIDE.md)**。
 
 ### 📋 專案文件
 
-#### 🎯 **核心文件**
-- **[開發計畫](DEVELOPMENT_PLAN.md)**: 詳細的 5 個 Sprint 開發計畫
-- **[發展路線圖](ROADMAP.md)**: 長期版本發布和功能規劃
-- **[貢獻指南](CONTRIBUTING.md)**: 完整的貢獻流程和規範
-- **[專案總結](PROJECT_SUMMARY.md)**: 目前進度和成就總結
-
-#### 🏗️ **架構文件**
-- **[架構分離計畫](docs/ARCHITECTURE_SEPARATION.md)**: devika-core 與 devika-vscode 分離設計
-- **[專案方向統一](PROJECT_DIRECTION.md)**: 統一的專案定位和技術方向
-- **[專案整合分析](docs/PROJECT_INTEGRATION_ANALYSIS.md)**: 完整的專案清理和整合計畫
-
-#### 🧩 **開發指南**
+- **[開發指南](DEVELOPMENT_GUIDE.md)**: 完整的開發計畫、架構設計和版本路線圖
 - **[Augment 插件開發指南](docs/AUGMENT_PLUGIN_GUIDE.md)**: 插件系統開發教學
-- **[執行清單](EXECUTION_CHECKLIST.md)**: 分階段的開發執行計畫
 - **[devika-core README](devika-core/README.md)**: 核心模組說明文件
 
 ## 開發指南
