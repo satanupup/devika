@@ -145,8 +145,8 @@ src/
 - **Webview API**: 自訂使用者介面
 
 #### 程式碼分析
-- **Tree-sitter**: 高效能語法樹解析
-- **多語言支援**: TypeScript、Python、Java、C++、Go、Rust 等
+- **Tree-sitter**: 高效能語法樹解析 (計劃中)
+- **多語言支援**: TypeScript、JavaScript、Java、C++、Go、Rust 等 (計劃中)
 
 #### AI 整合
 - **多 LLM 支援**: Claude 3、GPT-4、Gemini Pro
@@ -754,10 +754,21 @@ outputChannel.appendLine('Log message');
 
 ### 📋 專案文件
 
+#### 🎯 **核心文件**
 - **[開發計畫](DEVELOPMENT_PLAN.md)**: 詳細的 5 個 Sprint 開發計畫
 - **[發展路線圖](ROADMAP.md)**: 長期版本發布和功能規劃
 - **[貢獻指南](CONTRIBUTING.md)**: 完整的貢獻流程和規範
 - **[專案總結](PROJECT_SUMMARY.md)**: 目前進度和成就總結
+
+#### 🏗️ **架構文件**
+- **[架構分離計畫](docs/ARCHITECTURE_SEPARATION.md)**: devika-core 與 devika-vscode 分離設計
+- **[專案方向統一](PROJECT_DIRECTION.md)**: 統一的專案定位和技術方向
+- **[專案整合分析](docs/PROJECT_INTEGRATION_ANALYSIS.md)**: 完整的專案清理和整合計畫
+
+#### 🧩 **開發指南**
+- **[Augment 插件開發指南](docs/AUGMENT_PLUGIN_GUIDE.md)**: 插件系統開發教學
+- **[執行清單](EXECUTION_CHECKLIST.md)**: 分階段的開發執行計畫
+- **[devika-core README](devika-core/README.md)**: 核心模組說明文件
 
 ## 開發指南
 
@@ -769,137 +780,133 @@ outputChannel.appendLine('Log message');
    cd devika
    ```
 
-2. **安裝開發依賴項**
+2. **安裝依賴項**
    ```bash
-   # 後端
-   uv venv
-   source .venv/bin/activate  # 或在 Windows 上使用 .venv\Scripts\activate
-   uv pip install -r requirements.txt
-
-   # 前端
-   cd ui
-   bun install
+   npm install
    ```
 
-3. **以開發模式執行**
+3. **編譯 TypeScript**
    ```bash
-   # 後端 (自動重載)
-   python devika.py
-
-   # 前端 (熱重載)
-   cd ui
-   bun run dev
+   npm run compile
    ```
+
+4. **啟動除錯模式**
+   - 在 VS Code 中按 `F5`
+   - 或使用除錯面板選擇 "執行擴充功能"
 
 ### 程式碼風格和標準
 
-- **Python**: 遵循 PEP 8 指南
-- **JavaScript/Svelte**: 使用 Prettier 進行格式化
+- **TypeScript**: 遵循 ESLint 規則
 - **文件**: 為任何新功能更新文件
 - **測試**: 為新功能新增測試
 
 ### 開發工具
 
-- **後端除錯**: 使用 Python 除錯器或日誌記錄
-- **前端除錯**: 瀏覽器開發工具和 Svelte 開發工具
-- **API 測試**: 使用 Postman 或 curl 測試 API 端點
-- **資料庫**: SQLite 瀏覽器進行資料庫檢查
+- **除錯**: 使用 VS Code 內建除錯器
+- **測試**: Jest 測試框架
+- **程式碼檢查**: ESLint 和 TypeScript 編譯器
 
 ## 測試
+
+Devika VS Code Extension 包含全面的測試套件，確保程式碼品質和可靠性。
 
 ### 執行測試
 
 ```bash
-# 安裝測試依賴項
-uv pip install pytest pytest-asyncio
-
 # 執行所有測試
-pytest
+npm test
 
 # 執行特定測試檔案
-pytest tests/test_agents.py
+npm test -- --grep "ConfigManager"
 
 # 執行覆蓋率測試
-pytest --cov=src tests/
+npm run test:coverage
 ```
 
 ### 測試結構
 
 ```
-tests/
-├── test_agents/           # 代理功能測試
-├── test_llm/             # 語言模型測試
-├── test_browser/         # 瀏覽器自動化測試
-├── test_api/             # API 端點測試
-└── fixtures/             # 測試資料和固定裝置
+src/test/
+├── suite/
+│   ├── extension.test.ts   # 擴充功能測試
+│   ├── config.test.ts      # 配置管理測試
+│   └── tasks.test.ts       # 任務管理測試
+└── runTest.ts             # 測試執行器
 ```
 
 ### 編寫測試
 
-```python
-import pytest
-from src.agents.planner import Planner
+1. **單元測試**: 測試個別函式和類別
+2. **整合測試**: 測試模組間的互動
+3. **端到端測試**: 測試完整的工作流程
 
-def test_planner_execution():
-    planner = Planner(base_model="gpt-4")
-    result = planner.execute("Create a todo app", "test_project")
-    assert result is not None
-    assert "plan" in result.lower()
+```typescript
+// 範例測試
+import * as assert from 'assert';
+import { ConfigManager } from '../../config/ConfigManager';
+
+suite('ConfigManager Test Suite', () => {
+    test('should load configuration', () => {
+        const config = ConfigManager.getInstance();
+        assert.ok(config);
+    });
+});
 ```
 
 ## 部署
 
-### 生產環境部署
+### VS Code Marketplace 發布
 
-#### Docker 部署 (建議)
+1. **建置擴充功能**
+   ```bash
+   npm run compile
+   ```
 
-```bash
-# 使用 Docker Compose 建置和執行
-docker-compose up -d
+2. **打包 VSIX 檔案**
+   ```bash
+   npm install -g vsce
+   vsce package
+   ```
 
-# 檢視日誌
-docker-compose logs -f
+3. **發布到 Marketplace**
+   ```bash
+   vsce publish
+   ```
 
-# 停止服務
-docker-compose down
-```
+### 本地安裝
 
-#### 手動部署
+1. **從 VSIX 安裝**
+   ```bash
+   code --install-extension devika-vscode-0.1.0.vsix
+   ```
 
-```bash
-# 設定生產環境
-export FLASK_ENV=production
+2. **開發模式安裝**
+   - 在 VS Code 中按 `F5` 啟動除錯模式
+   - 新視窗會載入開發版本的擴充功能
 
-# 安裝生產依賴項
-uv pip install -r requirements.txt
+### 配置設定
 
-# 建置前端
-cd ui
-bun run build
+在 VS Code 中設定 API 金鑰：
 
-# 使用生產伺服器啟動
-gunicorn -w 4 -b 0.0.0.0:1337 devika:app
-```
+1. **開啟設定**
+   - `Ctrl+,` (Windows/Linux) 或 `Cmd+,` (Mac)
+   - 搜尋 "Devika"
 
-### 環境變數
+2. **設定 API 金鑰**
+   ```json
+   {
+     "devika.claude.apiKey": "your-claude-api-key",
+     "devika.openai.apiKey": "your-openai-api-key",
+     "devika.gemini.apiKey": "your-gemini-api-key"
+   }
+   ```
 
-```bash
-# 生產環境必需
-export CLAUDE_API_KEY="your-key"
-export OPENAI_API_KEY="your-key"
-export BING_API_KEY="your-key"
+### 發布考量
 
-# 可選
-export OLLAMA_HOST="http://localhost:11434"
-export DATABASE_URL="sqlite:///data/db/devika.db"
-```
-
-### 擴展考量
-
-- **負載平衡**: 使用 nginx 或類似工具處理多個實例
-- **資料庫**: 考慮使用 PostgreSQL 處理大量使用
-- **快取**: 實作 Redis 進行會話和回應快取
-- **監控**: 使用 Prometheus 和 Grafana 等工具
+- **版本管理**: 使用語義化版本控制
+- **變更日誌**: 維護詳細的 CHANGELOG.md
+- **測試**: 確保所有功能在發布前經過測試
+- **文件**: 保持 README 和 API 文件更新
 
 ## 故障排除
 
@@ -907,17 +914,20 @@ export DATABASE_URL="sqlite:///data/db/devika.db"
 
 #### 安裝問題
 
-**問題**: `playwright install` 失敗
+**問題**: `npm install` 失敗
 ```bash
-# 解決方案: 安裝系統依賴項
-sudo apt-get install -y libnss3 libatk-bridge2.0-0 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libxss1 libasound2
+# 解決方案: 清除快取並重新安裝
+npm cache clean --force
+rm -rf node_modules package-lock.json
+npm install
 ```
 
-**問題**: Python 版本相容性
+**問題**: TypeScript 編譯錯誤
 ```bash
-# 解決方案: 使用 Python 3.10 或 3.11
-pyenv install 3.11.0
-pyenv local 3.11.0
+# 解決方案: 檢查 TypeScript 版本
+npm install -g typescript
+tsc --version
+npm run compile
 ```
 
 #### 執行時問題
@@ -927,48 +937,49 @@ pyenv local 3.11.0
 - 驗證模型在您的地區是否可用
 - 嘗試不同的模型
 
-**問題**: 搜尋無法運作
-- 驗證搜尋引擎 API 金鑰
-- 檢查網路連線
-- 嘗試不同的搜尋引擎
+**問題**: 擴充功能無法載入
+- 檢查 VS Code 版本 (需要 1.74.0 或更高)
+- 重新載入 VS Code 視窗 (`Ctrl+Shift+P` > "Reload Window")
+- 檢查擴充功能是否已啟用
 
-**問題**: 瀏覽器自動化失敗
-- 執行 `playwright install --with-deps`
-- 檢查系統權限
-- 驗證顯示伺服器 (Linux)
+**問題**: AI 功能無法使用
+- 檢查 API 金鑰設定
+- 驗證網路連線
+- 嘗試不同的 AI 模型
 
 #### 效能問題
 
-**問題**: 回應時間緩慢
-- 使用更快的模型 (Groq、本地 LLMs)
-- 減少上下文視窗大小
+**問題**: AI 回應時間緩慢
 - 檢查網路連線
+- 嘗試不同的 AI 模型
+- 減少分析的程式碼量
 
-**問題**: 記憶體使用量過高
-- 重新啟動應用程式
-- 清除瀏覽器快取
-- 使用較輕量的模型
+**問題**: VS Code 效能問題
+- 重新載入 VS Code 視窗
+- 檢查其他擴充功能衝突
+- 更新到最新版本的 VS Code
 
 ### 除錯模式
 
-啟用除錯日誌記錄：
+啟用 VS Code 除錯：
 
-```bash
-# 設定環境變數
-export DEVIKA_DEBUG=true
+1. **開啟除錯面板**
+   - `Ctrl+Shift+D` (Windows/Linux) 或 `Cmd+Shift+D` (Mac)
 
-# 或修改 config.toml
-[LOGGING]
-LOG_REST_API = "true"
-LOG_PROMPTS = "true"
-```
+2. **選擇除錯配置**
+   - "執行擴充功能" - 啟動新的 VS Code 視窗進行測試
+   - "附加到擴充功能主機" - 附加到現有的擴充功能程序
+
+3. **檢視除錯輸出**
+   - 開啟 "輸出" 面板
+   - 選擇 "Devika" 頻道檢視日誌
 
 ### 取得幫助
 
-1. **檢查日誌**: `data/logs/` 目錄
+1. **檢查輸出面板**: VS Code 中的 "Devika" 頻道
 2. **啟用除錯模式**: 參閱上述除錯說明
-3. **搜尋問題**: [GitHub Issues](https://github.com/satanupup/devika/issues)
-4. **詢問社群**: [Discord 伺服器](https://discord.gg/CYRp43878y)
+3. **GitHub Issues**: [回報問題](https://github.com/satanupup/devika/issues)
+4. **社群討論**: [GitHub Discussions](https://github.com/satanupup/devika/discussions)
 
 ## 貢獻指南
 

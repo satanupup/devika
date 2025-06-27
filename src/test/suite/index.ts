@@ -1,8 +1,8 @@
 import * as path from 'path';
-import * as Mocha from 'mocha';
+import Mocha from 'mocha';
 import * as glob from 'glob';
 
-export function run(): Promise<void> {
+export async function run(): Promise<void> {
     // 建立 Mocha 測試實例
     const mocha = new Mocha({
         ui: 'tdd',
@@ -11,28 +11,25 @@ export function run(): Promise<void> {
 
     const testsRoot = path.resolve(__dirname, '..');
 
-    return new Promise((c, e) => {
-        glob('**/**.test.js', { cwd: testsRoot }, (err, files) => {
-            if (err) {
-                return e(err);
-            }
+    try {
+        // 使用同步版本的 glob
+        const files = glob.sync('**/**.test.js', { cwd: testsRoot });
 
-            // 新增檔案到測試套件
-            files.forEach(f => mocha.addFile(path.resolve(testsRoot, f)));
+        // 新增檔案到測試套件
+        files.forEach((f: string) => mocha.addFile(path.resolve(testsRoot, f)));
 
-            try {
-                // 執行 Mocha 測試
-                mocha.run(failures => {
-                    if (failures > 0) {
-                        e(new Error(`${failures} tests failed.`));
-                    } else {
-                        c();
-                    }
-                });
-            } catch (err) {
-                console.error(err);
-                e(err);
-            }
+        // 執行 Mocha 測試
+        return new Promise<void>((resolve, reject) => {
+            mocha.run((failures: number) => {
+                if (failures > 0) {
+                    reject(new Error(`${failures} tests failed.`));
+                } else {
+                    resolve();
+                }
+            });
         });
-    });
+    } catch (err) {
+        console.error(err);
+        throw new Error(`Test discovery failed: ${err}`);
+    }
 }
