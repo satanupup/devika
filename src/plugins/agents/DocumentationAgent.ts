@@ -38,9 +38,10 @@ export class DocumentationAgent extends BaseAgent {
         });
 
         // 生成內容
-        const contributingContent = await this.retryOperation(async () => {
+        const contributingResponse = await this.retryOperation(async () => {
             return await this.llmService.generateCompletion(prompt);
         });
+        const contributingContent = contributingResponse.content;
 
         // 顯示預覽
         const confirmed = await context.ui.showPreview(
@@ -100,9 +101,10 @@ export class DocumentationAgent extends BaseAgent {
         });
 
         // 生成路線圖
-        const roadmapContent = await this.retryOperation(async () => {
+        const roadmapResponse = await this.retryOperation(async () => {
             return await this.llmService.generateCompletion(prompt);
         });
+        const roadmapContent = roadmapResponse.content;
 
         // 顯示預覽
         const confirmed = await context.ui.showPreview(
@@ -158,9 +160,10 @@ export class DocumentationAgent extends BaseAgent {
         });
 
         // 生成變更日誌
-        const changelogContent = await this.retryOperation(async () => {
+        const changelogResponse = await this.retryOperation(async () => {
             return await this.llmService.generateCompletion(prompt);
         });
+        const changelogContent = changelogResponse.content;
 
         // 顯示預覽
         const confirmed = await context.ui.showPreview(

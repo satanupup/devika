@@ -65,11 +65,12 @@ export class DevikaCoreManager {
             const prompt = this.buildAnalysisPrompt(selectedText, context);
 
             // 呼叫 LLM
-            const analysis = await this.llmService.generateCompletion(prompt);
+            const analysisResponse = await this.llmService.generateCompletion(prompt);
+            const analysis = analysisResponse.content;
 
             // 解析回應並建立任務
             const tasks = this.parseAnalysisResponse(analysis, document.uri, selection);
-            
+
             // 新增任務到管理器
             for (const task of tasks) {
                 await this.taskManager.addTask(task);
@@ -102,7 +103,8 @@ export class DevikaCoreManager {
             const prompt = this.buildRefactorPrompt(selectedText, context);
 
             // 呼叫 LLM
-            const refactorSuggestion = await this.llmService.generateCompletion(prompt);
+            const refactorResponse = await this.llmService.generateCompletion(prompt);
+            const refactorSuggestion = refactorResponse.content;
 
             // 解析回應
             const refactorTasks = this.parseRefactorResponse(refactorSuggestion, document.uri, selection);
@@ -143,7 +145,8 @@ export class DevikaCoreManager {
             const prompt = this.buildTestGenerationPrompt(selectedText, context);
 
             // 呼叫 LLM
-            const testCode = await this.llmService.generateCompletion(prompt);
+            const testResponse = await this.llmService.generateCompletion(prompt);
+            const testCode = testResponse.content;
 
             // 建立測試檔案任務
             const testTask = this.createTestFileTask(testCode, document.uri);
@@ -166,7 +169,8 @@ export class DevikaCoreManager {
             }
 
             const prompt = this.buildGitSummaryPrompt(changes);
-            const summary = await this.llmService.generateCompletion(prompt);
+            const summaryResponse = await this.llmService.generateCompletion(prompt);
+            const summary = summaryResponse.content;
 
             await this.uiManager.showGitSummary(summary, changes);
 
@@ -184,10 +188,11 @@ export class DevikaCoreManager {
             }
 
             const prompt = this.buildCommitMessagePrompt(changes);
-            const commitMessage = await this.llmService.generateCompletion(prompt);
+            const commitResponse = await this.llmService.generateCompletion(prompt);
+            const commitMessage = commitResponse.content;
 
             const shouldCommit = await this.uiManager.showCommitMessage(commitMessage);
-            
+
             if (shouldCommit) {
                 await this.gitService.commit(commitMessage);
                 vscode.window.showInformationMessage('已成功提交變更');

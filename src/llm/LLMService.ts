@@ -8,6 +8,15 @@ export interface LLMResponse {
         completionTokens: number;
         totalTokens: number;
     };
+    model?: string;
+    finishReason?: string;
+}
+
+export interface LLMOptions {
+    maxTokens?: number;
+    temperature?: number;
+    timeout?: number;
+    retries?: number;
 }
 
 export class LLMService {
@@ -17,19 +26,54 @@ export class LLMService {
         this.configManager = configManager;
     }
 
-    async generateCompletion(prompt: string): Promise<string> {
+    async generateCompletion(prompt: string, options?: LLMOptions): Promise<LLMResponse> {
         const model = this.configManager.getPreferredModel();
-        
-        switch (this.getModelProvider(model)) {
-            case 'openai':
-                return await this.callOpenAI(prompt, model);
-            case 'claude':
-                return await this.callClaude(prompt, model);
-            case 'gemini':
-                return await this.callGemini(prompt, model);
-            default:
-                throw new Error(`不支援的模型: ${model}`);
+        const defaultOptions: LLMOptions = {
+            maxTokens: 4000,
+            temperature: 0.7,
+            timeout: 30000,
+            retries: 3
+        };
+        const finalOptions = { ...defaultOptions, ...options };
+
+        return await this.callWithRetry(async () => {
+            switch (this.getModelProvider(model)) {
+                case 'openai':
+                    return await this.callOpenAI(prompt, model, finalOptions);
+                case 'claude':
+                    return await this.callClaude(prompt, model, finalOptions);
+                case 'gemini':
+                    return await this.callGemini(prompt, model, finalOptions);
+                default:
+                    throw new Error(`不支援的模型: ${model}`);
+            }
+        }, finalOptions.retries || 3);
+    }
+
+    private async callWithRetry<T>(fn: () => Promise<T>, retries: number): Promise<T> {
+        let lastError: Error | undefined;
+
+        for (let i = 0; i < retries; i++) {
+            try {
+                return await fn();
+            } catch (error: any) {
+                lastError = error;
+
+                // 如果是 API 金鑰錯誤或配額錯誤，不重試
+                if (error.message.includes('API 金鑰') ||
+                    error.message.includes('quota') ||
+                    error.message.includes('rate limit')) {
+                    throw error;
+                }
+
+                // 等待後重試
+                if (i < retries - 1) {
+                    await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+                }
+            }
         }
+
+        throw new Error(`所有重試都失敗了: ${lastError?.message || '未知錯誤'}`);
     }
 
     private getModelProvider(model: string): string {
@@ -43,7 +87,7 @@ export class LLMService {
         return 'unknown';
     }
 
-    private async callOpenAI(prompt: string, model: string): Promise<string> {
+    private async callOpenAI(prompt: string, model: string, options: LLMOptions): Promise<LLMResponse> {
         const apiKey = this.configManager.getOpenAIApiKey();
         if (!apiKey) {
             throw new Error('請設定 OpenAI API 金鑰');
@@ -64,19 +108,29 @@ export class LLMService {
                             content: prompt
                         }
                     ],
-                    max_tokens: 4000,
-                    temperature: 0.7
+                    max_tokens: options.maxTokens || 4000,
+                    temperature: options.temperature || 0.7
                 },
                 {
                     headers: {
                         'Authorization': `Bearer ${apiKey}`,
                         'Content-Type': 'application/json'
                     },
-                    timeout: 30000
+                    timeout: options.timeout || 30000
                 }
             );
 
-            return response.data.choices[0].message.content;
+            const choice = response.data.choices[0];
+            return {
+                content: choice.message.content,
+                model: response.data.model,
+                finishReason: choice.finish_reason,
+                usage: response.data.usage ? {
+                    promptTokens: response.data.usage.prompt_tokens,
+                    completionTokens: response.data.usage.completion_tokens,
+                    totalTokens: response.data.usage.total_tokens
+                } : undefined
+            };
         } catch (error: any) {
             if (error.response) {
                 throw new Error(`OpenAI API 錯誤: ${error.response.data.error?.message || error.response.statusText}`);
@@ -88,7 +142,7 @@ export class LLMService {
         }
     }
 
-    private async callClaude(prompt: string, model: string): Promise<string> {
+    private async callClaude(prompt: string, model: string, options: LLMOptions): Promise<LLMResponse> {
         const apiKey = this.configManager.getClaudeApiKey();
         if (!apiKey) {
             throw new Error('請設定 Claude API 金鑰');
@@ -99,7 +153,7 @@ export class LLMService {
                 'https://api.anthropic.com/v1/messages',
                 {
                     model: model,
-                    max_tokens: 4000,
+                    max_tokens: options.maxTokens || 4000,
                     messages: [
                         {
                             role: 'user',
@@ -113,11 +167,20 @@ export class LLMService {
                         'Content-Type': 'application/json',
                         'anthropic-version': '2023-06-01'
                     },
-                    timeout: 30000
+                    timeout: options.timeout || 30000
                 }
             );
 
-            return response.data.content[0].text;
+            return {
+                content: response.data.content[0].text,
+                model: response.data.model,
+                finishReason: response.data.stop_reason,
+                usage: response.data.usage ? {
+                    promptTokens: response.data.usage.input_tokens,
+                    completionTokens: response.data.usage.output_tokens,
+                    totalTokens: response.data.usage.input_tokens + response.data.usage.output_tokens
+                } : undefined
+            };
         } catch (error: any) {
             if (error.response) {
                 throw new Error(`Claude API 錯誤: ${error.response.data.error?.message || error.response.statusText}`);
@@ -129,7 +192,7 @@ export class LLMService {
         }
     }
 
-    private async callGemini(prompt: string, model: string): Promise<string> {
+    private async callGemini(prompt: string, model: string, options: LLMOptions): Promise<LLMResponse> {
         const apiKey = this.configManager.getGeminiApiKey();
         if (!apiKey) {
             throw new Error('請設定 Gemini API 金鑰');
@@ -149,19 +212,29 @@ export class LLMService {
                         }
                     ],
                     generationConfig: {
-                        maxOutputTokens: 4000,
-                        temperature: 0.7
+                        maxOutputTokens: options.maxTokens || 4000,
+                        temperature: options.temperature || 0.7
                     }
                 },
                 {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    timeout: 30000
+                    timeout: options.timeout || 30000
                 }
             );
 
-            return response.data.candidates[0].content.parts[0].text;
+            const candidate = response.data.candidates[0];
+            return {
+                content: candidate.content.parts[0].text,
+                model: model,
+                finishReason: candidate.finishReason,
+                usage: response.data.usageMetadata ? {
+                    promptTokens: response.data.usageMetadata.promptTokenCount || 0,
+                    completionTokens: response.data.usageMetadata.candidatesTokenCount || 0,
+                    totalTokens: response.data.usageMetadata.totalTokenCount || 0
+                } : undefined
+            };
         } catch (error: any) {
             if (error.response) {
                 throw new Error(`Gemini API 錯誤: ${error.response.data.error?.message || error.response.statusText}`);
