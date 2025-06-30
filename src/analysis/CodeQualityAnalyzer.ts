@@ -1,6 +1,34 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import { CodeAnalysisUtils } from './CodeAnalysisUtils';
+
+/**
+ * 文件複雜度分析結果
+ */
+interface FileComplexityResult {
+    functions: number;
+    classes: number;
+    complexity: number;
+    maxFunctionLength: number;
+    nestingDepth: number;
+    functionLengths: number[];
+}
+
+/**
+ * 複雜度分析狀態
+ */
+interface ComplexityAnalysisState {
+    functions: number;
+    classes: number;
+    complexity: number;
+    maxFunctionLength: number;
+    maxNestingDepth: number;
+    currentNestingDepth: number;
+    functionLengths: number[];
+    currentFunctionLength: number;
+    inFunction: boolean;
+}
 
 export interface CodeQualityReport {
     projectPath: string;
@@ -358,75 +386,136 @@ export class CodeQualityAnalyzer {
     /**
      * 分析文件複雜度
      */
-    private analyzeFileComplexity(content: string): {
-        functions: number;
-        classes: number;
-        complexity: number;
-        maxFunctionLength: number;
-        nestingDepth: number;
-        functionLengths: number[];
-    } {
+    private analyzeFileComplexity(content: string): FileComplexityResult {
         const lines = content.split('\n');
-        let functions = 0;
-        let classes = 0;
-        let complexity = 1; // 基礎複雜度
-        let maxFunctionLength = 0;
-        let maxNestingDepth = 0;
-        let currentNestingDepth = 0;
-        const functionLengths: number[] = [];
-        let currentFunctionLength = 0;
-        let inFunction = false;
+        const state = this.initializeComplexityState();
 
         for (const line of lines) {
-            const trimmedLine = line.trim();
-
-            // 計算嵌套深度
-            const openBraces = (line.match(/{/g) || []).length;
-            const closeBraces = (line.match(/}/g) || []).length;
-            currentNestingDepth += openBraces - closeBraces;
-            maxNestingDepth = Math.max(maxNestingDepth, currentNestingDepth);
-
-            // 檢測函數
-            if (this.isFunctionDeclaration(trimmedLine)) {
-                functions++;
-                if (inFunction && currentFunctionLength > 0) {
-                    functionLengths.push(currentFunctionLength);
-                    maxFunctionLength = Math.max(maxFunctionLength, currentFunctionLength);
-                }
-                inFunction = true;
-                currentFunctionLength = 0;
-            }
-
-            // 檢測類
-            if (this.isClassDeclaration(trimmedLine)) {
-                classes++;
-            }
-
-            // 計算圈複雜度
-            if (this.isComplexityIncreasingStatement(trimmedLine)) {
-                complexity++;
-            }
-
-            if (inFunction) {
-                currentFunctionLength++;
-            }
-
-            // 函數結束
-            if (inFunction && trimmedLine === '}' && currentNestingDepth === 0) {
-                functionLengths.push(currentFunctionLength);
-                maxFunctionLength = Math.max(maxFunctionLength, currentFunctionLength);
-                inFunction = false;
-                currentFunctionLength = 0;
-            }
+            this.processLineForComplexity(line, state);
         }
 
+        this.finalizeComplexityAnalysis(state);
+
+        return this.buildComplexityResult(state);
+    }
+
+    /**
+     * 初始化複雜度分析狀態
+     */
+    private initializeComplexityState(): ComplexityAnalysisState {
         return {
-            functions,
-            classes,
-            complexity,
-            maxFunctionLength,
-            nestingDepth: maxNestingDepth,
-            functionLengths
+            functions: 0,
+            classes: 0,
+            complexity: 1,
+            maxFunctionLength: 0,
+            maxNestingDepth: 0,
+            currentNestingDepth: 0,
+            functionLengths: [],
+            currentFunctionLength: 0,
+            inFunction: false
+        };
+    }
+
+    /**
+     * 處理單行代碼的複雜度分析
+     */
+    private processLineForComplexity(line: string, state: ComplexityAnalysisState): void {
+        const trimmedLine = line.trim();
+
+        this.updateNestingDepth(line, state);
+        this.detectCodeStructures(trimmedLine, state);
+        this.updateComplexity(trimmedLine, state);
+        this.trackFunctionLength(trimmedLine, state);
+    }
+
+    /**
+     * 更新嵌套深度
+     */
+    private updateNestingDepth(line: string, state: ComplexityAnalysisState): void {
+        const openBraces = (line.match(/{/g) || []).length;
+        const closeBraces = (line.match(/}/g) || []).length;
+        state.currentNestingDepth += openBraces - closeBraces;
+        state.maxNestingDepth = Math.max(state.maxNestingDepth, state.currentNestingDepth);
+    }
+
+    /**
+     * 檢測代碼結構（函數、類等）
+     */
+    private detectCodeStructures(trimmedLine: string, state: ComplexityAnalysisState): void {
+        if (this.isFunctionDeclaration(trimmedLine)) {
+            this.handleFunctionStart(state);
+        }
+
+        if (this.isClassDeclaration(trimmedLine)) {
+            state.classes++;
+        }
+    }
+
+    /**
+     * 處理函數開始
+     */
+    private handleFunctionStart(state: ComplexityAnalysisState): void {
+        state.functions++;
+        if (state.inFunction && state.currentFunctionLength > 0) {
+            this.recordFunctionLength(state);
+        }
+        state.inFunction = true;
+        state.currentFunctionLength = 0;
+    }
+
+    /**
+     * 記錄函數長度
+     */
+    private recordFunctionLength(state: ComplexityAnalysisState): void {
+        state.functionLengths.push(state.currentFunctionLength);
+        state.maxFunctionLength = Math.max(state.maxFunctionLength, state.currentFunctionLength);
+    }
+
+    /**
+     * 更新複雜度
+     */
+    private updateComplexity(trimmedLine: string, state: ComplexityAnalysisState): void {
+        if (this.isComplexityIncreasingStatement(trimmedLine)) {
+            state.complexity++;
+        }
+    }
+
+    /**
+     * 追蹤函數長度
+     */
+    private trackFunctionLength(trimmedLine: string, state: ComplexityAnalysisState): void {
+        if (state.inFunction) {
+            state.currentFunctionLength++;
+
+            // 檢查函數結束
+            if (trimmedLine === '}' && state.currentNestingDepth === 0) {
+                this.recordFunctionLength(state);
+                state.inFunction = false;
+                state.currentFunctionLength = 0;
+            }
+        }
+    }
+
+    /**
+     * 完成複雜度分析
+     */
+    private finalizeComplexityAnalysis(state: ComplexityAnalysisState): void {
+        if (state.inFunction && state.currentFunctionLength > 0) {
+            this.recordFunctionLength(state);
+        }
+    }
+
+    /**
+     * 構建複雜度分析結果
+     */
+    private buildComplexityResult(state: ComplexityAnalysisState): FileComplexityResult {
+        return {
+            functions: state.functions,
+            classes: state.classes,
+            complexity: state.complexity,
+            maxFunctionLength: state.maxFunctionLength,
+            nestingDepth: state.maxNestingDepth,
+            functionLengths: state.functionLengths
         };
     }
 

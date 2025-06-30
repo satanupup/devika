@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { ConfigManager } from '../config/ConfigManager';
+import { ErrorHandler, DevikaError, ErrorType, ErrorSeverity } from '../utils/ErrorHandler';
+import { Logger, LogLevel } from '../utils/Logger';
 
 export interface LLMResponse {
     content: string;
@@ -21,59 +23,134 @@ export interface LLMOptions {
 
 export class LLMService {
     private configManager: ConfigManager;
+    private errorHandler: ErrorHandler;
+    private logger: Logger;
 
     constructor(configManager: ConfigManager) {
         this.configManager = configManager;
+        this.errorHandler = ErrorHandler.getInstance();
+        this.logger = Logger.getInstance();
     }
 
     async generateCompletion(prompt: string, options?: LLMOptions): Promise<LLMResponse> {
-        const model = this.configManager.getPreferredModel();
-        const defaultOptions: LLMOptions = {
-            maxTokens: 4000,
-            temperature: 0.7,
-            timeout: 30000,
-            retries: 3
-        };
-        const finalOptions = { ...defaultOptions, ...options };
+        try {
+            this.logger.info('LLMService', 'Starting completion generation', {
+                promptLength: prompt.length,
+                options
+            });
 
-        return await this.callWithRetry(async () => {
-            switch (this.getModelProvider(model)) {
-                case 'openai':
-                    return await this.callOpenAI(prompt, model, finalOptions);
-                case 'claude':
-                    return await this.callClaude(prompt, model, finalOptions);
-                case 'gemini':
-                    return await this.callGemini(prompt, model, finalOptions);
-                default:
-                    throw new Error(`不支援的模型: ${model}`);
-            }
-        }, finalOptions.retries || 3);
+            const model = this.configManager.getPreferredModel();
+            const defaultOptions: LLMOptions = {
+                maxTokens: 4000,
+                temperature: 0.7,
+                timeout: 30000,
+                retries: 3
+            };
+            const finalOptions = { ...defaultOptions, ...options };
+
+            const result = await this.callWithRetry(async () => {
+                switch (this.getModelProvider(model)) {
+                    case 'openai':
+                        return await this.callOpenAI(prompt, model, finalOptions);
+                    case 'claude':
+                        return await this.callClaude(prompt, model, finalOptions);
+                    case 'gemini':
+                        return await this.callGemini(prompt, model, finalOptions);
+                    default:
+                        throw new DevikaError(
+                            `不支援的模型: ${model}`,
+                            ErrorType.CONFIGURATION,
+                            ErrorSeverity.HIGH,
+                            'UNSUPPORTED_MODEL',
+                            { model }
+                        );
+                }
+            }, finalOptions.retries || 3);
+
+            this.logger.info('LLMService', 'Completion generation successful', {
+                model: result.model,
+                tokensUsed: result.usage?.totalTokens
+            });
+
+            return result;
+        } catch (error) {
+            const devikaError = error instanceof DevikaError ? error : new DevikaError(
+                `LLM 服務錯誤: ${error instanceof Error ? error.message : String(error)}`,
+                ErrorType.API,
+                ErrorSeverity.HIGH,
+                'LLM_SERVICE_ERROR',
+                { prompt: prompt.substring(0, 100), options }
+            );
+
+            this.logger.error('LLMService', 'Completion generation failed', devikaError);
+            await this.errorHandler.handleError(devikaError);
+            throw devikaError;
+        }
     }
 
     private async callWithRetry<T>(fn: () => Promise<T>, retries: number): Promise<T> {
-        let lastError: Error | undefined;
+        let lastError: Error | DevikaError | undefined;
 
         for (let i = 0; i < retries; i++) {
             try {
+                this.logger.debug('LLMService', `Attempt ${i + 1}/${retries}`);
                 return await fn();
             } catch (error: any) {
                 lastError = error;
 
-                // 如果是 API 金鑰錯誤或配額錯誤，不重試
-                if (error.message.includes('API 金鑰') ||
-                    error.message.includes('quota') ||
-                    error.message.includes('rate limit')) {
+                // 檢查是否為不可重試的錯誤
+                if (this.isNonRetryableError(error)) {
+                    this.logger.warn('LLMService', 'Non-retryable error encountered', { error: error.message });
                     throw error;
                 }
 
-                // 等待後重試
+                // 等待後重試（指數退避）
                 if (i < retries - 1) {
-                    await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+                    const delay = Math.pow(2, i) * 1000;
+                    this.logger.debug('LLMService', `Retrying in ${delay}ms`, { attempt: i + 1, error: error.message });
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                } else {
+                    this.logger.error('LLMService', 'All retry attempts exhausted', { attempts: retries, lastError: error.message });
                 }
             }
         }
 
-        throw new Error(`所有重試都失敗了: ${lastError?.message || '未知錯誤'}`);
+        throw lastError || new DevikaError(
+            '重試失敗',
+            ErrorType.API,
+            ErrorSeverity.HIGH,
+            'RETRY_EXHAUSTED',
+            { retries }
+        );
+    }
+
+    /**
+     * 檢查是否為不可重試的錯誤
+     */
+    private isNonRetryableError(error: any): boolean {
+        const message = error.message?.toLowerCase() || '';
+
+        // API 金鑰錯誤
+        if (message.includes('api key') || message.includes('api 金鑰') || message.includes('unauthorized')) {
+            return true;
+        }
+
+        // 配額錯誤
+        if (message.includes('quota') || message.includes('rate limit') || message.includes('billing')) {
+            return true;
+        }
+
+        // 模型不存在錯誤
+        if (message.includes('model not found') || message.includes('invalid model')) {
+            return true;
+        }
+
+        // 請求格式錯誤
+        if (message.includes('bad request') || message.includes('invalid request')) {
+            return true;
+        }
+
+        return false;
     }
 
     private getModelProvider(model: string): string {

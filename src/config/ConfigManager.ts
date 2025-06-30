@@ -1,15 +1,24 @@
 import * as vscode from 'vscode';
+import { ApiKey, createApiKey, NonEmptyString, createNonEmptyString } from '../types/StrictTypes';
+import { isString, isNonEmptyString } from '../types/TypeGuards';
+import { ErrorHandler, DevikaError, ErrorType, ErrorSeverity } from '../utils/ErrorHandler';
+import { Logger } from '../utils/Logger';
 
 export class ConfigManager {
     private static instance: ConfigManager;
     private config: vscode.WorkspaceConfiguration;
+    private readonly errorHandler: ErrorHandler;
+    private readonly logger: Logger;
 
     private constructor() {
         this.config = vscode.workspace.getConfiguration('devika');
-        
+        this.errorHandler = ErrorHandler.getInstance();
+        this.logger = Logger.getInstance();
+
         // 監聽配置變更
         vscode.workspace.onDidChangeConfiguration((event) => {
             if (event.affectsConfiguration('devika')) {
+                this.logger.info('ConfigManager', 'Configuration changed, reloading...');
                 this.config = vscode.workspace.getConfiguration('devika');
             }
         });
@@ -22,29 +31,113 @@ export class ConfigManager {
         return ConfigManager.instance;
     }
 
-    // API 金鑰相關
-    getOpenAIApiKey(): string {
-        return this.config.get<string>('openaiApiKey', '');
+    // API 金鑰相關 - 使用類型安全的方法
+    getOpenAIApiKey(): ApiKey | null {
+        try {
+            const key = this.config.get<string>('openaiApiKey', '');
+            return isNonEmptyString(key) ? createApiKey(key) : null;
+        } catch (error) {
+            this.logger.error('ConfigManager', 'Failed to get OpenAI API key', error);
+            return null;
+        }
     }
 
-    setOpenAIApiKey(key: string): void {
-        this.config.update('openaiApiKey', key, vscode.ConfigurationTarget.Global);
+    async setOpenAIApiKey(key: string): Promise<void> {
+        try {
+            if (!isNonEmptyString(key)) {
+                throw new DevikaError(
+                    'OpenAI API 金鑰不能為空',
+                    ErrorType.VALIDATION,
+                    ErrorSeverity.HIGH,
+                    'INVALID_API_KEY'
+                );
+            }
+
+            const apiKey = createApiKey(key);
+            await this.config.update('openaiApiKey', apiKey, vscode.ConfigurationTarget.Global);
+            this.logger.info('ConfigManager', 'OpenAI API key updated successfully');
+        } catch (error) {
+            const devikaError = error instanceof DevikaError ? error : new DevikaError(
+                `設置 OpenAI API 金鑰失敗: ${error instanceof Error ? error.message : String(error)}`,
+                ErrorType.CONFIGURATION,
+                ErrorSeverity.HIGH,
+                'SET_API_KEY_FAILED'
+            );
+            await this.errorHandler.handleError(devikaError);
+            throw devikaError;
+        }
     }
 
-    getClaudeApiKey(): string {
-        return this.config.get<string>('claudeApiKey', '');
+    getClaudeApiKey(): ApiKey | null {
+        try {
+            const key = this.config.get<string>('claudeApiKey', '');
+            return isNonEmptyString(key) ? createApiKey(key) : null;
+        } catch (error) {
+            this.logger.error('ConfigManager', 'Failed to get Claude API key', error);
+            return null;
+        }
     }
 
-    setClaudeApiKey(key: string): void {
-        this.config.update('claudeApiKey', key, vscode.ConfigurationTarget.Global);
+    async setClaudeApiKey(key: string): Promise<void> {
+        try {
+            if (!isNonEmptyString(key)) {
+                throw new DevikaError(
+                    'Claude API 金鑰不能為空',
+                    ErrorType.VALIDATION,
+                    ErrorSeverity.HIGH,
+                    'INVALID_API_KEY'
+                );
+            }
+
+            const apiKey = createApiKey(key);
+            await this.config.update('claudeApiKey', apiKey, vscode.ConfigurationTarget.Global);
+            this.logger.info('ConfigManager', 'Claude API key updated successfully');
+        } catch (error) {
+            const devikaError = error instanceof DevikaError ? error : new DevikaError(
+                `設置 Claude API 金鑰失敗: ${error instanceof Error ? error.message : String(error)}`,
+                ErrorType.CONFIGURATION,
+                ErrorSeverity.HIGH,
+                'SET_API_KEY_FAILED'
+            );
+            await this.errorHandler.handleError(devikaError);
+            throw devikaError;
+        }
     }
 
-    getGeminiApiKey(): string {
-        return this.config.get<string>('geminiApiKey', '');
+    getGeminiApiKey(): ApiKey | null {
+        try {
+            const key = this.config.get<string>('geminiApiKey', '');
+            return isNonEmptyString(key) ? createApiKey(key) : null;
+        } catch (error) {
+            this.logger.error('ConfigManager', 'Failed to get Gemini API key', error);
+            return null;
+        }
     }
 
-    setGeminiApiKey(key: string): void {
-        this.config.update('geminiApiKey', key, vscode.ConfigurationTarget.Global);
+    async setGeminiApiKey(key: string): Promise<void> {
+        try {
+            if (!isNonEmptyString(key)) {
+                throw new DevikaError(
+                    'Gemini API 金鑰不能為空',
+                    ErrorType.VALIDATION,
+                    ErrorSeverity.HIGH,
+                    'INVALID_API_KEY'
+                );
+            }
+
+            const apiKey = createApiKey(key);
+            await this.config.update('geminiApiKey', apiKey, vscode.ConfigurationTarget.Global);
+            this.logger.info('ConfigManager', 'Gemini API key updated successfully');
+        } catch (error) {
+            const devikaError = error instanceof DevikaError ? error : new DevikaError(
+                `設置 Gemini API 金鑰失敗: ${error instanceof Error ? error.message : String(error)}`,
+                ErrorType.CONFIGURATION,
+                ErrorSeverity.HIGH,
+                'SET_API_KEY_FAILED'
+            );
+            await this.errorHandler.handleError(devikaError);
+            throw devikaError;
+        }
     }
 
     // 模型設定

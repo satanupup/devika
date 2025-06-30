@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { LLMService } from '../llm/LLMService';
+import { CodeAnalysisUtils } from '../analysis/CodeAnalysisUtils';
 
 export interface SemanticAnalysis {
     symbols: SemanticSymbol[];
@@ -397,63 +398,15 @@ Return as JSON with numeric scores.
     }
 
     private calculateCyclomaticComplexity(content: string): number {
-        // Simple cyclomatic complexity calculation
-        const complexityKeywords = ['if', 'else', 'while', 'for', 'switch', 'case', 'catch', '&&', '||'];
-        let complexity = 1; // Base complexity
-        
-        for (const keyword of complexityKeywords) {
-            const regex = new RegExp(`\\b${keyword}\\b`, 'g');
-            const matches = content.match(regex);
-            if (matches) {
-                complexity += matches.length;
-            }
-        }
-        
-        return complexity;
+        return CodeAnalysisUtils.calculateCyclomaticComplexity(content);
     }
 
     private calculateCognitiveComplexity(content: string): number {
-        // Simplified cognitive complexity
-        const lines = content.split('\n');
-        let complexity = 0;
-        let nestingLevel = 0;
-        
-        for (const line of lines) {
-            const trimmed = line.trim();
-            
-            // Increase nesting for control structures
-            if (trimmed.match(/\b(if|while|for|switch)\b/)) {
-                complexity += 1 + nestingLevel;
-                nestingLevel++;
-            }
-            
-            // Decrease nesting for closing braces
-            if (trimmed === '}') {
-                nestingLevel = Math.max(0, nestingLevel - 1);
-            }
-        }
-        
-        return complexity;
+        return CodeAnalysisUtils.calculateCognitiveComplexity(content);
     }
 
     private findDuplicatedLines(lines: string[]): number {
-        const lineMap = new Map<string, number>();
-        let duplicated = 0;
-        
-        for (const line of lines) {
-            const trimmed = line.trim();
-            if (trimmed && !trimmed.startsWith('//')) {
-                const count = lineMap.get(trimmed) || 0;
-                lineMap.set(trimmed, count + 1);
-                if (count === 1) {
-                    duplicated += 2; // First duplicate found
-                } else if (count > 1) {
-                    duplicated += 1; // Additional duplicates
-                }
-            }
-        }
-        
-        return duplicated;
+        return CodeAnalysisUtils.findDuplicatedLines(lines);
     }
 
     private async generateRefactoringSuggestions(

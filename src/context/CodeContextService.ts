@@ -1,6 +1,42 @@
 import * as vscode from 'vscode';
 import { CodeParser } from './CodeParser';
 
+/**
+ * 代碼片段接口
+ */
+export interface CodeSnippet {
+    id: string;
+    title: string;
+    description?: string;
+    code: string;
+    language: string;
+    tags: string[];
+    createdAt: Date;
+    lastUsed?: Date;
+    usageCount: number;
+}
+
+/**
+ * 函數上下文接口
+ */
+export interface FunctionContext {
+    name: string;
+    code: string;
+    startLine: number;
+    endLine: number;
+    parameters: string[];
+    returnType?: string;
+}
+
+/**
+ * 類別上下文接口
+ */
+export interface ClassContext {
+    class: vscode.DocumentSymbol;
+    methods: vscode.DocumentSymbol[];
+    properties: vscode.DocumentSymbol[];
+}
+
 export interface CodeSymbol {
     name: string;
     kind: vscode.SymbolKind;
@@ -296,37 +332,67 @@ export class CodeContextService {
         this.symbolIndex.clear();
     }
 
+    /**
+     * 獲取智能上下文
+     * 根據選取的程式碼類型，提供最相關的上下文信息
+     */
     async getSmartContext(
         document: vscode.TextDocument,
         selection: vscode.Selection
     ): Promise<CodeContext> {
-        // 智能上下文獲取：根據選取的程式碼類型，提供最相關的上下文
         const context = await this.getCodeContext(document, selection);
-        
-        // 如果選取的是函式，包含整個函式的上下文
-        const functionContext = await this.getFunctionContext(document, selection.start);
-        if (functionContext) {
-            context.surroundingCode = functionContext.code;
-        }
 
-        // 如果選取的是類別成員，包含整個類別的上下文
-        const classContext = await this.getClassContext(document, selection.start);
-        if (classContext) {
-            context.symbols = [classContext.class];
-        }
+        await this.enhanceContextWithFunctionInfo(document, selection, context);
+        await this.enhanceContextWithClassInfo(document, selection, context);
 
         return context;
     }
 
-    // 代码片段管理
-    private codeSnippets: any[] = [];
+    /**
+     * 增強上下文的函數信息
+     */
+    private async enhanceContextWithFunctionInfo(
+        document: vscode.TextDocument,
+        selection: vscode.Selection,
+        context: CodeContext
+    ): Promise<void> {
+        const functionContext = await this.getFunctionContext(document, selection.start);
+        if (functionContext) {
+            context.surroundingCode = functionContext.code;
+        }
+    }
 
-    async addCodeSnippet(snippet: any): Promise<void> {
+    /**
+     * 增強上下文的類別信息
+     */
+    private async enhanceContextWithClassInfo(
+        document: vscode.TextDocument,
+        selection: vscode.Selection,
+        context: CodeContext
+    ): Promise<void> {
+        const classContext = await this.getClassContext(document, selection.start);
+        if (classContext) {
+            context.symbols = [classContext.class];
+        }
+    }
+
+    /**
+     * 代碼片段管理
+     */
+    private codeSnippets: CodeSnippet[] = [];
+
+    /**
+     * 添加代碼片段
+     */
+    async addCodeSnippet(snippet: CodeSnippet): Promise<void> {
         this.codeSnippets.push(snippet);
     }
 
-    getCodeSnippets(): any[] {
-        return this.codeSnippets;
+    /**
+     * 獲取所有代碼片段
+     */
+    getCodeSnippets(): CodeSnippet[] {
+        return [...this.codeSnippets];
     }
 
     clearContext(): void {
