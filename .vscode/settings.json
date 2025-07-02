@@ -1,3 +1,102 @@
 {
-    "cmake.sourceDirectory": "D:/tools/devika/node_modules/nan"
+  // 編輯器設置
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  "editor.trimAutoWhitespace": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "editor.rulers": [80, 120],
+  "editor.wordWrap": "wordWrapColumn",
+  "editor.wordWrapColumn": 120,
+
+  // 文件設置
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "files.trimFinalNewlines": true,
+  "files.encoding": "utf8",
+  "files.autoSave": "onFocusChange",
+
+  // TypeScript 設置
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.preferences.includePackageJsonAutoImports": "auto",
+  "typescript.suggest.autoImports": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.format.enable": true,
+
+  // ESLint 設置
+  "eslint.enable": true,
+  "eslint.validate": ["typescript", "javascript"],
+  "eslint.format.enable": true,
+
+  // Prettier 設置
+  "prettier.enable": true,
+  "prettier.requireConfig": true,
+  "prettier.useEditorConfig": true,
+
+  // 搜索設置
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/out": true,
+    "**/dist": true,
+    "**/coverage": true,
+    "**/devika-core": true,
+    "**/vscode_references": true,
+    "**/*.vsix": true
+  },
+
+  // 文件關聯
+  "files.associations": {
+    "*.json": "jsonc",
+    ".eslintrc": "jsonc",
+    ".prettierrc": "jsonc"
+  },
+
+  // 排除文件
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/out": true,
+    "**/dist": true,
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/*.vsix": true
+  },
+
+  // 語言特定設置
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit",
+      "source.organizeImports": "explicit"
+    }
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.wordWrap": "on"
+  },
+
+  // Git 設置
+  "git.enableSmartCommit": true,
+  "git.confirmSync": false,
+  "git.autofetch": true,
+
+  // 工作台設置
+  "workbench.editor.enablePreview": false,
+  "workbench.startupEditor": "newUntitledFile"
 }

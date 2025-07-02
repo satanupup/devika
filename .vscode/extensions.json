@@ -1,5 +1,36 @@
 {
-    "recommendations": [
-        "satanupup.devika-vscode"
-    ]
+  "recommendations": [
+    // TypeScript 和 JavaScript 開發
+    "ms-vscode.vscode-typescript-next",
+    // 代碼品質和格式化
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "editorconfig.editorconfig",
+    // Git 和版本控制
+    "eamodio.gitlens",
+    "github.vscode-pull-request-github",
+    // 測試
+    "orta.vscode-jest",
+    // 文檔和註釋
+    "aaron-bond.better-comments",
+    "streetsidesoftware.code-spell-checker",
+    "yzhang.markdown-all-in-one",
+    // 開發工具
+    "ms-vscode.vscode-json",
+    "redhat.vscode-yaml",
+    "christian-kohler.path-intellisense",
+    "christian-kohler.npm-intellisense",
+    // 主題和圖標
+    "pkief.material-icon-theme",
+    // 實用工具
+    "ms-vscode.vscode-npm-script",
+    "gruntfuggly.todo-tree",
+    "alefragnani.bookmarks",
+    // REST API 測試
+    "humao.rest-client"
+  ],
+  "unwantedRecommendations": [
+    "hookyqr.beautify",
+    "ms-vscode.vscode-typescript-tslint-plugin"
+  ]
 }

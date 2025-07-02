@@ -1,0 +1,184 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  release:
+    types: [ published ]
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  # 代碼品質檢查
+  quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Type check
+      run: npm run typecheck
+      
+    - name: Lint check
+      run: npm run lint:check
+      
+    - name: Format check
+      run: npm run format:check
+      
+    - name: Security audit
+      run: npm audit --audit-level moderate
+
+  # 測試
+  test:
+    name: Tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run unit tests
+      run: npm run test:unit:coverage
+      
+    - name: Upload coverage to Codecov
+      if: matrix.os == 'ubuntu-latest'
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage/lcov.info
+        flags: unittests
+        name: codecov-umbrella
+        
+    - name: Run integration tests
+      run: |
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          xvfb-run -a npm run test:integration
+        else
+          npm run test:integration
+        fi
+      shell: bash
+
+  # 構建
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [quality, test]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build extension
+      run: npm run build:prod
+      
+    - name: Package extension
+      run: npm run package
+      
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: extension-package
+        path: '*.vsix'
+        retention-days: 30
+
+  # 發布到 VS Code Marketplace
+  publish:
+    name: Publish to Marketplace
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.event_name == 'release' && github.event.action == 'published'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build extension
+      run: npm run build:prod
+      
+    - name: Publish to VS Code Marketplace
+      run: npm run publish
+      env:
+        VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+  # 依賴項目更新檢查
+  dependency-check:
+    name: Dependency Check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Check for outdated dependencies
+      run: npm outdated || true
+      
+    - name: Security audit
+      run: npm audit
+      
+    - name: Create issue for outdated dependencies
+      if: failure()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: 'Outdated dependencies detected',
+            body: 'Automated check found outdated dependencies. Please review and update.',
+            labels: ['dependencies', 'maintenance']
+          })
+
+# 定期執行依賴項目檢查
+on:
+  schedule:
+    - cron: '0 0 * * 1' # 每週一午夜執行

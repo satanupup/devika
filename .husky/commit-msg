@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# 檢查提交訊息格式（使用 Conventional Commits）
+npx commitlint --edit $1

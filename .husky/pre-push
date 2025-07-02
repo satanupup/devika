@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# 運行完整的驗證流程
+npm run validate
+
+# 確保構建成功
+npm run build

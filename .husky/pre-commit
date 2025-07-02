@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# 運行 lint-staged 來檢查暫存的文件
+npx lint-staged
+
+# 運行類型檢查
+npm run typecheck
+
+# 運行單元測試
+npm run test:unit

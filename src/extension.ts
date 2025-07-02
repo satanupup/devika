@@ -1,13 +1,11 @@
 import * as vscode from 'vscode';
-import { DevikaCoreManager } from './core/DevikaCoreManager';
-import { UIManager } from './ui/UIManager';
 import { ConfigManager } from './config/ConfigManager';
-import { TaskManager } from './tasks/TaskManager';
+import { DevikaCoreManager } from './core/DevikaCoreManager';
 import { GitService } from './git/GitService';
-import { CodeContextService } from './context/CodeContextService';
-import { PluginManager } from './plugins/PluginManager';
-import { DevikaTaskProvider, DevikaChatProvider, DevikaContextProvider } from './ui/ViewProviders';
 import { LLMService } from './llm/LLMService';
+import { MultimodalCommands } from './multimodal/MultimodalCommands';
+import { PluginManager } from './plugins/PluginManager';
+import { DevikaChatProvider, DevikaContextProvider, DevikaTaskProvider } from './ui/ViewProviders';
 
 let devikaCoreManager: DevikaCoreManager;
 let pluginManager: PluginManager;
@@ -15,6 +13,7 @@ let taskProvider: DevikaTaskProvider;
 let chatProvider: DevikaChatProvider;
 let contextProvider: DevikaContextProvider;
 let llmStatusBarItem: vscode.StatusBarItem;
+let multimodalCommands: MultimodalCommands;
 
 export async function activate(context: vscode.ExtensionContext) {
     console.log('Devika AI 助理正在啟動...');
@@ -47,6 +46,72 @@ export async function activate(context: vscode.ExtensionContext) {
         // 啟動自動功能
         await startAutomaticFeatures();
 
+        // 初始化持續學習機制
+        try {
+            // 動態導入學習模組
+            const { initializeLearningSystem } = await import('./learning');
+            await initializeLearningSystem(context);
+            console.log('持續學習機制已啟動');
+        } catch (error) {
+            console.warn('持續學習機制啟動失敗:', error);
+            // 學習機制失敗不應該阻止擴展啟動
+        }
+
+        // 初始化對話記憶系統
+        try {
+            // 動態導入記憶模組
+            const { initializeConversationMemorySystem } = await import('./memory');
+            await initializeConversationMemorySystem(context);
+            console.log('對話記憶系統已啟動');
+        } catch (error) {
+            console.warn('對話記憶系統啟動失敗:', error);
+            // 記憶系統失敗不應該阻止擴展啟動
+        }
+
+        // 初始化個性化建議系統
+        try {
+            // 動態導入個性化模組
+            const { initializePersonalizationSystem } = await import('./personalization');
+            await initializePersonalizationSystem(context);
+            console.log('個性化建議系統已啟動');
+        } catch (error) {
+            console.warn('個性化建議系統啟動失敗:', error);
+            // 個性化系統失敗不應該阻止擴展啟動
+        }
+
+        // 初始化原生工具整合系統
+        try {
+            // 動態導入整合模組
+            const { initializeIntegrationSystem } = await import('./integrations');
+            await initializeIntegrationSystem(context);
+            console.log('原生工具整合系統已啟動');
+        } catch (error) {
+            console.warn('原生工具整合系統啟動失敗:', error);
+            // 整合系統失敗不應該阻止擴展啟動
+        }
+
+        // 初始化下一步編輯導航系統
+        try {
+            // 動態導入編輯導航模組
+            const { initializeEditNavigationSystem } = await import('./navigation');
+            await initializeEditNavigationSystem(context);
+            console.log('下一步編輯導航系統已啟動');
+        } catch (error) {
+            console.warn('下一步編輯導航系統啟動失敗:', error);
+            // 編輯導航系統失敗不應該阻止擴展啟動
+        }
+
+        // 初始化智能代碼完成系統
+        try {
+            // 動態導入代碼完成模組
+            const { initializeCodeCompletionSystem } = await import('./completion');
+            await initializeCodeCompletionSystem(context);
+            console.log('智能代碼完成系統已啟動');
+        } catch (error) {
+            console.warn('智能代碼完成系統啟動失敗:', error);
+            // 代碼完成系統失敗不應該阻止擴展啟動
+        }
+
         console.log('Devika AI 助理已成功啟動！');
 
         // 顯示智能歡迎消息
@@ -71,6 +136,10 @@ export async function activate(context: vscode.ExtensionContext) {
 export function deactivate() {
     if (devikaCoreManager) {
         devikaCoreManager.dispose();
+    }
+
+    if (multimodalCommands) {
+        multimodalCommands.dispose();
     }
 }
 
@@ -129,7 +198,7 @@ function registerCommands(context: vscode.ExtensionContext) {
 
             const selection = editor.selection;
             const selectedText = editor.document.getText(selection);
-            
+
             if (!selectedText) {
                 vscode.window.showErrorMessage('請選取要重構的程式碼');
                 return;
@@ -148,7 +217,7 @@ function registerCommands(context: vscode.ExtensionContext) {
 
             const selection = editor.selection;
             const selectedText = editor.document.getText(selection);
-            
+
             if (!selectedText) {
                 vscode.window.showErrorMessage('請選取要生成測試的程式碼');
                 return;
@@ -637,6 +706,13 @@ function initializeServices(context: vscode.ExtensionContext) {
             await devikaCoreManager.updateCodeIndex(event.document);
         }
     });
+
+    // 初始化多模態功能
+    const config = vscode.workspace.getConfiguration('devika');
+    if (config.get('enableMultimodal', true)) {
+        multimodalCommands = MultimodalCommands.getInstance();
+        console.log('多模態功能已啟用');
+    }
 
     context.subscriptions.push(onSaveListener, onChangeListener);
 }

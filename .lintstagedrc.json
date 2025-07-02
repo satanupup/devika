@@ -1,0 +1,25 @@
+{
+  "*.{ts,tsx,js,jsx}": [
+    "eslint --fix",
+    "prettier --write"
+  ],
+  "*.{json,jsonc}": [
+    "prettier --write"
+  ],
+  "*.{md,markdown}": [
+    "prettier --write"
+  ],
+  "*.{yml,yaml}": [
+    "prettier --write"
+  ],
+  "*.{css,scss,sass,less}": [
+    "prettier --write"
+  ],
+  "*.{html,htm}": [
+    "prettier --write"
+  ],
+  "package.json": [
+    "npm run deps:organize",
+    "prettier --write"
+  ]
+}

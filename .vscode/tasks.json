@@ -2,53 +2,193 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "npm: build",
       "type": "npm",
-      "script": "compile",
-      "group": "build",
+      "script": "build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
       "presentation": {
-        "panel": "dedicated",
-        "reveal": "never"
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
       },
       "problemMatcher": [
         "$tsc"
       ]
     },
     {
+      "label": "npm: watch",
       "type": "npm",
       "script": "watch",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "typescript",
+        "source": "ts",
+        "applyTo": "closedDocuments",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}"
+        ],
+        "pattern": "$tsc-watch",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": {
+            "regexp": ".*\\bStarting compilation in watch mode\\b.*"
+          },
+          "endsPattern": {
+            "regexp": ".*\\bFound \\d+ errors?\\. Watching for file changes\\b.*"
+          }
+        }
+      }
+    },
+    {
+      "label": "npm: test",
+      "type": "npm",
+      "script": "test",
       "group": {
-        "kind": "build",
+        "kind": "test",
         "isDefault": true
       },
       "presentation": {
-        "panel": "dedicated",
-        "reveal": "never"
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": true
       },
-      "problemMatcher": [
-        "$tsc-watch"
-      ],
-      "isBackground": true
+      "problemMatcher": []
     },
     {
+      "label": "npm: test:unit",
       "type": "npm",
-      "script": "lint",
+      "script": "test:unit",
       "group": "test",
       "presentation": {
-        "panel": "dedicated",
-        "reveal": "never"
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "npm: lint",
+      "type": "npm",
+      "script": "lint",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
       },
       "problemMatcher": [
         "$eslint-stylish"
       ]
     },
     {
+      "label": "npm: lint:check",
       "type": "npm",
-      "script": "test",
-      "group": "test",
+      "script": "lint:check",
+      "group": "build",
       "presentation": {
-        "panel": "dedicated",
-        "reveal": "always"
-      }
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": [
+        "$eslint-stylish"
+      ]
+    },
+    {
+      "label": "npm: format",
+      "type": "npm",
+      "script": "format",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "npm: package",
+      "type": "npm",
+      "script": "package",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": [],
+      "dependsOn": [
+        "npm: build"
+      ]
+    },
+    {
+      "label": "npm: typecheck",
+      "type": "npm",
+      "script": "typecheck",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": [
+        "$tsc-noEmit"
+      ]
+    },
+    {
+      "label": "npm: validate",
+      "type": "npm",
+      "script": "validate",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": true
+      },
+      "problemMatcher": [
+        "$tsc",
+        "$eslint-stylish"
+      ]
     }
   ]
 }

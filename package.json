@@ -138,6 +138,66 @@
         "title": "生成變更日誌 (CHANGELOG.md)",
         "category": "Devika",
         "icon": "$(history)"
+      },
+      {
+        "command": "devika.takeScreenshot",
+        "title": "截取螢幕截圖",
+        "category": "Devika 多模態",
+        "icon": "$(device-camera)"
+      },
+      {
+        "command": "devika.captureRegion",
+        "title": "截取指定區域",
+        "category": "Devika 多模態",
+        "icon": "$(selection)"
+      },
+      {
+        "command": "devika.captureVSCode",
+        "title": "截取 VS Code 視窗",
+        "category": "Devika 多模態",
+        "icon": "$(window)"
+      },
+      {
+        "command": "devika.importFromFigma",
+        "title": "從 Figma 匯入設計",
+        "category": "Devika 多模態",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "devika.setFigmaToken",
+        "title": "設置 Figma API Token",
+        "category": "Devika 多模態",
+        "icon": "$(key)"
+      },
+      {
+        "command": "devika.analyzeImage",
+        "title": "分析圖像",
+        "category": "Devika 多模態",
+        "icon": "$(search)"
+      },
+      {
+        "command": "devika.generateCodeFromImage",
+        "title": "從圖像生成代碼",
+        "category": "Devika 多模態",
+        "icon": "$(code)"
+      },
+      {
+        "command": "devika.analyzeDesignSystem",
+        "title": "分析設計系統",
+        "category": "Devika 多模態",
+        "icon": "$(color-mode)"
+      },
+      {
+        "command": "devika.showScreenshotHistory",
+        "title": "顯示截圖歷史",
+        "category": "Devika 多模態",
+        "icon": "$(history)"
+      },
+      {
+        "command": "devika.clearMultimodalCache",
+        "title": "清除多模態緩存",
+        "category": "Devika 多模態",
+        "icon": "$(trash)"
       }
     ],
     "menus": {
@@ -229,6 +289,40 @@
           "type": "number",
           "default": 100,
           "description": "傳送給 AI 的最大程式碼行數"
+        },
+        "devika.figmaApiToken": {
+          "type": "string",
+          "default": "",
+          "description": "Figma API Token",
+          "scope": "application"
+        },
+        "devika.screenshotQuality": {
+          "type": "number",
+          "default": 90,
+          "minimum": 1,
+          "maximum": 100,
+          "description": "截圖品質 (1-100)"
+        },
+        "devika.screenshotFormat": {
+          "type": "string",
+          "enum": ["png", "jpeg", "webp"],
+          "default": "png",
+          "description": "截圖格式"
+        },
+        "devika.autoAnalyzeImages": {
+          "type": "boolean",
+          "default": true,
+          "description": "自動分析新增的圖像文件"
+        },
+        "devika.enableMultimodal": {
+          "type": "boolean",
+          "default": true,
+          "description": "啟用多模態功能"
+        },
+        "devika.maxImageSize": {
+          "type": "number",
+          "default": 10485760,
+          "description": "最大圖像文件大小 (bytes)"
         }
       }
     },
@@ -265,66 +359,85 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "npm run build:prod",
+    "build": "npm run clean && npm run compile",
+    "build:prod": "npm run clean && npm run typecheck && npm run lint:check && npm run compile",
+    "build:watch": "npm run clean && npm run watch",
     "compile": "tsc -p ./",
+    "compile:webpack": "webpack --mode development",
+    "compile:webpack:prod": "webpack --mode production",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
+    "watch:webpack": "webpack --mode development --watch",
+    "clean": "rimraf out dist coverage .nyc_output",
+    "clean:all": "npm run clean && rimraf node_modules package-lock.json",
+    "typecheck": "tsc --noEmit",
+    "typecheck:watch": "tsc --noEmit --watch",
+    "lint": "eslint src --ext ts --fix",
+    "lint:check": "eslint src --ext ts",
+    "lint:all": "eslint . --ext ts,js,json --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "pretest": "npm run build && npm run lint:check",
     "test": "node ./out/test/runTest.js",
     "test:unit": "jest",
     "test:unit:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
+    "test:unit:coverage": "jest --coverage",
     "test:integration": "npm run compile && node ./out/test/runTest.js",
+    "test:multimodal": "jest --testPathPattern=multimodal",
     "test:all": "npm run test:unit && npm run test:integration",
-    "package": "vsce package"
+    "test:ci": "npm run test:unit:coverage && npm run test:integration",
+    "package": "vsce package --no-dependencies",
+    "package:pre": "vsce package --pre-release --no-dependencies",
+    "publish": "vsce publish --no-dependencies",
+    "publish:pre": "vsce publish --pre-release --no-dependencies",
+    "install:local": "code --install-extension devika-*.vsix",
+    "deps:organize": "node scripts/organize-dependencies.js",
+    "deps:check": "npm outdated",
+    "deps:update": "npm update",
+    "deps:audit": "npm audit",
+    "deps:audit:fix": "npm audit fix",
+    "security:check": "npm audit && npm run lint:check",
+    "docs:build": "typedoc --out docs/api src",
+    "docs:serve": "npx http-server docs -p 8080",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
+    "release:patch": "npm version patch && npm run changelog && git add . && git commit -m 'chore: update changelog'",
+    "release:minor": "npm version minor && npm run changelog && git add . && git commit -m 'chore: update changelog'",
+    "release:major": "npm version major && npm run changelog && git add . && git commit -m 'chore: update changelog'",
+    "dev": "npm run build:watch",
+    "start": "npm run dev",
+    "validate": "npm run typecheck && npm run lint:check && npm run format:check && npm run test:unit",
+    "prepare": "npm run build"
   },
   "devDependencies": {
-    "@types/cheerio": "^0.22.35",
-    "@types/crypto-js": "^4.2.2",
-    "@types/fs-extra": "^11.0.4",
-    "@types/glob": "^8.1.0",
-    "@types/mocha": "^10.0.10",
-    "@types/node": "16.x",
-    "@types/sqlite3": "^3.1.11",
-    "@types/uuid": "^10.0.0",
-    "@types/vscode": "^1.74.0",
-    "@typescript-eslint/eslint-plugin": "^5.45.0",
-    "@typescript-eslint/parser": "^5.45.0",
-    "@vscode/test-electron": "^2.2.0",
-    "@vscode/vsce": "^2.15.0",
-    "eslint": "^8.28.0",
-    "typescript": "^4.9.4",
-    "jest": "^29.7.0",
-    "@types/jest": "^29.5.5",
-    "ts-jest": "^29.1.1",
-    "jest-environment-node": "^29.7.0",
     "@jest/globals": "^29.7.0",
-    "sinon": "^17.0.1",
-    "@types/sinon": "^17.0.2",
-    "nyc": "^15.1.0",
-    "c8": "^8.0.1"
+    "@types/cheerio": "^0.22.35",
+    "@types/glob": "^8.1.0",
+    "@types/jest": "^29.5.14",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^20.17.9",
+    "@types/sinon": "^17.0.3",
+    "@types/sqlite3": "^3.1.11",
+    "@types/vscode": "^1.74.0",
+    "@typescript-eslint/eslint-plugin": "^8.18.2",
+    "@typescript-eslint/parser": "^8.18.2",
+    "@vscode/test-electron": "^2.4.1",
+    "@vscode/vsce": "^3.2.1",
+    "c8": "^10.1.2",
+    "eslint": "^9.17.0",
+    "jest": "^29.7.0",
+    "jest-environment-node": "^29.7.0",
+    "mocha": "^11.7.1",
+    "nyc": "^17.1.0",
+    "rimraf": "^6.0.1",
+    "sinon": "^19.0.2",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.7.2"
   },
   "dependencies": {
-    "axios": "^1.10.0",
-    "cheerio": "^1.1.0",
-    "crypto-js": "^4.2.0",
-    "date-fns": "^4.1.0",
-    "fs-extra": "^11.3.0",
-    "mocha": "^11.7.1",
-    "path-browserify": "^1.0.1",
-    "simple-git": "^3.20.0",
-    "sqlite3": "^5.1.7",
-    "tiktoken": "^1.0.10",
-    "tree-sitter": "^0.20.4",
-    "tree-sitter-c-sharp": "^0.20.0",
-    "tree-sitter-cpp": "^0.20.0",
-    "tree-sitter-go": "^0.20.0",
-    "tree-sitter-java": "^0.20.2",
-    "tree-sitter-javascript": "^0.20.1",
-    "tree-sitter-python": "^0.20.4",
-    "tree-sitter-rust": "^0.20.4",
-    "tree-sitter-typescript": "^0.20.3",
-    "uuid": "^11.1.0"
+    "axios": "^1.7.7",
+    "cheerio": "^1.0.0",
+    "simple-git": "^3.27.0",
+    "sqlite3": "^5.1.7"
   },
   "repository": {
     "type": "git",

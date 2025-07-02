@@ -1,10 +1,12 @@
 /**
- * 內存管理器
+ * 增強版內存管理器
  * 監控和優化內存使用，實現智能緩存和垃圾回收
  */
 
+import * as vscode from 'vscode';
 import { Logger } from '../utils/Logger';
 import { ErrorHandler, DevikaError, ErrorType, ErrorSeverity } from '../utils/ErrorHandler';
+import { ErrorHandlingUtils } from '../utils/ErrorHandlingUtils';
 
 /**
  * 內存使用統計

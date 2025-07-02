@@ -11,7 +11,14 @@
       "outFiles": [
         "${workspaceFolder}/out/**/*.js"
       ],
-      "preLaunchTask": "npm: compile"
+      "preLaunchTask": "npm: build",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "smartStep": true,
+      "sourceMaps": true,
+      "stopOnEntry": false,
+      "console": "integratedTerminal"
     },
     {
       "name": "擴充功能測試",
@@ -24,7 +31,79 @@
       "outFiles": [
         "${workspaceFolder}/out/test/**/*.js"
       ],
-      "preLaunchTask": "npm: compile"
+      "preLaunchTask": "npm: build",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "smartStep": true,
+      "sourceMaps": true,
+      "stopOnEntry": false,
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "執行擴充功能 (開發模式)",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--disable-extensions"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/out/**/*.js"
+      ],
+      "preLaunchTask": "npm: build",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "smartStep": true,
+      "sourceMaps": true,
+      "stopOnEntry": false,
+      "console": "integratedTerminal",
+      "env": {
+        "NODE_ENV": "development",
+        "VSCODE_DEBUG": "true"
+      }
+    },
+    {
+      "name": "單元測試 (Jest)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": [
+        "--runInBand",
+        "--no-cache",
+        "--verbose"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "env": {
+        "NODE_ENV": "test"
+      }
+    },
+    {
+      "name": "多模態測試",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": [
+        "--testPathPattern=multimodal",
+        "--runInBand",
+        "--no-cache",
+        "--verbose"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "env": {
+        "NODE_ENV": "test"
+      }
     }
   ]
 }
