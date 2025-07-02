@@ -95,9 +95,9 @@ vscode_references/ linguist-vendored=true
 *.json merge=union
 package.json merge=union
 package-lock.json merge=union
-# 設置過濾器
-*.ts filter=lfs diff=lfs merge=lfs -text
-*.js filter=lfs diff=lfs merge=lfs -text
+# 設置過濾器 (LFS 已移除，改為普通 Git 追蹤)
+# *.ts filter=lfs diff=lfs merge=lfs -text
+# *.js filter=lfs diff=lfs merge=lfs -text
 # 導出忽略
 .gitattributes export-ignore
 .gitignore export-ignore
