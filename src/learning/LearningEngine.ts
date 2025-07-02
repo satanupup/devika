@@ -213,7 +213,7 @@ export class LearningEngine {
    * 學習用戶偏好
    */
   async learnUserPreference(
-    category: 'style' | 'pattern' | 'tool' | 'workflow',
+    category: 'style' | 'pattern' | 'tool' | 'workflow' | 'suggestion',
     name: string,
     value: any,
     context: string[],

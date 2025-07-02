@@ -297,7 +297,6 @@ export class UpdatePlanGenerator {
                 return baseHours * 0.3;
         }
 
-        return baseHours;
     }
 
     /**

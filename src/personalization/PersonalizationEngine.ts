@@ -126,7 +126,7 @@ export class PersonalizationEngine {
   private codeEngine: CodeUnderstandingEngine;
   private userBehaviorPatterns: Map<string, UserBehaviorPattern> = new Map();
   private suggestionHistory: Map<string, PersonalizedSuggestion> = new Map();
-  private config: PersonalizationConfig;
+  private config!: PersonalizationConfig;
 
   private constructor() {
     this.learningEngine = LearningEngine.getInstance();
@@ -181,7 +181,7 @@ export class PersonalizationEngine {
       },
       '生成個性化建議',
       { logError: true, showToUser: false }
-    ).then(result => result.success ? result.data! : []);
+    ).then(result => (result.success ? result.data! : []));
   }
 
   /**
@@ -280,13 +280,17 @@ export class PersonalizationEngine {
       },
       '獲取用戶偏好摘要',
       { logError: true, showToUser: false }
-    ).then(result => result.success ? result.data! : {
-      preferredSuggestionTypes: [],
-      avoidedSuggestionTypes: [],
-      preferredLanguages: [],
-      commonPatterns: [],
-      learningAreas: []
-    });
+    ).then(result =>
+      result.success
+        ? result.data!
+        : {
+            preferredSuggestionTypes: [],
+            avoidedSuggestionTypes: [],
+            preferredLanguages: [],
+            commonPatterns: [],
+            learningAreas: []
+          }
+    );
   }
 
   /**
@@ -299,12 +303,11 @@ export class PersonalizationEngine {
   ): Promise<SuggestionContext> {
     const userPreferences = this.learningEngine.getUserPreferences();
     const recentPatterns = this.learningEngine.getLearnedPatterns(document.languageId);
-    
+
     // 獲取相關對話歷史
-    const memoryResult = await this.memoryManager.getRelevantMemory(
-      `${document.languageId} code suggestions`,
-      { currentFile: document.uri }
-    );
+    const memoryResult = await this.memoryManager.getRelevantMemory(`${document.languageId} code suggestions`, {
+      currentFile: document.uri
+    });
 
     const context: SuggestionContext = {
       fileUri: document.uri,
@@ -327,10 +330,10 @@ export class PersonalizationEngine {
    */
   private async generateStyleSuggestions(context: SuggestionContext): Promise<PersonalizedSuggestion[]> {
     const suggestions: PersonalizedSuggestion[] = [];
-    
+
     // 基於用戶偏好的風格建議
     const stylePrefs = context.userPreferences.filter(p => p.category === 'style');
-    
+
     for (const pref of stylePrefs) {
       if (pref.confidence > 0.7) {
         const suggestion = await this.createStyleSuggestion(pref, context);
@@ -348,10 +351,10 @@ export class PersonalizationEngine {
    */
   private async generateBestPracticeSuggestions(context: SuggestionContext): Promise<PersonalizedSuggestion[]> {
     const suggestions: PersonalizedSuggestion[] = [];
-    
+
     // 基於語言和項目類型的最佳實踐
     const bestPractices = this.getBestPracticesForContext(context);
-    
+
     for (const practice of bestPractices) {
       const suggestion = await this.createBestPracticeSuggestion(practice, context);
       if (suggestion) {
@@ -367,10 +370,10 @@ export class PersonalizationEngine {
    */
   private async generatePerformanceSuggestions(context: SuggestionContext): Promise<PersonalizedSuggestion[]> {
     const suggestions: PersonalizedSuggestion[] = [];
-    
+
     // 分析代碼性能問題
     const performanceIssues = await this.analyzePerformanceIssues(context);
-    
+
     for (const issue of performanceIssues) {
       const suggestion = await this.createPerformanceSuggestion(issue, context);
       if (suggestion) {
@@ -386,10 +389,10 @@ export class PersonalizationEngine {
    */
   private async generateLearningSuggestions(context: SuggestionContext): Promise<PersonalizedSuggestion[]> {
     const suggestions: PersonalizedSuggestion[] = [];
-    
+
     // 基於用戶學習歷史的建議
     const learningAreas = this.identifyLearningAreas();
-    
+
     for (const area of learningAreas) {
       const suggestion = await this.createLearningSuggestion(area, context);
       if (suggestion) {
@@ -405,11 +408,12 @@ export class PersonalizationEngine {
    */
   private async generateBehaviorBasedSuggestions(context: SuggestionContext): Promise<PersonalizedSuggestion[]> {
     const suggestions: PersonalizedSuggestion[] = [];
-    
+
     // 基於用戶行為模式的建議
-    const relevantPatterns = Array.from(this.userBehaviorPatterns.values())
-      .filter(pattern => this.isPatternRelevant(pattern, context));
-    
+    const relevantPatterns = Array.from(this.userBehaviorPatterns.values()).filter(pattern =>
+      this.isPatternRelevant(pattern, context)
+    );
+
     for (const pattern of relevantPatterns) {
       const suggestion = await this.createBehaviorBasedSuggestion(pattern, context);
       if (suggestion) {
@@ -437,13 +441,13 @@ export class PersonalizationEngine {
     filtered.sort((a, b) => {
       // 優先級權重
       const priorityWeight = this.getPriorityWeight(b.priority) - this.getPriorityWeight(a.priority);
-      
+
       // 信心度權重
       const confidenceWeight = (b.confidence - a.confidence) * 0.3;
-      
+
       // 效果權重
       const effectivenessWeight = (b.metadata.effectiveness - a.metadata.effectiveness) * 0.2;
-      
+
       return priorityWeight + confidenceWeight + effectivenessWeight;
     });
 
@@ -504,12 +508,12 @@ export class PersonalizationEngine {
       const packageJsonUri = vscode.Uri.joinPath(workspaceFolder.uri, 'package.json');
       const packageJson = await vscode.workspace.fs.readFile(packageJsonUri);
       const packageData = JSON.parse(packageJson.toString());
-      
+
       if (packageData.dependencies?.react) return 'react';
       if (packageData.dependencies?.vue) return 'vue';
       if (packageData.dependencies?.angular) return 'angular';
       if (packageData.dependencies?.express) return 'express';
-      
+
       return 'javascript';
     } catch {
       return undefined;
@@ -526,7 +530,10 @@ export class PersonalizationEngine {
     return [];
   }
 
-  private async createStyleSuggestion(pref: UserPreference, context: SuggestionContext): Promise<PersonalizedSuggestion | null> {
+  private async createStyleSuggestion(
+    pref: UserPreference,
+    context: SuggestionContext
+  ): Promise<PersonalizedSuggestion | null> {
     // 創建風格建議的邏輯
     return null;
   }
@@ -536,7 +543,10 @@ export class PersonalizationEngine {
     return [];
   }
 
-  private async createBestPracticeSuggestion(practice: any, context: SuggestionContext): Promise<PersonalizedSuggestion | null> {
+  private async createBestPracticeSuggestion(
+    practice: any,
+    context: SuggestionContext
+  ): Promise<PersonalizedSuggestion | null> {
     // 創建最佳實踐建議的邏輯
     return null;
   }
@@ -546,7 +556,10 @@ export class PersonalizationEngine {
     return [];
   }
 
-  private async createPerformanceSuggestion(issue: any, context: SuggestionContext): Promise<PersonalizedSuggestion | null> {
+  private async createPerformanceSuggestion(
+    issue: any,
+    context: SuggestionContext
+  ): Promise<PersonalizedSuggestion | null> {
     // 創建性能建議的邏輯
     return null;
   }
@@ -556,7 +569,10 @@ export class PersonalizationEngine {
     return ['typescript', 'react', 'testing'];
   }
 
-  private async createLearningSuggestion(area: string, context: SuggestionContext): Promise<PersonalizedSuggestion | null> {
+  private async createLearningSuggestion(
+    area: string,
+    context: SuggestionContext
+  ): Promise<PersonalizedSuggestion | null> {
     // 創建學習建議的邏輯
     return null;
   }
@@ -566,23 +582,34 @@ export class PersonalizationEngine {
     return pattern.confidence > 0.6;
   }
 
-  private async createBehaviorBasedSuggestion(pattern: UserBehaviorPattern, context: SuggestionContext): Promise<PersonalizedSuggestion | null> {
+  private async createBehaviorBasedSuggestion(
+    pattern: UserBehaviorPattern,
+    context: SuggestionContext
+  ): Promise<PersonalizedSuggestion | null> {
     // 創建基於行為的建議的邏輯
     return null;
   }
 
-  private filterByUserPreferences(suggestions: PersonalizedSuggestion[], context: SuggestionContext): PersonalizedSuggestion[] {
+  private filterByUserPreferences(
+    suggestions: PersonalizedSuggestion[],
+    context: SuggestionContext
+  ): PersonalizedSuggestion[] {
     // 根據用戶偏好過濾建議的邏輯
     return suggestions;
   }
 
   private getPriorityWeight(priority: SuggestionPriority): number {
     switch (priority) {
-      case SuggestionPriority.CRITICAL: return 4;
-      case SuggestionPriority.HIGH: return 3;
-      case SuggestionPriority.MEDIUM: return 2;
-      case SuggestionPriority.LOW: return 1;
-      default: return 0;
+      case SuggestionPriority.CRITICAL:
+        return 4;
+      case SuggestionPriority.HIGH:
+        return 3;
+      case SuggestionPriority.MEDIUM:
+        return 2;
+      case SuggestionPriority.LOW:
+        return 1;
+      default:
+        return 0;
     }
   }
 

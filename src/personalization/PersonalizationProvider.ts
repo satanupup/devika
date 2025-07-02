@@ -35,10 +35,7 @@ export class PersonalizationProvider implements vscode.CodeActionProvider, vscod
   ): Promise<vscode.CodeAction[]> {
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
-        const suggestions = await this.personalizationEngine.generatePersonalizedSuggestions(
-          document,
-          range.start
-        );
+        const suggestions = await this.personalizationEngine.generatePersonalizedSuggestions(document, range.start);
 
         const codeActions: vscode.CodeAction[] = [];
 
@@ -55,7 +52,7 @@ export class PersonalizationProvider implements vscode.CodeActionProvider, vscod
       },
       '提供代碼行動建議',
       { logError: true, showToUser: false }
-    ).then(result => result.success ? result.data! : []);
+    ).then(result => (result.success ? result.data! : []));
   }
 
   /**
@@ -69,16 +66,12 @@ export class PersonalizationProvider implements vscode.CodeActionProvider, vscod
   ): Promise<vscode.CompletionItem[]> {
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
-        const suggestions = await this.personalizationEngine.generatePersonalizedSuggestions(
-          document,
-          position
-        );
+        const suggestions = await this.personalizationEngine.generatePersonalizedSuggestions(document, position);
 
         const completionItems: vscode.CompletionItem[] = [];
 
         for (const suggestion of suggestions) {
-          if (suggestion.type === SuggestionType.CODE_STYLE || 
-              suggestion.type === SuggestionType.BEST_PRACTICE) {
+          if (suggestion.type === SuggestionType.CODE_STYLE || suggestion.type === SuggestionType.BEST_PRACTICE) {
             const completionItem = this.createCompletionItem(suggestion);
             if (completionItem) {
               completionItems.push(completionItem);
@@ -90,7 +83,7 @@ export class PersonalizationProvider implements vscode.CodeActionProvider, vscod
       },
       '提供代碼完成建議',
       { logError: true, showToUser: false }
-    ).then(result => result.success ? result.data! : []);
+    ).then(result => (result.success ? result.data! : []));
   }
 
   /**
@@ -144,13 +137,10 @@ export class PersonalizationProvider implements vscode.CodeActionProvider, vscod
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const summary = await this.personalizationEngine.getUserPreferenceSummary();
-        
-        const panel = vscode.window.createWebviewPanel(
-          'userPreferences',
-          '用戶偏好摘要',
-          vscode.ViewColumn.One,
-          { enableScripts: true }
-        );
+
+        const panel = vscode.window.createWebviewPanel('userPreferences', '用戶偏好摘要', vscode.ViewColumn.One, {
+          enableScripts: true
+        });
 
         panel.webview.html = this.generatePreferenceSummaryHTML(summary);
       },
@@ -176,12 +166,8 @@ export class PersonalizationProvider implements vscode.CodeActionProvider, vscod
         });
 
         if (selected) {
-          await this.personalizationEngine.recordUserFeedback(
-            suggestionId,
-            selected.value as any,
-            'feedback'
-          );
-          
+          await this.personalizationEngine.recordUserFeedback(suggestionId, selected.value as any, undefined);
+
           vscode.window.showInformationMessage('感謝您的反饋！');
         }
       },
@@ -198,11 +184,9 @@ export class PersonalizationProvider implements vscode.CodeActionProvider, vscod
     document: vscode.TextDocument,
     range: vscode.Range
   ): vscode.CodeAction | null {
-    const action = new vscode.CodeAction(
-      suggestion.title,
-      this.getCodeActionKind(suggestion.type)
-    );
+    const action = new vscode.CodeAction(suggestion.title, this.getCodeActionKind(suggestion.type));
 
+    // @ts-ignore
     action.detail = suggestion.description;
     action.diagnostics = [];
 
@@ -231,10 +215,7 @@ export class PersonalizationProvider implements vscode.CodeActionProvider, vscod
    * 創建完成項目
    */
   private createCompletionItem(suggestion: PersonalizedSuggestion): vscode.CompletionItem | null {
-    const item = new vscode.CompletionItem(
-      suggestion.title,
-      vscode.CompletionItemKind.Snippet
-    );
+    const item = new vscode.CompletionItem(suggestion.title, vscode.CompletionItemKind.Snippet);
 
     item.detail = suggestion.description;
     item.documentation = new vscode.MarkdownString(suggestion.reasoning);
@@ -254,10 +235,7 @@ export class PersonalizationProvider implements vscode.CodeActionProvider, vscod
   /**
    * 應用建議
    */
-  private async applySuggestion(
-    suggestion: PersonalizedSuggestion,
-    editor: vscode.TextEditor
-  ): Promise<void> {
+  private async applySuggestion(suggestion: PersonalizedSuggestion, editor: vscode.TextEditor): Promise<void> {
     try {
       for (const action of suggestion.actions) {
         if (action.command) {
@@ -272,11 +250,7 @@ export class PersonalizationProvider implements vscode.CodeActionProvider, vscod
       }
 
       // 記錄正面反饋
-      await this.personalizationEngine.recordUserFeedback(
-        suggestion.id,
-        'positive',
-        'accepted'
-      );
+      await this.personalizationEngine.recordUserFeedback(suggestion.id, 'positive', 'accepted');
 
       vscode.window.showInformationMessage(`已應用建議: ${suggestion.title}`);
     } catch (error) {
@@ -291,10 +265,7 @@ export class PersonalizationProvider implements vscode.CodeActionProvider, vscod
     switch (operation.type) {
       case 'create':
         if (operation.content) {
-          await vscode.workspace.fs.writeFile(
-            operation.target,
-            Buffer.from(operation.content, 'utf8')
-          );
+          await vscode.workspace.fs.writeFile(operation.target, Buffer.from(operation.content, 'utf8'));
         }
         break;
       case 'delete':
@@ -348,12 +319,13 @@ export class PersonalizationProvider implements vscode.CodeActionProvider, vscod
    */
   private getSortText(suggestion: PersonalizedSuggestion): string {
     // 基於優先級和信心度計算排序
-    const priorityWeight = {
-      'critical': 1000,
-      'high': 800,
-      'medium': 600,
-      'low': 400
-    }[suggestion.priority] || 0;
+    const priorityWeight =
+      {
+        critical: 1000,
+        high: 800,
+        medium: 600,
+        low: 400
+      }[suggestion.priority] || 0;
 
     const confidenceWeight = Math.round(suggestion.confidence * 100);
     const totalWeight = priorityWeight + confidenceWeight;
@@ -371,27 +343,27 @@ export class PersonalizationProvider implements vscode.CodeActionProvider, vscod
       <head>
         <title>用戶偏好摘要</title>
         <style>
-          body { 
-            font-family: Arial, sans-serif; 
-            padding: 20px; 
+          body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
             background-color: var(--vscode-editor-background);
             color: var(--vscode-editor-foreground);
           }
-          .section { 
-            margin: 20px 0; 
-            padding: 15px; 
-            border: 1px solid var(--vscode-panel-border); 
-            border-radius: 5px; 
+          .section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid var(--vscode-panel-border);
+            border-radius: 5px;
           }
-          .section-title { 
-            font-weight: bold; 
-            font-size: 18px; 
-            margin-bottom: 10px; 
+          .section-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 10px;
             color: var(--vscode-textLink-foreground);
           }
-          .item { 
-            margin: 5px 0; 
-            padding: 5px 10px; 
+          .item {
+            margin: 5px 0;
+            padding: 5px 10px;
             background-color: var(--vscode-textBlockQuote-background);
             border-radius: 3px;
           }
@@ -401,40 +373,32 @@ export class PersonalizationProvider implements vscode.CodeActionProvider, vscod
       </head>
       <body>
         <h1>🎯 用戶偏好摘要</h1>
-        
+
         <div class="section">
           <div class="section-title">偏好的建議類型</div>
-          ${summary.preferredSuggestionTypes.map((type: string) => 
-            `<div class="item preferred">✅ ${type}</div>`
-          ).join('')}
+          ${summary.preferredSuggestionTypes
+            .map((type: string) => `<div class="item preferred">✅ ${type}</div>`)
+            .join('')}
         </div>
-        
+
         <div class="section">
           <div class="section-title">避免的建議類型</div>
-          ${summary.avoidedSuggestionTypes.map((type: string) => 
-            `<div class="item avoided">❌ ${type}</div>`
-          ).join('')}
+          ${summary.avoidedSuggestionTypes.map((type: string) => `<div class="item avoided">❌ ${type}</div>`).join('')}
         </div>
-        
+
         <div class="section">
           <div class="section-title">偏好的編程語言</div>
-          ${summary.preferredLanguages.map((lang: string) => 
-            `<div class="item">🔤 ${lang}</div>`
-          ).join('')}
+          ${summary.preferredLanguages.map((lang: string) => `<div class="item">🔤 ${lang}</div>`).join('')}
         </div>
-        
+
         <div class="section">
           <div class="section-title">常用模式</div>
-          ${summary.commonPatterns.map((pattern: string) => 
-            `<div class="item">🔄 ${pattern}</div>`
-          ).join('')}
+          ${summary.commonPatterns.map((pattern: string) => `<div class="item">🔄 ${pattern}</div>`).join('')}
         </div>
-        
+
         <div class="section">
           <div class="section-title">學習領域</div>
-          ${summary.learningAreas.map((area: string) => 
-            `<div class="item">🎓 ${area}</div>`
-          ).join('')}
+          ${summary.learningAreas.map((area: string) => `<div class="item">🎓 ${area}</div>`).join('')}
         </div>
       </body>
       </html>
@@ -449,27 +413,17 @@ export class PersonalizationProvider implements vscode.CodeActionProvider, vscod
 
     // 註冊代碼行動提供者
     context.subscriptions.push(
-      vscode.languages.registerCodeActionsProvider(
-        { scheme: 'file' },
-        provider,
-        {
-          providedCodeActionKinds: [
-            vscode.CodeActionKind.QuickFix,
-            vscode.CodeActionKind.Refactor,
-            vscode.CodeActionKind.RefactorRewrite
-          ]
-        }
-      )
+      vscode.languages.registerCodeActionsProvider({ scheme: 'file' }, provider, {
+        providedCodeActionKinds: [
+          vscode.CodeActionKind.QuickFix,
+          vscode.CodeActionKind.Refactor,
+          vscode.CodeActionKind.RefactorRewrite
+        ]
+      })
     );
 
     // 註冊完成提供者
-    context.subscriptions.push(
-      vscode.languages.registerCompletionItemProvider(
-        { scheme: 'file' },
-        provider,
-        '.'
-      )
-    );
+    context.subscriptions.push(vscode.languages.registerCompletionItemProvider({ scheme: 'file' }, provider, '.'));
 
     return provider;
   }
