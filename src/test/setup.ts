@@ -1,3 +1,4 @@
+import * as sinon from 'sinon';
 
 // Mock VS Code API
 const mockVSCode = {
@@ -87,7 +88,7 @@ const mockVSCode = {
 const Module = require('module');
 const originalRequire = Module.prototype.require;
 
-Module.prototype.require = function(id: string) {
+Module.prototype.require = function (id: string) {
   if (id === 'fs') {
     return {
       promises: {
@@ -118,9 +119,6 @@ Module.prototype.require = function(id: string) {
       isAbsolute: sinon.stub()
     };
   }
-
-  return originalRequire.apply(this, arguments);
-};
 
   // Continue with other mocks
   if (id === 'sqlite3') {
@@ -156,6 +154,9 @@ Module.prototype.require = function(id: string) {
       delete: sinon.stub()
     };
   }
+
+  return originalRequire.apply(this, arguments);
+};
 
 // Set up global mocks
 (global as any).vscode = mockVSCode;
