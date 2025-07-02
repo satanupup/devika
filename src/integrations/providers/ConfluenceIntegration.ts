@@ -159,14 +159,20 @@ export class ConfluenceIntegration {
    * 測試連接
    */
   async testConnection(): Promise<IntegrationResult<boolean>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const response = await this.makeRequest('GET', '/rest/api/user/current');
-        return { success: true, data: response.ok };
+        return response.ok;
       },
       'Confluence 連接測試',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || 'Confluence 連接測試失敗' };
+    }
   }
 
   /**
@@ -178,40 +184,50 @@ export class ConfluenceIntegration {
     limit: number = 25,
     start: number = 0
   ): Promise<IntegrationResult<{ results: ConfluenceSpace[]; size: number; start: number; limit: number }>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         let url = `/rest/api/space?limit=${limit}&start=${start}`;
-        
+
         if (type) {
           url += `&type=${type}`;
         }
-        
+
         if (status) {
           url += `&status=${status}`;
         }
 
         const response = await this.makeRequest('GET', url);
-        const spaces = await response.json();
-        return { success: true, data: spaces };
+        return await response.json();
       },
       '獲取 Confluence 空間',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '獲取 Confluence 空間失敗' };
+    }
   }
 
   /**
    * 獲取空間詳情
    */
   async getSpace(spaceKey: string): Promise<IntegrationResult<ConfluenceSpace>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const response = await this.makeRequest('GET', `/rest/api/space/${spaceKey}`);
-        const space = await response.json();
-        return { success: true, data: space };
+        return await response.json();
       },
       '獲取 Confluence 空間詳情',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '獲取 Confluence 空間詳情失敗' };
+    }
   }
 
   /**
@@ -223,40 +239,47 @@ export class ConfluenceIntegration {
     limit: number = 25,
     start: number = 0
   ): Promise<IntegrationResult<{ results: ConfluencePage[]; size: number; start: number; limit: number }>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const url = `/rest/api/space/${spaceKey}/content/${type}?limit=${limit}&start=${start}&expand=history,space,version`;
         const response = await this.makeRequest('GET', url);
-        const content = await response.json();
-        return { success: true, data: content };
+        return await response.json();
       },
       '獲取 Confluence 空間內容',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '獲取 Confluence 空間內容失敗' };
+    }
   }
 
   /**
    * 獲取頁面詳情
    */
-  async getPage(
-    pageId: string,
-    expand?: string[]
-  ): Promise<IntegrationResult<ConfluencePage>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+  async getPage(pageId: string, expand?: string[]): Promise<IntegrationResult<ConfluencePage>> {
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         let url = `/rest/api/content/${pageId}`;
-        
+
         if (expand && expand.length > 0) {
           url += `?expand=${expand.join(',')}`;
         }
 
         const response = await this.makeRequest('GET', url);
-        const page = await response.json();
-        return { success: true, data: page };
+        return await response.json();
       },
       '獲取 Confluence 頁面詳情',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '獲取 Confluence 頁面詳情失敗' };
+    }
   }
 
   /**
@@ -269,7 +292,7 @@ export class ConfluenceIntegration {
     parentId?: string;
     type?: 'page' | 'blogpost';
   }): Promise<IntegrationResult<ConfluencePage>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const createData = {
           type: pageData.type || 'page',
@@ -289,12 +312,17 @@ export class ConfluenceIntegration {
         };
 
         const response = await this.makeRequest('POST', '/rest/api/content', createData);
-        const page = await response.json();
-        return { success: true, data: page };
+        return await response.json();
       },
       '創建 Confluence 頁面',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '創建 Confluence 頁面失敗' };
+    }
   }
 
   /**
@@ -309,7 +337,7 @@ export class ConfluenceIntegration {
       minorEdit?: boolean;
     }
   ): Promise<IntegrationResult<ConfluencePage>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         // 先獲取當前頁面信息
         const currentPageResult = await this.getPage(pageId, ['space', 'version']);
@@ -318,7 +346,7 @@ export class ConfluenceIntegration {
         }
 
         const currentPage = currentPageResult.data;
-        
+
         const updatePayload = {
           id: pageId,
           type: currentPage.type,
@@ -339,26 +367,37 @@ export class ConfluenceIntegration {
         };
 
         const response = await this.makeRequest('PUT', `/rest/api/content/${pageId}`, updatePayload);
-        const page = await response.json();
-        return { success: true, data: page };
+        return await response.json();
       },
       '更新 Confluence 頁面',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '更新 Confluence 頁面失敗' };
+    }
   }
 
   /**
    * 刪除頁面
    */
   async deletePage(pageId: string): Promise<IntegrationResult<boolean>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const response = await this.makeRequest('DELETE', `/rest/api/content/${pageId}`);
-        return { success: true, data: response.ok };
+        return response.ok;
       },
       '刪除 Confluence 頁面',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '刪除 Confluence 頁面失敗' };
+    }
   }
 
   /**
@@ -370,27 +409,34 @@ export class ConfluenceIntegration {
     spaceKey?: string,
     limit: number = 25,
     start: number = 0
-  ): Promise<IntegrationResult<{ results: ConfluenceSearchResult[]; totalSize: number; start: number; limit: number }>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+  ): Promise<
+    IntegrationResult<{ results: ConfluenceSearchResult[]; totalSize: number; start: number; limit: number }>
+  > {
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         let cql = `text ~ "${query}"`;
-        
+
         if (type) {
           cql += ` AND type = ${type}`;
         }
-        
+
         if (spaceKey) {
           cql += ` AND space = ${spaceKey}`;
         }
 
         const url = `/rest/api/content/search?cql=${encodeURIComponent(cql)}&limit=${limit}&start=${start}`;
         const response = await this.makeRequest('GET', url);
-        const searchResult = await response.json();
-        return { success: true, data: searchResult };
+        return await response.json();
       },
       '搜索 Confluence 內容',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '搜索 Confluence 內容失敗' };
+    }
   }
 
   /**
@@ -401,71 +447,83 @@ export class ConfluenceIntegration {
     limit: number = 25,
     start: number = 0
   ): Promise<IntegrationResult<{ results: ConfluencePage[]; size: number; start: number; limit: number }>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const url = `/rest/api/content/${pageId}/child/page?limit=${limit}&start=${start}&expand=history,space,version`;
         const response = await this.makeRequest('GET', url);
-        const children = await response.json();
-        return { success: true, data: children };
+        return await response.json();
       },
       '獲取 Confluence 子頁面',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '獲取 Confluence 子頁面失敗' };
+    }
   }
 
   /**
    * 獲取頁面附件
    */
-  async getPageAttachments(
-    pageId: string,
-    limit: number = 25,
-    start: number = 0
-  ): Promise<IntegrationResult<any>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+  async getPageAttachments(pageId: string, limit: number = 25, start: number = 0): Promise<IntegrationResult<any>> {
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const url = `/rest/api/content/${pageId}/child/attachment?limit=${limit}&start=${start}`;
         const response = await this.makeRequest('GET', url);
-        const attachments = await response.json();
-        return { success: true, data: attachments };
+        return await response.json();
       },
       '獲取 Confluence 頁面附件',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '獲取 Confluence 頁面附件失敗' };
+    }
   }
 
   /**
    * 獲取當前用戶信息
    */
   async getCurrentUser(): Promise<IntegrationResult<ConfluenceUser>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const response = await this.makeRequest('GET', '/rest/api/user/current');
-        const user = await response.json();
-        return { success: true, data: user };
+        return await response.json();
       },
       '獲取 Confluence 用戶信息',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '獲取 Confluence 用戶信息失敗' };
+    }
   }
 
   /**
    * 獲取頁面歷史版本
    */
-  async getPageHistory(
-    pageId: string,
-    limit: number = 25,
-    start: number = 0
-  ): Promise<IntegrationResult<any>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+  async getPageHistory(pageId: string, limit: number = 25, start: number = 0): Promise<IntegrationResult<any>> {
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const url = `/rest/api/content/${pageId}/history?limit=${limit}&start=${start}`;
         const response = await this.makeRequest('GET', url);
-        const history = await response.json();
-        return { success: true, data: history };
+        return await response.json();
       },
       '獲取 Confluence 頁面歷史',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '獲取 Confluence 頁面歷史失敗' };
+    }
   }
 
   /**
@@ -474,7 +532,7 @@ export class ConfluenceIntegration {
   private async makeRequest(method: string, endpoint: string, data?: any): Promise<Response> {
     const url = `${this.baseUrl}${endpoint}`;
     const headers: Record<string, string> = {
-      'Accept': 'application/json',
+      Accept: 'application/json',
       'Content-Type': 'application/json'
     };
 
@@ -522,7 +580,10 @@ export class ConfluenceIntegration {
     storage = storage.replace(/\*(.+?)\*/g, '<em>$1</em>');
 
     // 代碼塊
-    storage = storage.replace(/```(\w+)?\n([\s\S]*?)```/g, '<ac:structured-macro ac:name="code"><ac:parameter ac:name="language">$1</ac:parameter><ac:plain-text-body><![CDATA[$2]]></ac:plain-text-body></ac:structured-macro>');
+    storage = storage.replace(
+      /```(\w+)?\n([\s\S]*?)```/g,
+      '<ac:structured-macro ac:name="code"><ac:parameter ac:name="language">$1</ac:parameter><ac:plain-text-body><![CDATA[$2]]></ac:plain-text-body></ac:structured-macro>'
+    );
 
     // 行內代碼
     storage = storage.replace(/`(.+?)`/g, '<code>$1</code>');

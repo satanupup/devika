@@ -66,7 +66,7 @@ export interface CodingPattern {
  */
 export interface UserPreference {
   id: string;
-  category: 'style' | 'pattern' | 'tool' | 'workflow';
+  category: 'style' | 'pattern' | 'tool' | 'workflow' | 'suggestion';
   name: string;
   value: any;
   confidence: number;
@@ -267,9 +267,7 @@ export class LearningEngine {
       patterns = patterns.filter(p => p.language === language);
     }
 
-    return patterns
-      .filter(p => p.confidence >= minConfidence)
-      .sort((a, b) => b.effectiveness - a.effectiveness);
+    return patterns.filter(p => p.confidence >= minConfidence).sort((a, b) => b.effectiveness - a.effectiveness);
   }
 
   /**
@@ -282,9 +280,7 @@ export class LearningEngine {
       preferences = preferences.filter(p => p.category === category);
     }
 
-    return preferences
-      .filter(p => p.confidence >= minConfidence)
-      .sort((a, b) => b.frequency - a.frequency);
+    return preferences.filter(p => p.confidence >= minConfidence).sort((a, b) => b.frequency - a.frequency);
   }
 
   /**
@@ -319,9 +315,7 @@ export class LearningEngine {
       preferencesIdentified: this.preferences.size,
       averageConfidence,
       learningRate,
-      lastLearningSession: events.length > 0
-        ? events[events.length - 1].timestamp
-        : new Date()
+      lastLearningSession: events.length > 0 ? events[events.length - 1].timestamp : new Date()
     };
   }
 
@@ -356,12 +350,7 @@ export class LearningEngine {
   private async analyzeCodeEdit(event: LearningEvent): Promise<void> {
     const { code, language } = event.data;
     if (code && language) {
-      await this.learnCodingPattern(
-        code,
-        language,
-        event.context.projectType || 'general',
-        event.confidence
-      );
+      await this.learnCodingPattern(code, language, event.context.projectType || 'general', event.confidence);
     }
   }
 
@@ -418,13 +407,7 @@ export class LearningEngine {
   private async analyzeStylePreference(event: LearningEvent): Promise<void> {
     const { style, preference } = event.data;
     if (style && preference) {
-      await this.learnUserPreference(
-        'style',
-        style,
-        preference,
-        [event.context.language],
-        event.confidence
-      );
+      await this.learnUserPreference('style', style, preference, [event.context.language], event.confidence);
     }
   }
 
@@ -433,7 +416,7 @@ export class LearningEngine {
    */
   private setupEventListeners(): void {
     // 監聽文件變更
-    vscode.workspace.onDidChangeTextDocument(async (event) => {
+    vscode.workspace.onDidChangeTextDocument(async event => {
       if (this.isLearningEnabled) {
         await this.recordEvent(
           LearningEventType.CODE_EDIT,
@@ -457,11 +440,7 @@ export class LearningEngine {
   /**
    * 計算事件信心度
    */
-  private calculateEventConfidence(
-    type: LearningEventType,
-    data: Record<string, any>,
-    outcome?: string
-  ): number {
+  private calculateEventConfidence(type: LearningEventType, data: Record<string, any>, outcome?: string): number {
     let baseConfidence = 0.5;
 
     // 根據事件類型調整信心度
@@ -532,7 +511,7 @@ export class LearningEngine {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // 轉換為 32 位整數
     }
     return Math.abs(hash).toString(36);

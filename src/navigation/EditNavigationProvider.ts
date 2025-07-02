@@ -8,8 +8,10 @@ import { ErrorHandlingUtils } from '../utils/ErrorHandlingUtils';
  * 提供編輯導航的用戶界面和交互功能
  */
 export class EditNavigationProvider implements vscode.TreeDataProvider<EditNavigationItem> {
-  private _onDidChangeTreeData: vscode.EventEmitter<EditNavigationItem | undefined | null | void> = new vscode.EventEmitter<EditNavigationItem | undefined | null | void>();
-  readonly onDidChangeTreeData: vscode.Event<EditNavigationItem | undefined | null | void> = this._onDidChangeTreeData.event;
+  private _onDidChangeTreeData: vscode.EventEmitter<EditNavigationItem | undefined | null | void> =
+    new vscode.EventEmitter<EditNavigationItem | undefined | null | void>();
+  readonly onDidChangeTreeData: vscode.Event<EditNavigationItem | undefined | null | void> =
+    this._onDidChangeTreeData.event;
 
   private navigationEngine: EditNavigationEngine;
   private stepGenerator: EditStepGenerator;
@@ -19,7 +21,7 @@ export class EditNavigationProvider implements vscode.TreeDataProvider<EditNavig
     this.navigationEngine = EditNavigationEngine.getInstance();
     this.stepGenerator = EditStepGenerator.getInstance();
     this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
-    
+
     this.setupEventListeners();
     this.updateStatusBar();
   }
@@ -47,38 +49,34 @@ export class EditNavigationProvider implements vscode.TreeDataProvider<EditNavig
     const items: EditNavigationItem[] = [];
 
     // 計劃信息
-    items.push(new EditNavigationItem(
-      `📋 ${activePlan.title}`,
-      vscode.TreeItemCollapsibleState.None,
-      'plan-info',
-      {
+    items.push(
+      new EditNavigationItem(`📋 ${activePlan.title}`, vscode.TreeItemCollapsibleState.None, 'plan-info', {
         command: 'devika.editNavigation.showPlanDetails',
         title: '顯示計劃詳情',
         arguments: [activePlan.id]
-      }
-    ));
+      })
+    );
 
     // 進度信息
     const progress = this.navigationEngine.getProgress();
-    items.push(new EditNavigationItem(
-      `📊 進度: ${progress.currentStep}/${progress.totalSteps} (${progress.percentage.toFixed(1)}%)`,
-      vscode.TreeItemCollapsibleState.None,
-      'progress'
-    ));
+    items.push(
+      new EditNavigationItem(
+        `📊 進度: ${progress.currentStep}/${progress.totalSteps} (${progress.percentage.toFixed(1)}%)`,
+        vscode.TreeItemCollapsibleState.None,
+        'progress'
+      )
+    );
 
     // 當前步驟
     const currentStep = this.navigationEngine.getCurrentStep();
     if (currentStep) {
-      items.push(new EditNavigationItem(
-        `▶️ 當前: ${currentStep.title}`,
-        vscode.TreeItemCollapsibleState.None,
-        'current-step',
-        {
+      items.push(
+        new EditNavigationItem(`▶️ 當前: ${currentStep.title}`, vscode.TreeItemCollapsibleState.None, 'current-step', {
           command: 'devika.editNavigation.showStepDetails',
           title: '顯示步驟詳情',
           arguments: [currentStep.id]
-        }
-      ));
+        })
+      );
     }
 
     // 步驟列表
@@ -87,21 +85,15 @@ export class EditNavigationProvider implements vscode.TreeDataProvider<EditNavig
       const isCurrent = i === activePlan.currentStepIndex;
       const icon = this.getStepIcon(step.status, isCurrent);
       const label = `${icon} ${step.title}`;
-      
-      const item = new EditNavigationItem(
-        label,
-        vscode.TreeItemCollapsibleState.None,
-        'step',
-        {
-          command: 'devika.editNavigation.showStepDetails',
-          title: '顯示步驟詳情',
-          arguments: [step.id]
-        }
-      );
+
+      const item = new EditNavigationItem(label, vscode.TreeItemCollapsibleState.None, `step-${step.status}`, {
+        command: 'devika.editNavigation.showStepDetails',
+        title: '顯示步驟詳情',
+        arguments: [step.id]
+      });
 
       item.tooltip = `${step.description}\n狀態: ${step.status}\n預估時間: ${step.estimatedTime} 分鐘`;
-      item.contextValue = `step-${step.status}`;
-      
+
       items.push(item);
     }
 
@@ -176,16 +168,11 @@ export class EditNavigationProvider implements vscode.TreeDataProvider<EditNavig
         };
 
         // 創建計劃
-        const plan = await this.navigationEngine.createEditPlan(
-          title,
-          description || '',
-          userGoal,
-          { language }
-        );
+        const plan = await this.navigationEngine.createEditPlan(title, description || '', userGoal, { language });
 
         // 生成步驟
         const steps = await this.stepGenerator.generateEditSteps(editContext);
-        
+
         // 添加步驟到計劃
         for (const stepData of steps) {
           await this.navigationEngine.addEditStep(stepData);
@@ -258,11 +245,7 @@ export class EditNavigationProvider implements vscode.TreeDataProvider<EditNavig
    * 跳過當前步驟
    */
   async skipCurrentStep(): Promise<void> {
-    const choice = await vscode.window.showWarningMessage(
-      '確定要跳過當前步驟嗎？',
-      '跳過',
-      '取消'
-    );
+    const choice = await vscode.window.showWarningMessage('確定要跳過當前步驟嗎？', '跳過', '取消');
 
     if (choice === '跳過') {
       await this.navigationEngine.skipCurrentStep();
@@ -320,7 +303,7 @@ export class EditNavigationProvider implements vscode.TreeDataProvider<EditNavig
     panel.webview.html = this.generateStepDetailsHTML(step);
 
     // 處理 WebView 消息
-    panel.webview.onDidReceiveMessage(async (message) => {
+    panel.webview.onDidReceiveMessage(async message => {
       switch (message.command) {
         case 'executeStep':
           await this.executeCurrentStep();
@@ -347,7 +330,7 @@ export class EditNavigationProvider implements vscode.TreeDataProvider<EditNavig
    * 私有方法
    */
   private setupEventListeners(): void {
-    this.navigationEngine.onEvent((event) => {
+    this.navigationEngine.onEvent(event => {
       this.refresh();
       this.updateStatusBar();
 
@@ -368,7 +351,7 @@ export class EditNavigationProvider implements vscode.TreeDataProvider<EditNavig
 
   private updateStatusBar(): void {
     const activePlan = this.navigationEngine.getActivePlan();
-    
+
     if (!activePlan) {
       this.statusBarItem.text = '$(edit) 編輯導航';
       this.statusBarItem.tooltip = '點擊創建編輯計劃';
@@ -404,56 +387,56 @@ export class EditNavigationProvider implements vscode.TreeDataProvider<EditNavig
 
   private generatePlanDetailsHTML(plan: EditPlan): string {
     const progress = this.navigationEngine.getProgress();
-    
+
     return `
       <!DOCTYPE html>
       <html>
       <head>
         <title>編輯計劃詳情</title>
         <style>
-          body { 
-            font-family: Arial, sans-serif; 
-            padding: 20px; 
+          body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
             background-color: var(--vscode-editor-background);
             color: var(--vscode-editor-foreground);
           }
-          .header { 
-            border-bottom: 1px solid var(--vscode-panel-border); 
-            padding-bottom: 15px; 
-            margin-bottom: 20px; 
+          .header {
+            border-bottom: 1px solid var(--vscode-panel-border);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
           }
-          .progress-bar { 
-            width: 100%; 
-            height: 20px; 
-            background-color: var(--vscode-progressBar-background); 
-            border-radius: 10px; 
-            overflow: hidden; 
-            margin: 10px 0; 
+          .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: var(--vscode-progressBar-background);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
           }
-          .progress-fill { 
-            height: 100%; 
-            background-color: var(--vscode-progressBar-foreground); 
-            transition: width 0.3s ease; 
+          .progress-fill {
+            height: 100%;
+            background-color: var(--vscode-progressBar-foreground);
+            transition: width 0.3s ease;
           }
-          .step { 
-            margin: 10px 0; 
-            padding: 10px; 
-            border: 1px solid var(--vscode-panel-border); 
-            border-radius: 5px; 
+          .step {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid var(--vscode-panel-border);
+            border-radius: 5px;
           }
-          .step.current { 
-            background-color: var(--vscode-list-activeSelectionBackground); 
+          .step.current {
+            background-color: var(--vscode-list-activeSelectionBackground);
           }
-          .step.completed { 
-            opacity: 0.7; 
+          .step.completed {
+            opacity: 0.7;
           }
-          .step-title { 
-            font-weight: bold; 
-            margin-bottom: 5px; 
+          .step-title {
+            font-weight: bold;
+            margin-bottom: 5px;
           }
-          .step-meta { 
-            font-size: 12px; 
-            color: var(--vscode-descriptionForeground); 
+          .step-meta {
+            font-size: 12px;
+            color: var(--vscode-descriptionForeground);
           }
         </style>
       </head>
@@ -467,9 +450,11 @@ export class EditNavigationProvider implements vscode.TreeDataProvider<EditNavig
           <p>進度: ${progress.currentStep}/${progress.totalSteps} (${progress.percentage.toFixed(1)}%)</p>
           <p>預估剩餘時間: ${progress.estimatedTimeRemaining} 分鐘</p>
         </div>
-        
+
         <h2>編輯步驟</h2>
-        ${plan.steps.map((step, index) => `
+        ${plan.steps
+          .map(
+            (step, index) => `
           <div class="step ${index === plan.currentStepIndex ? 'current' : ''} ${step.status === 'completed' ? 'completed' : ''}">
             <div class="step-title">
               ${this.getStepIcon(step.status, index === plan.currentStepIndex)} ${step.title}
@@ -479,7 +464,9 @@ export class EditNavigationProvider implements vscode.TreeDataProvider<EditNavig
               狀態: ${step.status} | 預估時間: ${step.estimatedTime} 分鐘 | 目標文件: ${step.targetFile.fsPath}
             </div>
           </div>
-        `).join('')}
+        `
+          )
+          .join('')}
       </body>
       </html>
     `;
@@ -492,46 +479,46 @@ export class EditNavigationProvider implements vscode.TreeDataProvider<EditNavig
       <head>
         <title>編輯步驟詳情</title>
         <style>
-          body { 
-            font-family: Arial, sans-serif; 
-            padding: 20px; 
+          body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
             background-color: var(--vscode-editor-background);
             color: var(--vscode-editor-foreground);
           }
-          .header { 
-            border-bottom: 1px solid var(--vscode-panel-border); 
-            padding-bottom: 15px; 
-            margin-bottom: 20px; 
+          .header {
+            border-bottom: 1px solid var(--vscode-panel-border);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
           }
-          .section { 
-            margin: 20px 0; 
-            padding: 15px; 
-            border: 1px solid var(--vscode-panel-border); 
-            border-radius: 5px; 
+          .section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid var(--vscode-panel-border);
+            border-radius: 5px;
           }
-          .section-title { 
-            font-weight: bold; 
-            margin-bottom: 10px; 
-            color: var(--vscode-textLink-foreground); 
+          .section-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--vscode-textLink-foreground);
           }
-          .code-block { 
-            background-color: var(--vscode-textBlockQuote-background); 
-            padding: 10px; 
-            border-radius: 3px; 
-            font-family: monospace; 
-            white-space: pre-wrap; 
+          .code-block {
+            background-color: var(--vscode-textBlockQuote-background);
+            padding: 10px;
+            border-radius: 3px;
+            font-family: monospace;
+            white-space: pre-wrap;
           }
-          button { 
-            background: var(--vscode-button-background); 
-            color: var(--vscode-button-foreground); 
-            border: none; 
-            padding: 8px 16px; 
-            border-radius: 3px; 
-            cursor: pointer; 
-            margin: 5px; 
+          button {
+            background: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 5px;
           }
-          button:hover { 
-            background: var(--vscode-button-hoverBackground); 
+          button:hover {
+            background: var(--vscode-button-hoverBackground);
           }
         </style>
       </head>
@@ -544,25 +531,35 @@ export class EditNavigationProvider implements vscode.TreeDataProvider<EditNavig
           <p><strong>預估時間:</strong> ${step.estimatedTime} 分鐘</p>
           <p><strong>目標文件:</strong> ${step.targetFile.fsPath}</p>
         </div>
-        
+
         <div class="section">
           <div class="section-title">執行指令</div>
           <p>${step.instructions}</p>
         </div>
-        
-        ${step.codeChanges ? `
+
+        ${
+          step.codeChanges
+            ? `
           <div class="section">
             <div class="section-title">代碼變更</div>
-            ${step.codeChanges.before ? `
+            ${
+              step.codeChanges.before
+                ? `
               <h4>變更前:</h4>
               <div class="code-block">${step.codeChanges.before}</div>
-            ` : ''}
+            `
+                : ''
+            }
             <h4>變更後:</h4>
             <div class="code-block">${step.codeChanges.after}</div>
           </div>
-        ` : ''}
-        
-        ${step.validation ? `
+        `
+            : ''
+        }
+
+        ${
+          step.validation
+            ? `
           <div class="section">
             <div class="section-title">驗證規則</div>
             <ul>
@@ -570,26 +567,28 @@ export class EditNavigationProvider implements vscode.TreeDataProvider<EditNavig
             </ul>
             <p><strong>預期結果:</strong> ${step.validation.expectedOutcome}</p>
           </div>
-        ` : ''}
-        
+        `
+            : ''
+        }
+
         <div class="section">
           <div class="section-title">操作</div>
           <button onclick="executeStep()">執行步驟</button>
           <button onclick="skipStep()">跳過步驟</button>
           <button onclick="editStep()">編輯步驟</button>
         </div>
-        
+
         <script>
           const vscode = acquireVsCodeApi();
-          
+
           function executeStep() {
             vscode.postMessage({ command: 'executeStep' });
           }
-          
+
           function skipStep() {
             vscode.postMessage({ command: 'skipStep' });
           }
-          
+
           function editStep() {
             vscode.postMessage({ command: 'editStep' });
           }
@@ -612,13 +611,11 @@ export class EditNavigationProvider implements vscode.TreeDataProvider<EditNavig
  */
 class EditNavigationItem extends vscode.TreeItem {
   constructor(
-    public readonly label: string,
-    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-    public readonly contextValue?: string,
-    public readonly command?: vscode.Command
+    public override readonly label: string,
+    public override readonly collapsibleState: vscode.TreeItemCollapsibleState,
+    public override readonly contextValue?: string,
+    public override readonly command?: vscode.Command
   ) {
     super(label, collapsibleState);
-    this.contextValue = contextValue;
-    this.command = command;
   }
 }

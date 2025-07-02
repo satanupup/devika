@@ -98,10 +98,10 @@ export class AdaptiveSuggestionSystem {
         const suggestions: AdaptiveSuggestion[] = [];
 
         // 獲取基礎建議
-        const baseSuggestions = await this.intelligentSuggestions.generateSuggestions(
-          document,
-          position
-        );
+        const baseSuggestions = await this.intelligentSuggestions.generateSuggestions({
+          currentFile: document.uri,
+          selectedRange: new vscode.Range(position, position)
+        });
 
         // 根據用戶偏好調整建議
         for (const baseSuggestion of baseSuggestions) {
@@ -124,7 +124,7 @@ export class AdaptiveSuggestionSystem {
       },
       '生成適應性建議',
       { logError: true, showToUser: false }
-    ).then(result => result.success ? result.data! : []);
+    ).then(result => (result.success ? result.data! : []));
   }
 
   /**
@@ -144,9 +144,8 @@ export class AdaptiveSuggestionSystem {
         this.feedbackHistory.set(feedback.suggestionId, existingFeedback);
 
         // 記錄學習事件
-        const eventType = feedback.action === 'accept' 
-          ? LearningEventType.SUGGESTION_ACCEPT 
-          : LearningEventType.SUGGESTION_REJECT;
+        const eventType =
+          feedback.action === 'accept' ? LearningEventType.SUGGESTION_ACCEPT : LearningEventType.SUGGESTION_REJECT;
 
         await this.learningEngine.recordEvent(
           eventType,
@@ -184,10 +183,7 @@ export class AdaptiveSuggestionSystem {
 
     for (const suggestion of suggestions) {
       if (suggestion.type === SuggestionType.CODE_COMPLETION) {
-        const completion = new vscode.CompletionItem(
-          suggestion.title,
-          vscode.CompletionItemKind.Snippet
-        );
+        const completion = new vscode.CompletionItem(suggestion.title, vscode.CompletionItemKind.Snippet);
 
         completion.detail = suggestion.description;
         completion.documentation = new vscode.MarkdownString(suggestion.reasoning);
@@ -216,7 +212,8 @@ export class AdaptiveSuggestionSystem {
     );
 
     // 獲取最近的模式
-    const recentPatterns = this.patternRecognizer.getAllPatterns()
+    const recentPatterns = this.patternRecognizer
+      .getAllPatterns()
       .filter(p => p.language === document.languageId)
       .sort((a, b) => b.frequency - a.frequency)
       .slice(0, 10)
@@ -237,10 +234,7 @@ export class AdaptiveSuggestionSystem {
   /**
    * 適應基礎建議
    */
-  private async adaptSuggestion(
-    baseSuggestion: any,
-    context: SuggestionContext
-  ): Promise<AdaptiveSuggestion | null> {
+  private async adaptSuggestion(baseSuggestion: any, context: SuggestionContext): Promise<AdaptiveSuggestion | null> {
     // 檢查是否符合用戶偏好
     const relevantPreferences = context.userPreferences.filter(pref =>
       this.isPreferenceRelevant(pref, baseSuggestion, context)
@@ -251,11 +245,7 @@ export class AdaptiveSuggestionSystem {
     }
 
     // 調整建議以符合用戶風格
-    const adaptedCode = await this.adaptCodeToUserStyle(
-      baseSuggestion.code,
-      context,
-      relevantPreferences
-    );
+    const adaptedCode = await this.adaptCodeToUserStyle(baseSuggestion.code, context, relevantPreferences);
 
     const suggestion: AdaptiveSuggestion = {
       id: this.generateSuggestionId(),
@@ -282,11 +272,10 @@ export class AdaptiveSuggestionSystem {
   /**
    * 生成基於模式的建議
    */
-  private async generatePatternBasedSuggestions(
-    context: SuggestionContext
-  ): Promise<AdaptiveSuggestion[]> {
+  private async generatePatternBasedSuggestions(context: SuggestionContext): Promise<AdaptiveSuggestion[]> {
     const suggestions: AdaptiveSuggestion[] = [];
-    const patterns = this.patternRecognizer.getAllPatterns()
+    const patterns = this.patternRecognizer
+      .getAllPatterns()
       .filter(p => p.language === context.language && p.confidence > 0.7);
 
     for (const pattern of patterns) {
@@ -305,9 +294,7 @@ export class AdaptiveSuggestionSystem {
   /**
    * 生成風格建議
    */
-  private async generateStyleSuggestions(
-    context: SuggestionContext
-  ): Promise<AdaptiveSuggestion[]> {
+  private async generateStyleSuggestions(context: SuggestionContext): Promise<AdaptiveSuggestion[]> {
     const suggestions: AdaptiveSuggestion[] = [];
     const stylePreferences = this.learningEngine.getUserPreferences('style', 0.6);
 
@@ -324,21 +311,17 @@ export class AdaptiveSuggestionSystem {
   /**
    * 排序建議
    */
-  private rankSuggestions(
-    suggestions: AdaptiveSuggestion[],
-    context: SuggestionContext
-  ): AdaptiveSuggestion[] {
+  private rankSuggestions(suggestions: AdaptiveSuggestion[], context: SuggestionContext): AdaptiveSuggestion[] {
     return suggestions.sort((a, b) => {
       // 優先級權重
       const priorityWeight = (b.priority - a.priority) * 0.4;
-      
+
       // 信心度權重
       const confidenceWeight = (b.confidence - a.confidence) * 0.3;
-      
+
       // 用戶偏好匹配權重
-      const preferenceWeight = this.calculatePreferenceMatch(b, context) - 
-                              this.calculatePreferenceMatch(a, context);
-      
+      const preferenceWeight = this.calculatePreferenceMatch(b, context) - this.calculatePreferenceMatch(a, context);
+
       return priorityWeight + confidenceWeight + preferenceWeight * 0.3;
     });
   }
@@ -351,7 +334,7 @@ export class AdaptiveSuggestionSystem {
     feedback: SuggestionFeedback
   ): Promise<void> {
     const confidence = feedback.action === 'accept' ? 0.8 : 0.2;
-    
+
     await this.learningEngine.learnUserPreference(
       'pattern',
       suggestion.type,
@@ -368,11 +351,7 @@ export class AdaptiveSuggestionSystem {
   /**
    * 檢查偏好是否相關
    */
-  private isPreferenceRelevant(
-    preference: UserPreference,
-    suggestion: any,
-    context: SuggestionContext
-  ): boolean {
+  private isPreferenceRelevant(preference: UserPreference, suggestion: any, context: SuggestionContext): boolean {
     // 檢查語言匹配
     if (!preference.context.includes(context.language)) {
       return false;
@@ -429,12 +408,12 @@ export class AdaptiveSuggestionSystem {
   private getSurroundingCode(document: vscode.TextDocument, position: vscode.Position): string {
     const startLine = Math.max(0, position.line - 5);
     const endLine = Math.min(document.lineCount - 1, position.line + 5);
-    
+
     let code = '';
     for (let i = startLine; i <= endLine; i++) {
       code += document.lineAt(i).text + '\n';
     }
-    
+
     return code;
   }
 
@@ -450,12 +429,12 @@ export class AdaptiveSuggestionSystem {
       const packageJsonUri = vscode.Uri.joinPath(workspaceFolder.uri, 'package.json');
       const packageJson = await vscode.workspace.fs.readFile(packageJsonUri);
       const packageData = JSON.parse(packageJson.toString());
-      
+
       if (packageData.dependencies?.react) return 'react';
       if (packageData.dependencies?.vue) return 'vue';
       if (packageData.dependencies?.angular) return 'angular';
       if (packageData.dependencies?.express) return 'express';
-      
+
       return 'javascript';
     } catch {
       return undefined;
@@ -471,10 +450,14 @@ export class AdaptiveSuggestionSystem {
 
   private mapToSuggestionType(type: string): SuggestionType {
     switch (type) {
-      case 'completion': return SuggestionType.CODE_COMPLETION;
-      case 'refactor': return SuggestionType.REFACTORING;
-      case 'style': return SuggestionType.STYLE_IMPROVEMENT;
-      default: return SuggestionType.BEST_PRACTICE;
+      case 'completion':
+        return SuggestionType.CODE_COMPLETION;
+      case 'refactor':
+        return SuggestionType.REFACTORING;
+      case 'style':
+        return SuggestionType.STYLE_IMPROVEMENT;
+      default:
+        return SuggestionType.BEST_PRACTICE;
     }
   }
 
@@ -505,7 +488,10 @@ export class AdaptiveSuggestionSystem {
     return null; // 簡化實現
   }
 
-  private async createStyleSuggestion(preference: UserPreference, context: SuggestionContext): Promise<AdaptiveSuggestion | null> {
+  private async createStyleSuggestion(
+    preference: UserPreference,
+    context: SuggestionContext
+  ): Promise<AdaptiveSuggestion | null> {
     // 創建風格建議
     return null; // 簡化實現
   }

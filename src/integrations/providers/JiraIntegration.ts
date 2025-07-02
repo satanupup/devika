@@ -169,44 +169,60 @@ export class JiraIntegration {
    * 測試連接
    */
   async testConnection(): Promise<IntegrationResult<boolean>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const response = await this.makeRequest('GET', '/rest/api/3/myself');
-        return { success: true, data: response.ok };
+        return response.ok;
       },
       'Jira 連接測試',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || 'Jira 連接測試失敗' };
+    }
   }
 
   /**
    * 獲取項目列表
    */
   async getProjects(): Promise<IntegrationResult<JiraProject[]>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const response = await this.makeRequest('GET', '/rest/api/3/project');
-        const projects = await response.json();
-        return { success: true, data: projects };
+        return await response.json();
       },
       '獲取 Jira 項目',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '獲取 Jira 項目失敗' };
+    }
   }
 
   /**
    * 獲取項目詳情
    */
   async getProject(projectKey: string): Promise<IntegrationResult<JiraProject>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const response = await this.makeRequest('GET', `/rest/api/3/project/${projectKey}`);
-        const project = await response.json();
-        return { success: true, data: project };
+        return await response.json();
       },
       '獲取 Jira 項目詳情',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '獲取 Jira 項目詳情失敗' };
+    }
   }
 
   /**
@@ -218,7 +234,7 @@ export class JiraIntegration {
     maxResults: number = 50,
     fields?: string[]
   ): Promise<IntegrationResult<{ issues: JiraIssue[]; total: number; startAt: number; maxResults: number }>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const searchData = {
           jql,
@@ -228,27 +244,37 @@ export class JiraIntegration {
         };
 
         const response = await this.makeRequest('POST', '/rest/api/3/search', searchData);
-        const searchResult = await response.json();
-        return { success: true, data: searchResult };
+        return await response.json();
       },
       '搜索 Jira Issues',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '搜索 Jira Issues 失敗' };
+    }
   }
 
   /**
    * 獲取 Issue 詳情
    */
   async getIssue(issueKey: string): Promise<IntegrationResult<JiraIssue>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const response = await this.makeRequest('GET', `/rest/api/3/issue/${issueKey}`);
-        const issue = await response.json();
-        return { success: true, data: issue };
+        return await response.json();
       },
       '獲取 Jira Issue 詳情',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '獲取 Jira Issue 詳情失敗' };
+    }
   }
 
   /**
@@ -264,7 +290,7 @@ export class JiraIntegration {
     labels?: string[];
     components?: string[];
   }): Promise<IntegrationResult<JiraIssue>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const createData = {
           fields: {
@@ -294,12 +320,17 @@ export class JiraIntegration {
         };
 
         const response = await this.makeRequest('POST', '/rest/api/3/issue', createData);
-        const issue = await response.json();
-        return { success: true, data: issue };
+        return await response.json();
       },
       '創建 Jira Issue',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '創建 Jira Issue 失敗' };
+    }
   }
 
   /**
@@ -315,7 +346,7 @@ export class JiraIntegration {
       labels?: string[];
     }
   ): Promise<IntegrationResult<boolean>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const fields: any = {};
 
@@ -354,51 +385,69 @@ export class JiraIntegration {
         }
 
         const response = await this.makeRequest('PUT', `/rest/api/3/issue/${issueKey}`, { fields });
-        return { success: true, data: response.ok };
+        return response.ok;
       },
       '更新 Jira Issue',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '更新 Jira Issue 失敗' };
+    }
   }
 
   /**
    * 轉換 Issue 狀態
    */
   async transitionIssue(issueKey: string, transitionId: string): Promise<IntegrationResult<boolean>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const transitionData = {
           transition: { id: transitionId }
         };
 
         const response = await this.makeRequest('POST', `/rest/api/3/issue/${issueKey}/transitions`, transitionData);
-        return { success: true, data: response.ok };
+        return response.ok;
       },
       '轉換 Jira Issue 狀態',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '轉換 Jira Issue 狀態失敗' };
+    }
   }
 
   /**
    * 獲取 Issue 可用轉換
    */
   async getIssueTransitions(issueKey: string): Promise<IntegrationResult<any[]>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const response = await this.makeRequest('GET', `/rest/api/3/issue/${issueKey}/transitions`);
         const result = await response.json();
-        return { success: true, data: result.transitions };
+        return result.transitions;
       },
       '獲取 Jira Issue 轉換',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '獲取 Jira Issue 轉換失敗' };
+    }
   }
 
   /**
    * 獲取看板列表
    */
   async getBoards(projectKeyOrId?: string): Promise<IntegrationResult<JiraBoard[]>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         let url = '/rest/agile/1.0/board';
         if (projectKeyOrId) {
@@ -407,18 +456,24 @@ export class JiraIntegration {
 
         const response = await this.makeRequest('GET', url);
         const result = await response.json();
-        return { success: true, data: result.values };
+        return result.values;
       },
       '獲取 Jira 看板',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '獲取 Jira 看板失敗' };
+    }
   }
 
   /**
    * 獲取 Sprint 列表
    */
   async getSprints(boardId: number, state?: 'future' | 'active' | 'closed'): Promise<IntegrationResult<JiraSprint[]>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         let url = `/rest/agile/1.0/board/${boardId}/sprint`;
         if (state) {
@@ -427,52 +482,69 @@ export class JiraIntegration {
 
         const response = await this.makeRequest('GET', url);
         const result = await response.json();
-        return { success: true, data: result.values };
+        return result.values;
       },
       '獲取 Jira Sprints',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '獲取 Jira Sprints 失敗' };
+    }
   }
 
   /**
    * 獲取 Sprint Issues
    */
   async getSprintIssues(sprintId: number): Promise<IntegrationResult<JiraIssue[]>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const response = await this.makeRequest('GET', `/rest/agile/1.0/sprint/${sprintId}/issue`);
         const result = await response.json();
-        return { success: true, data: result.issues };
+        return result.issues;
       },
       '獲取 Sprint Issues',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '獲取 Sprint Issues 失敗' };
+    }
   }
 
   /**
    * 獲取當前用戶信息
    */
   async getCurrentUser(): Promise<IntegrationResult<JiraUser>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const response = await this.makeRequest('GET', '/rest/api/3/myself');
-        const user = await response.json();
-        return { success: true, data: user };
+        return await response.json();
       },
       '獲取 Jira 用戶信息',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '獲取 Jira 用戶信息失敗' };
+    }
   }
 
   /**
    * 獲取項目的 Issue 類型
    */
   async getProjectIssueTypes(projectKey: string): Promise<IntegrationResult<JiraIssueType[]>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const response = await this.makeRequest('GET', `/rest/api/3/project/${projectKey}/statuses`);
         const statuses = await response.json();
-        
+
         // 提取 Issue 類型
         const issueTypes: JiraIssueType[] = [];
         statuses.forEach((status: any) => {
@@ -481,11 +553,17 @@ export class JiraIntegration {
           }
         });
 
-        return { success: true, data: issueTypes };
+        return issueTypes;
       },
       '獲取項目 Issue 類型',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '獲取項目 Issue 類型失敗' };
+    }
   }
 
   /**
@@ -494,7 +572,7 @@ export class JiraIntegration {
   private async makeRequest(method: string, endpoint: string, data?: any): Promise<Response> {
     const url = `${this.baseUrl}${endpoint}`;
     const headers: Record<string, string> = {
-      'Accept': 'application/json',
+      Accept: 'application/json',
       'Content-Type': 'application/json'
     };
 

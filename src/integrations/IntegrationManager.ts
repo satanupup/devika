@@ -1,5 +1,11 @@
 import * as vscode from 'vscode';
-import { IntegrationEngine, IntegrationType, IntegrationConfig, IntegrationConnection, IntegrationResult } from './IntegrationEngine';
+import {
+  IntegrationEngine,
+  IntegrationType,
+  IntegrationConfig,
+  IntegrationConnection,
+  IntegrationResult
+} from './IntegrationEngine';
 import { GitHubIntegration } from './providers/GitHubIntegration';
 import { JiraIntegration } from './providers/JiraIntegration';
 import { ConfluenceIntegration } from './providers/ConfluenceIntegration';
@@ -42,7 +48,7 @@ export class IntegrationManager {
       async () => {
         // 加載已保存的連接
         const connections = this.integrationEngine.getConnections();
-        
+
         // 為每個連接創建提供者實例
         for (const connection of connections) {
           await this.createProvider(connection);
@@ -59,7 +65,7 @@ export class IntegrationManager {
    * 添加新的整合
    */
   async addIntegration(config: IntegrationConfig): Promise<IntegrationResult<IntegrationConnection>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         // 註冊整合
         const registerResult = await this.integrationEngine.registerIntegration(config);
@@ -78,30 +84,40 @@ export class IntegrationManager {
           console.warn(`連接整合失敗: ${connection.type}`);
         }
 
-        return { success: true, data: connection };
+        return connection;
       },
       '添加整合',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '添加整合失敗' };
+    }
   }
 
   /**
    * 移除整合
    */
   async removeIntegration(connectionId: string): Promise<IntegrationResult<boolean>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         // 移除提供者實例
         this.providers.delete(connectionId);
 
         // 從引擎中移除
-        const result = await this.integrationEngine.removeIntegration(connectionId);
-        
-        return result;
+        return await this.integrationEngine.removeIntegration(connectionId);
       },
       '移除整合',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success && opResult.data) {
+      return opResult.data;
+    } else {
+      return { success: false, error: opResult.error?.message || '移除整合失敗' };
+    }
   }
 
   /**
@@ -116,9 +132,7 @@ export class IntegrationManager {
    */
   getProvidersByType<T extends IntegrationProvider>(type: IntegrationType): T[] {
     const connections = this.integrationEngine.getConnectionsByType(type);
-    return connections
-      .map(conn => this.getProvider<T>(conn.id))
-      .filter(provider => provider !== null) as T[];
+    return connections.map(conn => this.getProvider<T>(conn.id)).filter(provider => provider !== null) as T[];
   }
 
   /**
@@ -145,12 +159,8 @@ export class IntegrationManager {
   /**
    * 執行整合操作
    */
-  async executeAction(
-    connectionId: string,
-    action: string,
-    params: any = {}
-  ): Promise<IntegrationResult<any>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+  async executeAction(connectionId: string, action: string, params: any = {}): Promise<IntegrationResult<any>> {
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const provider = this.getProvider(connectionId);
         if (!provider) {
@@ -164,22 +174,28 @@ export class IntegrationManager {
 
         // 執行操作
         const result = await provider[action](...(Array.isArray(params) ? params : [params]));
-        
+
         // 記錄操作到引擎
         await this.integrationEngine.executeIntegrationAction(connectionId, action, params);
 
-        return { success: true, data: result };
+        return result;
       },
       '執行整合操作',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '執行整合操作失敗' };
+    }
   }
 
   /**
    * 同步所有整合
    */
   async syncAllIntegrations(): Promise<IntegrationResult<any[]>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const connectedIntegrations = this.getConnectedIntegrations();
         const syncResults: any[] = [];
@@ -204,30 +220,41 @@ export class IntegrationManager {
           }
         }
 
-        return { success: true, data: syncResults };
+        return syncResults;
       },
       '同步所有整合',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '同步所有整合失敗' };
+    }
   }
 
   /**
    * 測試整合連接
    */
   async testIntegration(connectionId: string): Promise<IntegrationResult<boolean>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const provider = this.getProvider(connectionId);
         if (!provider) {
           throw new Error(`找不到整合提供者: ${connectionId}`);
         }
 
-        const result = await provider.testConnection();
-        return result;
+        return await provider.testConnection();
       },
       '測試整合連接',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success && opResult.data) {
+      return opResult.data;
+    } else {
+      return { success: false, error: opResult.error?.message || '測試整合連接失敗' };
+    }
   }
 
   /**
@@ -322,58 +349,70 @@ export class IntegrationManager {
   }
 
   private setupEventListeners(): void {
-    this.integrationEngine.addEventListener('integration_connected', (event) => {
+    this.integrationEngine.addEventListener('integration_connected', event => {
       console.log(`整合已連接: ${event.integration}`);
     });
 
-    this.integrationEngine.addEventListener('integration_disconnected', (event) => {
+    this.integrationEngine.addEventListener('integration_disconnected', event => {
       console.log(`整合已斷開: ${event.integration}`);
     });
 
-    this.integrationEngine.addEventListener('integration_error', (event) => {
+    this.integrationEngine.addEventListener('integration_error', event => {
       console.error(`整合錯誤: ${event.integration}`, event.data);
     });
   }
 
-  private async executeGitHubAction(connectionId: string | undefined, action: string, params: any[] = []): Promise<IntegrationResult<any>> {
+  private async executeGitHubAction(
+    connectionId: string | undefined,
+    action: string,
+    params: any[] = []
+  ): Promise<IntegrationResult<any>> {
     if (!connectionId) {
       const githubConnections = this.integrationEngine.getConnectionsByType(IntegrationType.GITHUB);
       const connectedGitHub = githubConnections.find(conn => conn.status === 'connected');
-      
+
       if (!connectedGitHub) {
         return { success: false, error: '沒有可用的 GitHub 連接' };
       }
-      
+
       connectionId = connectedGitHub.id;
     }
 
     return this.executeAction(connectionId, action, params);
   }
 
-  private async executeJiraAction(connectionId: string | undefined, action: string, params: any[] = []): Promise<IntegrationResult<any>> {
+  private async executeJiraAction(
+    connectionId: string | undefined,
+    action: string,
+    params: any[] = []
+  ): Promise<IntegrationResult<any>> {
     if (!connectionId) {
       const jiraConnections = this.integrationEngine.getConnectionsByType(IntegrationType.JIRA);
       const connectedJira = jiraConnections.find(conn => conn.status === 'connected');
-      
+
       if (!connectedJira) {
         return { success: false, error: '沒有可用的 Jira 連接' };
       }
-      
+
       connectionId = connectedJira.id;
     }
 
     return this.executeAction(connectionId, action, params);
   }
 
-  private async executeConfluenceAction(connectionId: string | undefined, action: string, params: any[] = []): Promise<IntegrationResult<any>> {
+  private async executeConfluenceAction(
+    connectionId: string | undefined,
+    action: string,
+    params: any[] = []
+  ): Promise<IntegrationResult<any>> {
     if (!connectionId) {
       const confluenceConnections = this.integrationEngine.getConnectionsByType(IntegrationType.CONFLUENCE);
       const connectedConfluence = confluenceConnections.find(conn => conn.status === 'connected');
-      
+
       if (!connectedConfluence) {
         return { success: false, error: '沒有可用的 Confluence 連接' };
       }
-      
+
       connectionId = connectedConfluence.id;
     }
 

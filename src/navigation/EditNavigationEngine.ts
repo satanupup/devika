@@ -125,7 +125,7 @@ export interface EditNavigationConfig {
 export class EditNavigationEngine {
   private static instance: EditNavigationEngine;
   private activePlan: EditPlan | null = null;
-  private config: EditNavigationConfig;
+  private config!: EditNavigationConfig;
   private stepHistory: EditStep[] = [];
   private eventEmitter = new vscode.EventEmitter<EditNavigationEvent>();
 
@@ -151,9 +151,8 @@ export class EditNavigationEngine {
   ): Promise<EditPlan> {
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
-        const workspaceFolder = context.workspaceFolder || 
-          vscode.workspace.workspaceFolders?.[0]?.uri ||
-          vscode.Uri.file('');
+        const workspaceFolder =
+          context.workspaceFolder || vscode.workspace.workspaceFolders?.[0]?.uri || vscode.Uri.file('');
 
         const plan: EditPlan = {
           id: this.generatePlanId(),
@@ -185,7 +184,7 @@ export class EditNavigationEngine {
       },
       '創建編輯計劃',
       { logError: true, showToUser: false }
-    ).then(result => result.success ? result.data! : this.createEmptyPlan());
+    ).then(result => (result.success ? result.data! : this.createEmptyPlan()));
   }
 
   /**
@@ -223,7 +222,7 @@ export class EditNavigationEngine {
       },
       '添加編輯步驟',
       { logError: true, showToUser: false }
-    ).then(result => result.success ? result.data! : this.createEmptyStep());
+    ).then(result => (result.success ? result.data! : this.createEmptyStep()));
   }
 
   /**
@@ -286,7 +285,7 @@ export class EditNavigationEngine {
 
         try {
           await this.performStepAction(currentStep);
-          
+
           if (await this.validateStep(currentStep)) {
             currentStep.status = EditStepStatus.COMPLETED;
             currentStep.metadata.completedAt = new Date();
@@ -564,10 +563,7 @@ export class EditNavigationEngine {
       edit.insert(step.targetFile, step.codeChanges.insertPosition, step.codeChanges.after);
     } else {
       // 替換整個文件
-      const fullRange = new vscode.Range(
-        document.positionAt(0),
-        document.positionAt(document.getText().length)
-      );
+      const fullRange = new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length));
       edit.replace(step.targetFile, fullRange, step.codeChanges.after);
     }
 
@@ -730,7 +726,17 @@ export class EditNavigationEngine {
  * 編輯導航事件
  */
 export interface EditNavigationEvent {
-  type: 'plan_created' | 'plan_completed' | 'execution_started' | 'step_added' | 'step_started' | 'step_completed' | 'step_failed' | 'step_skipped' | 'step_advanced' | 'step_reverted';
+  type:
+    | 'plan_created'
+    | 'plan_completed'
+    | 'execution_started'
+    | 'step_added'
+    | 'step_started'
+    | 'step_completed'
+    | 'step_failed'
+    | 'step_skipped'
+    | 'step_advanced'
+    | 'step_reverted';
   plan: EditPlan;
   step?: EditStep;
   error?: string;

@@ -22,9 +22,15 @@ export class PersonalizationCommandProvider {
   registerCommands(context: vscode.ExtensionContext): void {
     const commands = [
       // 建議生成命令
-      vscode.commands.registerCommand('devika.personalization.showSuggestions', () => this.showPersonalizedSuggestions()),
-      vscode.commands.registerCommand('devika.personalization.generateSuggestions', () => this.generateSuggestionsForCurrentFile()),
-      vscode.commands.registerCommand('devika.personalization.applySuggestion', (suggestionId) => this.applySuggestion(suggestionId)),
+      vscode.commands.registerCommand('devika.personalization.showSuggestions', () =>
+        this.showPersonalizedSuggestions()
+      ),
+      vscode.commands.registerCommand('devika.personalization.generateSuggestions', () =>
+        this.generateSuggestionsForCurrentFile()
+      ),
+      vscode.commands.registerCommand('devika.personalization.applySuggestion', suggestionId =>
+        this.applySuggestion(suggestionId)
+      ),
 
       // 偏好管理命令
       vscode.commands.registerCommand('devika.personalization.showPreferences', () => this.showUserPreferences()),
@@ -33,12 +39,18 @@ export class PersonalizationCommandProvider {
       vscode.commands.registerCommand('devika.personalization.importPreferences', () => this.importUserPreferences()),
 
       // 反饋命令
-      vscode.commands.registerCommand('devika.personalization.provideFeedback', (suggestionId) => this.provideFeedback(suggestionId)),
-      vscode.commands.registerCommand('devika.personalization.rateSuggestion', (suggestionId, rating) => this.rateSuggestion(suggestionId, rating)),
+      vscode.commands.registerCommand('devika.personalization.provideFeedback', suggestionId =>
+        this.provideFeedback(suggestionId)
+      ),
+      vscode.commands.registerCommand('devika.personalization.rateSuggestion', (suggestionId, rating) =>
+        this.rateSuggestion(suggestionId, rating)
+      ),
 
       // 配置命令
       vscode.commands.registerCommand('devika.personalization.configure', () => this.configurePersonalization()),
-      vscode.commands.registerCommand('devika.personalization.toggleSuggestionType', (type) => this.toggleSuggestionType(type)),
+      vscode.commands.registerCommand('devika.personalization.toggleSuggestionType', type =>
+        this.toggleSuggestionType(type)
+      ),
 
       // 分析命令
       vscode.commands.registerCommand('devika.personalization.analyzeCodeStyle', () => this.analyzeCodeStyle()),
@@ -46,11 +58,15 @@ export class PersonalizationCommandProvider {
 
       // 學習命令
       vscode.commands.registerCommand('devika.personalization.learnFromSelection', () => this.learnFromSelection()),
-      vscode.commands.registerCommand('devika.personalization.suggestLearning', () => this.suggestLearningOpportunities()),
+      vscode.commands.registerCommand('devika.personalization.suggestLearning', () =>
+        this.suggestLearningOpportunities()
+      ),
 
       // 調試命令
       vscode.commands.registerCommand('devika.personalization.debug.showEngine', () => this.showEngineDebugInfo()),
-      vscode.commands.registerCommand('devika.personalization.debug.testSuggestions', () => this.testSuggestionGeneration())
+      vscode.commands.registerCommand('devika.personalization.debug.testSuggestions', () =>
+        this.testSuggestionGeneration()
+      )
     ];
 
     commands.forEach(command => context.subscriptions.push(command));
@@ -75,28 +91,31 @@ export class PersonalizationCommandProvider {
           return;
         }
 
-        vscode.window.withProgress({
-          location: vscode.ProgressLocation.Notification,
-          title: '生成個性化建議...',
-          cancellable: false
-        }, async (progress) => {
-          progress.report({ increment: 0, message: '分析代碼...' });
+        vscode.window.withProgress(
+          {
+            location: vscode.ProgressLocation.Notification,
+            title: '生成個性化建議...',
+            cancellable: false
+          },
+          async progress => {
+            progress.report({ increment: 0, message: '分析代碼...' });
 
-          const suggestions = await this.personalizationEngine.generatePersonalizedSuggestions(
-            activeEditor.document,
-            activeEditor.selection.active
-          );
-
-          progress.report({ increment: 100, message: '建議生成完成' });
-
-          if (suggestions.length > 0) {
-            vscode.window.showInformationMessage(
-              `為 ${activeEditor.document.fileName} 生成了 ${suggestions.length} 個個性化建議`
+            const suggestions = await this.personalizationEngine.generatePersonalizedSuggestions(
+              activeEditor.document,
+              activeEditor.selection.active
             );
-          } else {
-            vscode.window.showInformationMessage('當前文件沒有個性化建議');
+
+            progress.report({ increment: 100, message: '建議生成完成' });
+
+            if (suggestions.length > 0) {
+              vscode.window.showInformationMessage(
+                `為 ${activeEditor.document.fileName} 生成了 ${suggestions.length} 個個性化建議`
+              );
+            } else {
+              vscode.window.showInformationMessage('當前文件沒有個性化建議');
+            }
           }
-        });
+        );
       },
       '生成個性化建議',
       { logError: true, showToUser: true }
@@ -190,7 +209,7 @@ export class PersonalizationCommandProvider {
         if (uris && uris.length > 0) {
           const data = await vscode.workspace.fs.readFile(uris[0]);
           const preferences = JSON.parse(data.toString());
-          
+
           // 這裡需要實現導入邏輯
           vscode.window.showInformationMessage('偏好導入完成');
         }
@@ -216,7 +235,7 @@ export class PersonalizationCommandProvider {
         if (!rating) {
           const ratingInput = await vscode.window.showInputBox({
             prompt: '請為這個建議評分 (1-5)',
-            validateInput: (value) => {
+            validateInput: value => {
               const num = parseInt(value);
               if (isNaN(num) || num < 1 || num > 5) {
                 return '請輸入 1-5 之間的數字';
@@ -230,8 +249,8 @@ export class PersonalizationCommandProvider {
         }
 
         const feedback = rating >= 4 ? 'positive' : rating <= 2 ? 'negative' : 'neutral';
-        await this.personalizationEngine.recordUserFeedback(suggestionId, feedback, 'rated');
-        
+        await this.personalizationEngine.recordUserFeedback(suggestionId, feedback);
+
         vscode.window.showInformationMessage(`感謝您的評分: ${rating}/5`);
       },
       '評分建議',
@@ -319,7 +338,7 @@ export class PersonalizationCommandProvider {
     const threshold = await vscode.window.showInputBox({
       prompt: '設置建議的最低信心度 (0.0-1.0)',
       value: '0.5',
-      validateInput: (value) => {
+      validateInput: value => {
         const num = parseFloat(value);
         if (isNaN(num) || num < 0 || num > 1) {
           return '請輸入 0.0-1.0 之間的數字';
@@ -341,7 +360,7 @@ export class PersonalizationCommandProvider {
     const maxSuggestions = await vscode.window.showInputBox({
       prompt: '設置每次顯示的最大建議數 (1-20)',
       value: '10',
-      validateInput: (value) => {
+      validateInput: value => {
         const num = parseInt(value);
         if (isNaN(num) || num < 1 || num > 20) {
           return '請輸入 1-20 之間的數字';
@@ -416,20 +435,23 @@ export class PersonalizationCommandProvider {
           return;
         }
 
-        vscode.window.withProgress({
-          location: vscode.ProgressLocation.Notification,
-          title: '分析代碼風格...',
-          cancellable: false
-        }, async (progress) => {
-          progress.report({ increment: 0, message: '分析中...' });
+        vscode.window.withProgress(
+          {
+            location: vscode.ProgressLocation.Notification,
+            title: '分析代碼風格...',
+            cancellable: false
+          },
+          async progress => {
+            progress.report({ increment: 0, message: '分析中...' });
 
-          // 這裡需要實現代碼風格分析
-          await new Promise(resolve => setTimeout(resolve, 2000)); // 模擬分析
+            // 這裡需要實現代碼風格分析
+            await new Promise(resolve => setTimeout(resolve, 2000)); // 模擬分析
 
-          progress.report({ increment: 100, message: '分析完成' });
+            progress.report({ increment: 100, message: '分析完成' });
 
-          vscode.window.showInformationMessage('代碼風格分析完成');
-        });
+            vscode.window.showInformationMessage('代碼風格分析完成');
+          }
+        );
       },
       '分析代碼風格',
       { logError: true, showToUser: true }
@@ -442,12 +464,9 @@ export class PersonalizationCommandProvider {
   private async showPersonalizationInsights(): Promise<void> {
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
-        const panel = vscode.window.createWebviewPanel(
-          'personalizationInsights',
-          '個性化洞察',
-          vscode.ViewColumn.One,
-          { enableScripts: true }
-        );
+        const panel = vscode.window.createWebviewPanel('personalizationInsights', '個性化洞察', vscode.ViewColumn.One, {
+          enableScripts: true
+        });
 
         panel.webview.html = this.generateInsightsHTML();
       },
@@ -469,7 +488,7 @@ export class PersonalizationCommandProvider {
         }
 
         const selectedText = activeEditor.document.getText(activeEditor.selection);
-        
+
         // 這裡需要實現從選擇學習的邏輯
         vscode.window.showInformationMessage(`已從選中的代碼學習模式`);
       },
@@ -525,9 +544,7 @@ export class PersonalizationCommandProvider {
   private async testSuggestionGeneration(): Promise<void> {
     const activeEditor = vscode.window.activeTextEditor;
     if (activeEditor) {
-      const suggestions = await this.personalizationEngine.generatePersonalizedSuggestions(
-        activeEditor.document
-      );
+      const suggestions = await this.personalizationEngine.generatePersonalizedSuggestions(activeEditor.document);
       vscode.window.showInformationMessage(`生成了 ${suggestions.length} 個測試建議`);
     }
   }
@@ -558,40 +575,40 @@ export class PersonalizationCommandProvider {
       <head>
         <title>個性化洞察</title>
         <style>
-          body { 
-            font-family: Arial, sans-serif; 
-            padding: 20px; 
+          body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
             background-color: var(--vscode-editor-background);
             color: var(--vscode-editor-foreground);
           }
-          .insight { 
-            margin: 15px 0; 
-            padding: 15px; 
-            border-left: 4px solid var(--vscode-textLink-foreground); 
+          .insight {
+            margin: 15px 0;
+            padding: 15px;
+            border-left: 4px solid var(--vscode-textLink-foreground);
             background-color: var(--vscode-textBlockQuote-background);
           }
-          .metric { 
-            font-size: 24px; 
-            font-weight: bold; 
-            color: var(--vscode-textLink-foreground); 
+          .metric {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--vscode-textLink-foreground);
           }
         </style>
       </head>
       <body>
         <h1>📊 個性化洞察</h1>
-        
+
         <div class="insight">
           <h3>建議接受率</h3>
           <div class="metric">85%</div>
           <p>您接受了大部分個性化建議，說明系統很好地理解了您的偏好。</p>
         </div>
-        
+
         <div class="insight">
           <h3>最常用的建議類型</h3>
           <div class="metric">代碼風格</div>
           <p>您最常接受代碼風格相關的建議，顯示出對代碼品質的重視。</p>
         </div>
-        
+
         <div class="insight">
           <h3>學習進度</h3>
           <div class="metric">進步中</div>

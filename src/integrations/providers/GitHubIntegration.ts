@@ -128,68 +128,89 @@ export class GitHubIntegration {
    * 測試連接
    */
   async testConnection(): Promise<IntegrationResult<boolean>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const response = await this.makeRequest('GET', '/user');
-        return { success: true, data: response.ok };
+        return response.ok;
       },
       'GitHub 連接測試',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || 'GitHub 連接測試失敗' };
+    }
   }
 
   /**
    * 獲取用戶倉庫
    */
   async getRepositories(page: number = 1, perPage: number = 30): Promise<IntegrationResult<GitHubRepository[]>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const response = await this.makeRequest('GET', `/user/repos?page=${page}&per_page=${perPage}&sort=updated`);
-        const repositories = await response.json();
-        return { success: true, data: repositories };
+        return await response.json();
       },
       '獲取 GitHub 倉庫',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '獲取 GitHub 倉庫失敗' };
+    }
   }
 
   /**
    * 獲取倉庫詳情
    */
   async getRepository(owner: string, repo: string): Promise<IntegrationResult<GitHubRepository>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const response = await this.makeRequest('GET', `/repos/${owner}/${repo}`);
-        const repository = await response.json();
-        return { success: true, data: repository };
+        return await response.json();
       },
       '獲取 GitHub 倉庫詳情',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '獲取 GitHub 倉庫詳情失敗' };
+    }
   }
 
   /**
    * 獲取倉庫 Issues
    */
   async getIssues(
-    owner: string, 
-    repo: string, 
+    owner: string,
+    repo: string,
     state: 'open' | 'closed' | 'all' = 'open',
     page: number = 1,
     perPage: number = 30
   ): Promise<IntegrationResult<GitHubIssue[]>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const response = await this.makeRequest(
-          'GET', 
+          'GET',
           `/repos/${owner}/${repo}/issues?state=${state}&page=${page}&per_page=${perPage}`
         );
-        const issues = await response.json();
-        return { success: true, data: issues };
+        return await response.json();
       },
       '獲取 GitHub Issues',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '獲取 GitHub Issues 失敗' };
+    }
   }
 
   /**
@@ -203,7 +224,7 @@ export class GitHubIntegration {
     labels?: string[],
     assignees?: string[]
   ): Promise<IntegrationResult<GitHubIssue>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const issueData = {
           title,
@@ -213,12 +234,17 @@ export class GitHubIntegration {
         };
 
         const response = await this.makeRequest('POST', `/repos/${owner}/${repo}/issues`, issueData);
-        const issue = await response.json();
-        return { success: true, data: issue };
+        return await response.json();
       },
       '創建 GitHub Issue',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '創建 GitHub Issue 失敗' };
+    }
   }
 
   /**
@@ -231,18 +257,23 @@ export class GitHubIntegration {
     page: number = 1,
     perPage: number = 30
   ): Promise<IntegrationResult<GitHubPullRequest[]>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const response = await this.makeRequest(
           'GET',
           `/repos/${owner}/${repo}/pulls?state=${state}&page=${page}&per_page=${perPage}`
         );
-        const pullRequests = await response.json();
-        return { success: true, data: pullRequests };
+        return await response.json();
       },
       '獲取 GitHub Pull Requests',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '獲取 GitHub Pull Requests 失敗' };
+    }
   }
 
   /**
@@ -255,7 +286,7 @@ export class GitHubIntegration {
     page: number = 1,
     perPage: number = 30
   ): Promise<IntegrationResult<GitHubCommit[]>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         let url = `/repos/${owner}/${repo}/commits?page=${page}&per_page=${perPage}`;
         if (branch) {
@@ -263,12 +294,17 @@ export class GitHubIntegration {
         }
 
         const response = await this.makeRequest('GET', url);
-        const commits = await response.json();
-        return { success: true, data: commits };
+        return await response.json();
       },
       '獲取 GitHub 提交歷史',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '獲取 GitHub 提交歷史失敗' };
+    }
   }
 
   /**
@@ -281,18 +317,23 @@ export class GitHubIntegration {
     page: number = 1,
     perPage: number = 30
   ): Promise<IntegrationResult<{ total_count: number; items: GitHubRepository[] }>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const response = await this.makeRequest(
           'GET',
           `/search/repositories?q=${encodeURIComponent(query)}&sort=${sort}&order=${order}&page=${page}&per_page=${perPage}`
         );
-        const searchResult = await response.json();
-        return { success: true, data: searchResult };
+        return await response.json();
       },
       '搜索 GitHub 倉庫',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '搜索 GitHub 倉庫失敗' };
+    }
   }
 
   /**
@@ -305,33 +346,43 @@ export class GitHubIntegration {
     page: number = 1,
     perPage: number = 30
   ): Promise<IntegrationResult<{ total_count: number; items: GitHubIssue[] }>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const response = await this.makeRequest(
           'GET',
           `/search/issues?q=${encodeURIComponent(query)}&sort=${sort}&order=${order}&page=${page}&per_page=${perPage}`
         );
-        const searchResult = await response.json();
-        return { success: true, data: searchResult };
+        return await response.json();
       },
       '搜索 GitHub Issues',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '搜索 GitHub Issues 失敗' };
+    }
   }
 
   /**
    * 獲取倉庫標籤
    */
   async getLabels(owner: string, repo: string): Promise<IntegrationResult<GitHubLabel[]>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const response = await this.makeRequest('GET', `/repos/${owner}/${repo}/labels`);
-        const labels = await response.json();
-        return { success: true, data: labels };
+        return await response.json();
       },
       '獲取 GitHub 標籤',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '獲取 GitHub 標籤失敗' };
+    }
   }
 
   /**
@@ -342,30 +393,40 @@ export class GitHubIntegration {
     repo: string,
     state: 'open' | 'closed' | 'all' = 'open'
   ): Promise<IntegrationResult<GitHubMilestone[]>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const response = await this.makeRequest('GET', `/repos/${owner}/${repo}/milestones?state=${state}`);
-        const milestones = await response.json();
-        return { success: true, data: milestones };
+        return await response.json();
       },
       '獲取 GitHub 里程碑',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '獲取 GitHub 里程碑失敗' };
+    }
   }
 
   /**
    * 獲取當前用戶信息
    */
   async getCurrentUser(): Promise<IntegrationResult<GitHubUser>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const response = await this.makeRequest('GET', '/user');
-        const user = await response.json();
-        return { success: true, data: user };
+        return await response.json();
       },
       '獲取 GitHub 用戶信息',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '獲取 GitHub 用戶信息失敗' };
+    }
   }
 
   /**
@@ -377,7 +438,7 @@ export class GitHubIntegration {
     url: string,
     events: string[] = ['push', 'pull_request', 'issues']
   ): Promise<IntegrationResult<any>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const webhookData = {
           name: 'web',
@@ -390,12 +451,17 @@ export class GitHubIntegration {
         };
 
         const response = await this.makeRequest('POST', `/repos/${owner}/${repo}/hooks`, webhookData);
-        const webhook = await response.json();
-        return { success: true, data: webhook };
+        return await response.json();
       },
       '創建 GitHub Webhook',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '創建 GitHub Webhook 失敗' };
+    }
   }
 
   /**
@@ -404,7 +470,7 @@ export class GitHubIntegration {
   private async makeRequest(method: string, endpoint: string, data?: any): Promise<Response> {
     const url = `${this.baseUrl}${endpoint}`;
     const headers: Record<string, string> = {
-      'Accept': 'application/vnd.github.v3+json',
+      Accept: 'application/vnd.github.v3+json',
       'User-Agent': 'Devika-VSCode-Extension'
     };
 
@@ -440,10 +506,7 @@ export class GitHubIntegration {
    * 解析倉庫信息從 Git URL
    */
   static parseRepositoryFromUrl(url: string): { owner: string; repo: string } | null {
-    const patterns = [
-      /github\.com[\/:]([^\/]+)\/([^\/\.]+)/,
-      /github\.com\/([^\/]+)\/([^\/]+)\.git/
-    ];
+    const patterns = [/github\.com[\/:]([^\/]+)\/([^\/\.]+)/, /github\.com\/([^\/]+)\/([^\/]+)\.git/];
 
     for (const pattern of patterns) {
       const match = url.match(pattern);
@@ -473,11 +536,11 @@ export class GitHubIntegration {
       if (gitExtension) {
         const git = gitExtension.exports.getAPI(1);
         const repository = git.repositories[0];
-        
+
         if (repository) {
           const remotes = repository.state.remotes;
           const origin = remotes.find((remote: any) => remote.name === 'origin');
-          
+
           if (origin && origin.fetchUrl) {
             return GitHubIntegration.parseRepositoryFromUrl(origin.fetchUrl);
           }

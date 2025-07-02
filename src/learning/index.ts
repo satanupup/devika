@@ -1,9 +1,29 @@
 /**
  * 持續學習機制模組
- * 
+ *
  * 此模組實現了 Devika VS Code Extension 的持續學習功能，
  * 包括用戶編碼模式識別、偏好學習、適應性建議等功能。
  */
+
+import {
+  LearningEngine,
+  LearningEventType,
+  LearningEvent,
+  LearningContext,
+  CodingPattern,
+  UserPreference,
+  LearningStats
+} from './LearningEngine';
+import { PatternRecognizer, PatternType, IdentifiedPattern } from './PatternRecognizer';
+import {
+  AdaptiveSuggestionSystem,
+  SuggestionType,
+  AdaptiveSuggestion,
+  SuggestionContext,
+  SuggestionFeedback
+} from './AdaptiveSuggestionSystem';
+import { LearningDataManager, LearningData, ExportOptions } from './LearningDataManager';
+import { LearningCommandProvider } from './LearningCommandProvider';
 
 // 核心學習引擎
 export {
@@ -17,11 +37,7 @@ export {
 } from './LearningEngine';
 
 // 模式識別器
-export {
-  PatternRecognizer,
-  PatternType,
-  IdentifiedPattern
-} from './PatternRecognizer';
+export { PatternRecognizer, PatternType, IdentifiedPattern } from './PatternRecognizer';
 
 // 適應性建議系統
 export {
@@ -33,20 +49,14 @@ export {
 } from './AdaptiveSuggestionSystem';
 
 // 學習數據管理器
-export {
-  LearningDataManager,
-  LearningData,
-  ExportOptions
-} from './LearningDataManager';
+export { LearningDataManager, LearningData, ExportOptions } from './LearningDataManager';
 
 // 學習命令提供者
-export {
-  LearningCommandProvider
-} from './LearningCommandProvider';
+export { LearningCommandProvider } from './LearningCommandProvider';
 
 /**
  * 初始化持續學習機制
- * 
+ *
  * @param context VS Code 擴展上下文
  * @returns Promise<void>
  */
@@ -54,30 +64,30 @@ export async function initializeLearningSystem(context: vscode.ExtensionContext)
   try {
     // 初始化學習引擎
     const learningEngine = LearningEngine.getInstance();
-    
+
     // 初始化模式識別器
     const patternRecognizer = PatternRecognizer.getInstance();
-    
+
     // 初始化適應性建議系統
     const adaptiveSuggestions = AdaptiveSuggestionSystem.getInstance();
-    
+
     // 初始化數據管理器
     const dataManager = LearningDataManager.getInstance();
-    
+
     // 加載學習數據
     await dataManager.loadLearningData();
-    
+
     // 註冊命令
     const commandProvider = new LearningCommandProvider();
     commandProvider.registerCommands(context);
-    
+
     // 設置清理回調
     context.subscriptions.push({
       dispose: () => {
         dataManager.dispose();
       }
     });
-    
+
     console.log('持續學習機制初始化完成');
   } catch (error) {
     console.error('持續學習機制初始化失敗:', error);
@@ -91,22 +101,22 @@ export async function initializeLearningSystem(context: vscode.ExtensionContext)
 export interface LearningSystemConfig {
   /** 是否啟用學習 */
   enabled: boolean;
-  
+
   /** 自動保存間隔（分鐘） */
   autoSaveInterval: number;
-  
+
   /** 最大事件數量 */
   maxEvents: number;
-  
+
   /** 最小信心度閾值 */
   minConfidenceThreshold: number;
-  
+
   /** 是否啟用模式識別 */
   enablePatternRecognition: boolean;
-  
+
   /** 是否啟用適應性建議 */
   enableAdaptiveSuggestions: boolean;
-  
+
   /** 數據保留天數 */
   dataRetentionDays: number;
 }
@@ -130,16 +140,16 @@ export const DEFAULT_LEARNING_CONFIG: LearningSystemConfig = {
 export interface LearningSystemStatus {
   /** 是否已初始化 */
   initialized: boolean;
-  
+
   /** 是否啟用 */
   enabled: boolean;
-  
+
   /** 學習統計 */
   stats: LearningStats;
-  
+
   /** 最後更新時間 */
   lastUpdated: Date;
-  
+
   /** 錯誤信息 */
   errors: string[];
 }
@@ -151,7 +161,7 @@ export function getLearningSystemStatus(): LearningSystemStatus {
   try {
     const learningEngine = LearningEngine.getInstance();
     const stats = learningEngine.getLearningStats();
-    
+
     return {
       initialized: true,
       enabled: true, // 從配置獲取
@@ -188,7 +198,7 @@ export type LearningEventListener = (event: LearningEvent) => void;
  */
 class LearningEventManager {
   private listeners: Map<LearningEventType, LearningEventListener[]> = new Map();
-  
+
   /**
    * 添加事件監聽器
    */
@@ -198,7 +208,7 @@ class LearningEventManager {
     }
     this.listeners.get(type)!.push(listener);
   }
-  
+
   /**
    * 移除事件監聽器
    */
@@ -211,7 +221,7 @@ class LearningEventManager {
       }
     }
   }
-  
+
   /**
    * 觸發事件
    */
@@ -227,7 +237,7 @@ class LearningEventManager {
       });
     }
   }
-  
+
   /**
    * 清除所有監聽器
    */
@@ -252,13 +262,13 @@ export class LearningUtils {
     // 簡單的相似度計算
     const words1 = code1.split(/\W+/).filter(w => w.length > 0);
     const words2 = code2.split(/\W+/).filter(w => w.length > 0);
-    
+
     const intersection = words1.filter(w => words2.includes(w));
     const union = [...new Set([...words1, ...words2])];
-    
+
     return intersection.length / union.length;
   }
-  
+
   /**
    * 提取代碼特徵
    */
@@ -277,21 +287,21 @@ export class LearningUtils {
       hasImport: code.includes('import'),
       hasExport: code.includes('export')
     };
-    
+
     // 計算複雜度指標
     features.cyclomaticComplexity = this.calculateCyclomaticComplexity(code);
     features.nestingDepth = this.calculateNestingDepth(code);
-    
+
     return features;
   }
-  
+
   /**
    * 計算圈複雜度
    */
   static calculateCyclomaticComplexity(code: string): number {
     const keywords = ['if', 'else', 'while', 'for', 'switch', 'case', 'catch', '&&', '||', '?'];
     let complexity = 1; // 基礎複雜度
-    
+
     keywords.forEach(keyword => {
       const regex = new RegExp(`\\b${keyword}\\b`, 'g');
       const matches = code.match(regex);
@@ -299,17 +309,17 @@ export class LearningUtils {
         complexity += matches.length;
       }
     });
-    
+
     return complexity;
   }
-  
+
   /**
    * 計算嵌套深度
    */
   static calculateNestingDepth(code: string): number {
     let depth = 0;
     let maxDepth = 0;
-    
+
     for (const char of code) {
       if (char === '{') {
         depth++;
@@ -318,10 +328,10 @@ export class LearningUtils {
         depth--;
       }
     }
-    
+
     return maxDepth;
   }
-  
+
   /**
    * 格式化學習統計
    */

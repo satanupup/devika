@@ -140,8 +140,7 @@ export class ConversationMemoryManager {
             totalTokens: 0,
             averageResponseTime: 0,
             projectPath: currentContext.workspaceFolder?.fsPath,
-            language: currentContext.currentFile ? 
-              this.detectLanguage(currentContext.currentFile) : undefined
+            language: currentContext.currentFile ? this.detectLanguage(currentContext.currentFile) : undefined
           }
         };
 
@@ -171,14 +170,14 @@ export class ConversationMemoryManager {
       },
       '開始新對話會話',
       { logError: true, showToUser: false }
-    ).then(result => result.success ? result.data! : '');
+    ).then(result => (result.success ? result.data! : ''));
   }
 
   /**
    * 添加消息到當前會話
    */
   async addMessage(
-    role: 'user' | 'assistant',
+    role: 'user' | 'assistant' | 'system',
     content: string,
     metadata?: ConversationMessage['metadata'],
     sessionId?: string
@@ -242,17 +241,13 @@ export class ConversationMemoryManager {
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const context = await this.buildCurrentContext(currentContext);
-        
+
         // 從記憶系統檢索相關記憶
-        const memories = await this.memorySystem.retrieveRelevantMemories(
-          query,
-          context.currentFile?.fsPath || 'general',
-          maxResults
-        );
+        const memories = await this.memorySystem.retrieveMemories(query, MemoryType.CONVERSATION, maxResults);
 
         // 查找相關的會話
         const relevantSessions = await this.findRelevantSessions(query, context);
-        
+
         // 查找相關的消息
         const relatedMessages = await this.findRelatedMessages(query, context);
 
@@ -260,17 +255,9 @@ export class ConversationMemoryManager {
         const contextualInfo = this.extractContextualInfo(memories, relevantSessions);
 
         // 計算整體信心度
-        const confidence = this.calculateRetrievalConfidence(
-          memories,
-          relevantSessions,
-          relatedMessages
-        );
+        const confidence = this.calculateRetrievalConfidence(memories, relevantSessions, relatedMessages);
 
-        const reasoning = this.generateRetrievalReasoning(
-          memories,
-          relevantSessions,
-          relatedMessages
-        );
+        const reasoning = this.generateRetrievalReasoning(memories, relevantSessions, relatedMessages);
 
         return {
           relevantSessions: relevantSessions.slice(0, 5),
@@ -282,13 +269,17 @@ export class ConversationMemoryManager {
       },
       '檢索相關對話記憶',
       { logError: true, showToUser: false }
-    ).then(result => result.success ? result.data! : {
-      relevantSessions: [],
-      relatedMessages: [],
-      contextualInfo: [],
-      confidence: 0,
-      reasoning: '記憶檢索失敗'
-    });
+    ).then(result =>
+      result.success
+        ? result.data!
+        : {
+            relevantSessions: [],
+            relatedMessages: [],
+            contextualInfo: [],
+            confidence: 0,
+            reasoning: '記憶檢索失敗'
+          }
+    );
   }
 
   /**
@@ -308,7 +299,7 @@ export class ConversationMemoryManager {
         }
 
         session.isActive = false;
-        session.summary = summary || await this.generateSessionSummary(session);
+        session.summary = summary || (await this.generateSessionSummary(session));
 
         // 移動到歷史記錄
         this.sessionHistory.set(targetSessionId, session);
@@ -378,15 +369,12 @@ export class ConversationMemoryManager {
             sessions = sessions.filter(s => s.type === filters.type);
           }
           if (filters.dateRange) {
-            sessions = sessions.filter(s => 
-              s.startTime >= filters.dateRange!.start && 
-              s.startTime <= filters.dateRange!.end
+            sessions = sessions.filter(
+              s => s.startTime >= filters.dateRange!.start && s.startTime <= filters.dateRange!.end
             );
           }
           if (filters.tags && filters.tags.length > 0) {
-            sessions = sessions.filter(s => 
-              filters.tags!.some(tag => s.tags.includes(tag))
-            );
+            sessions = sessions.filter(s => filters.tags!.some(tag => s.tags.includes(tag)));
           }
           if (filters.language) {
             sessions = sessions.filter(s => s.metadata.language === filters.language);
@@ -397,8 +385,10 @@ export class ConversationMemoryManager {
         if (query.trim()) {
           sessions = sessions.filter(session => {
             const searchText = `${session.title} ${session.summary || ''} ${session.tags.join(' ')}`.toLowerCase();
-            return searchText.includes(query.toLowerCase()) ||
-                   session.messages.some(msg => msg.content.toLowerCase().includes(query.toLowerCase()));
+            return (
+              searchText.includes(query.toLowerCase()) ||
+              session.messages.some(msg => msg.content.toLowerCase().includes(query.toLowerCase()))
+            );
           });
         }
 
@@ -406,7 +396,7 @@ export class ConversationMemoryManager {
       },
       '搜索對話歷史',
       { logError: true, showToUser: false }
-    ).then(result => result.success ? result.data! : []);
+    ).then(result => (result.success ? result.data! : []));
   }
 
   /**
@@ -429,7 +419,7 @@ export class ConversationMemoryManager {
         // 從歷史中恢復會話
         session.isActive = true;
         session.lastActivity = new Date();
-        
+
         this.activeSessions.set(sessionId, session);
         this.sessionHistory.delete(sessionId);
         this.currentSessionId = sessionId;
@@ -442,18 +432,16 @@ export class ConversationMemoryManager {
       },
       '恢復對話會話',
       { logError: true, showToUser: false }
-    ).then(result => result.success ? result.data! : false);
+    ).then(result => (result.success ? result.data! : false));
   }
 
   /**
    * 構建當前上下文
    */
-  private async buildCurrentContext(
-    partialContext?: Partial<ConversationContext>
-  ): Promise<ConversationContext> {
+  private async buildCurrentContext(partialContext?: Partial<ConversationContext>): Promise<ConversationContext> {
     const activeEditor = vscode.window.activeTextEditor;
     const workspaceFolders = vscode.workspace.workspaceFolders;
-    
+
     const context: ConversationContext = {
       currentFile: activeEditor?.document.uri,
       workspaceFolder: workspaceFolders?.[0]?.uri,
@@ -496,9 +484,8 @@ export class ConversationMemoryManager {
    * 生成會話標題
    */
   private generateSessionTitle(type: ConversationType, context: ConversationContext): string {
-    const fileName = context.currentFile ? 
-      context.currentFile.fsPath.split('/').pop() : 'Unknown';
-    
+    const fileName = context.currentFile ? context.currentFile.fsPath.split('/').pop() : 'Unknown';
+
     switch (type) {
       case ConversationType.CODE_REVIEW:
         return `Code Review: ${fileName}`;
@@ -519,19 +506,19 @@ export class ConversationMemoryManager {
    * 生成會話標籤
    */
   private generateSessionTags(type: ConversationType, context: ConversationContext): string[] {
-    const tags = [type];
-    
+    const tags: string[] = [type];
+
     if (context.projectType) {
       tags.push(context.projectType);
     }
-    
+
     if (context.currentFile) {
       const language = this.detectLanguage(context.currentFile);
       if (language) {
         tags.push(language);
       }
     }
-    
+
     return tags;
   }
 
@@ -541,17 +528,17 @@ export class ConversationMemoryManager {
   private detectLanguage(uri: vscode.Uri): string | undefined {
     const ext = uri.fsPath.split('.').pop()?.toLowerCase();
     const languageMap: Record<string, string> = {
-      'ts': 'typescript',
-      'js': 'javascript',
-      'py': 'python',
-      'java': 'java',
-      'cpp': 'cpp',
-      'c': 'c',
-      'cs': 'csharp',
-      'go': 'go',
-      'rs': 'rust',
-      'php': 'php',
-      'rb': 'ruby'
+      ts: 'typescript',
+      js: 'javascript',
+      py: 'python',
+      java: 'java',
+      cpp: 'cpp',
+      c: 'c',
+      cs: 'csharp',
+      go: 'go',
+      rs: 'rust',
+      php: 'php',
+      rb: 'ruby'
     };
     return ext ? languageMap[ext] : undefined;
   }
@@ -564,12 +551,12 @@ export class ConversationMemoryManager {
       const packageJsonUri = vscode.Uri.joinPath(workspaceUri, 'package.json');
       const packageJson = await vscode.workspace.fs.readFile(packageJsonUri);
       const packageData = JSON.parse(packageJson.toString());
-      
+
       if (packageData.dependencies?.react) return 'react';
       if (packageData.dependencies?.vue) return 'vue';
       if (packageData.dependencies?.angular) return 'angular';
       if (packageData.dependencies?.express) return 'express';
-      
+
       return 'javascript';
     } catch {
       return undefined;
@@ -600,11 +587,12 @@ export class ConversationMemoryManager {
       return;
     }
 
-    const sessions = Array.from(this.activeSessions.values())
-      .sort((a, b) => a.lastActivity.getTime() - b.lastActivity.getTime());
+    const sessions = Array.from(this.activeSessions.values()).sort(
+      (a, b) => a.lastActivity.getTime() - b.lastActivity.getTime()
+    );
 
     const sessionsToMove = sessions.slice(0, sessions.length - this.maxActiveSessions);
-    
+
     for (const session of sessionsToMove) {
       await this.endSession(session.id);
     }
@@ -620,8 +608,7 @@ export class ConversationMemoryManager {
 
   private isImportantMessage(message: ConversationMessage, session: ConversationSession): boolean {
     // 判斷消息是否重要的邏輯
-    return message.content.length > 100 || 
-           (message.metadata?.confidence || 0) > 0.8;
+    return message.content.length > 100 || (message.metadata?.confidence || 0) > 0.8;
   }
 
   private async saveToLongTermMemory(message: ConversationMessage, session: ConversationSession): Promise<void> {
@@ -658,12 +645,20 @@ export class ConversationMemoryManager {
     return [];
   }
 
-  private calculateRetrievalConfidence(memories: any[], sessions: ConversationSession[], messages: ConversationMessage[]): number {
+  private calculateRetrievalConfidence(
+    memories: any[],
+    sessions: ConversationSession[],
+    messages: ConversationMessage[]
+  ): number {
     // 計算檢索信心度的邏輯
     return 0.7;
   }
 
-  private generateRetrievalReasoning(memories: any[], sessions: ConversationSession[], messages: ConversationMessage[]): string {
+  private generateRetrievalReasoning(
+    memories: any[],
+    sessions: ConversationSession[],
+    messages: ConversationMessage[]
+  ): string {
     // 生成檢索推理的邏輯
     return '基於歷史對話和上下文分析';
   }

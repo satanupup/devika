@@ -117,10 +117,10 @@ export class IntegrationEngine {
    * 註冊整合連接
    */
   async registerIntegration(config: IntegrationConfig): Promise<IntegrationResult<IntegrationConnection>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const connectionId = this.generateConnectionId(config.type, config.organization || 'default');
-        
+
         const connection: IntegrationConnection = {
           id: connectionId,
           type: config.type,
@@ -141,18 +141,24 @@ export class IntegrationEngine {
           data: { connectionId, config }
         });
 
-        return { success: true, data: connection };
+        return connection;
       },
       '註冊整合連接',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '註冊整合連接失敗' };
+    }
   }
 
   /**
    * 連接到整合服務
    */
   async connectIntegration(connectionId: string): Promise<IntegrationResult<boolean>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const connection = this.connections.get(connectionId);
         if (!connection) {
@@ -169,11 +175,11 @@ export class IntegrationEngine {
 
         // 根據整合類型執行連接邏輯
         const success = await this.performConnection(connection);
-        
+
         if (success) {
           connection.status = IntegrationStatus.CONNECTED;
           connection.lastActivity = new Date();
-          
+
           // 設置同步定時器
           if (connection.config.syncInterval) {
             this.setupSyncTimer(connection);
@@ -191,18 +197,24 @@ export class IntegrationEngine {
         }
 
         await this.saveConnections();
-        return { success, data: success };
+        return success;
       },
       '連接整合服務',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '連接整合服務失敗' };
+    }
   }
 
   /**
    * 斷開整合連接
    */
   async disconnectIntegration(connectionId: string): Promise<IntegrationResult<boolean>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const connection = this.connections.get(connectionId);
         if (!connection) {
@@ -229,21 +241,27 @@ export class IntegrationEngine {
           data: { connectionId }
         });
 
-        return { success: true, data: true };
+        return true;
       },
       '斷開整合連接',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '斷開整合連接失敗' };
+    }
   }
 
   /**
    * 移除整合連接
    */
   async removeIntegration(connectionId: string): Promise<IntegrationResult<boolean>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         await this.disconnectIntegration(connectionId);
-        
+
         const connection = this.connections.get(connectionId);
         if (connection) {
           this.connections.delete(connectionId);
@@ -257,11 +275,17 @@ export class IntegrationEngine {
           });
         }
 
-        return { success: true, data: true };
+        return true;
       },
       '移除整合連接',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '移除整合連接失敗' };
+    }
   }
 
   /**
@@ -301,7 +325,7 @@ export class IntegrationEngine {
     action: string,
     params: any = {}
   ): Promise<IntegrationResult<any>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const connection = this.connections.get(connectionId);
         if (!connection) {
@@ -314,7 +338,7 @@ export class IntegrationEngine {
 
         // 根據整合類型和操作執行相應的邏輯
         const result = await this.performAction(connection, action, params);
-        
+
         connection.lastActivity = new Date();
         await this.saveConnections();
 
@@ -325,18 +349,24 @@ export class IntegrationEngine {
           data: { connectionId, action, params, result }
         });
 
-        return { success: true, data: result };
+        return result;
       },
       '執行整合操作',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '執行整合操作失敗' };
+    }
   }
 
   /**
    * 同步整合數據
    */
   async syncIntegration(connectionId: string): Promise<IntegrationResult<any>> {
-    return ErrorHandlingUtils.executeWithErrorHandling(
+    const opResult = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const connection = this.connections.get(connectionId);
         if (!connection) {
@@ -348,7 +378,7 @@ export class IntegrationEngine {
         }
 
         const syncResult = await this.performSync(connection);
-        
+
         connection.config.lastSync = new Date();
         connection.lastActivity = new Date();
         await this.saveConnections();
@@ -360,11 +390,17 @@ export class IntegrationEngine {
           data: { connectionId, syncResult }
         });
 
-        return { success: true, data: syncResult };
+        return syncResult;
       },
       '同步整合數據',
       { logError: true, showToUser: false }
     );
+
+    if (opResult.success) {
+      return { success: true, data: opResult.data };
+    } else {
+      return { success: false, error: opResult.error?.message || '同步整合數據失敗' };
+    }
   }
 
   /**
@@ -401,15 +437,17 @@ export class IntegrationEngine {
   } {
     const connections = this.getConnections();
     const connected = connections.filter(c => c.status === IntegrationStatus.CONNECTED);
-    
-    const byType = connections.reduce((acc, conn) => {
-      acc[conn.type] = (acc[conn.type] || 0) + 1;
-      return acc;
-    }, {} as Record<IntegrationType, number>);
 
-    const lastActivity = connections.length > 0 
-      ? new Date(Math.max(...connections.map(c => c.lastActivity.getTime())))
-      : null;
+    const byType = connections.reduce(
+      (acc, conn) => {
+        acc[conn.type] = (acc[conn.type] || 0) + 1;
+        return acc;
+      },
+      {} as Record<IntegrationType, number>
+    );
+
+    const lastActivity =
+      connections.length > 0 ? new Date(Math.max(...connections.map(c => c.lastActivity.getTime()))) : null;
 
     return {
       total: connections.length,
@@ -427,7 +465,7 @@ export class IntegrationEngine {
       // 從 VS Code 設置或存儲中加載連接
       const config = vscode.workspace.getConfiguration('devika.integrations');
       const savedConnections = config.get<any[]>('connections', []);
-      
+
       for (const connData of savedConnections) {
         this.connections.set(connData.id, connData);
       }
@@ -485,13 +523,16 @@ export class IntegrationEngine {
   private setupSyncTimer(connection: IntegrationConnection): void {
     if (!connection.config.syncInterval) return;
 
-    const timer = setInterval(async () => {
-      try {
-        await this.syncIntegration(connection.id);
-      } catch (error) {
-        console.error(`同步整合失敗 ${connection.id}:`, error);
-      }
-    }, connection.config.syncInterval * 60 * 1000);
+    const timer = setInterval(
+      async () => {
+        try {
+          await this.syncIntegration(connection.id);
+        } catch (error) {
+          console.error(`同步整合失敗 ${connection.id}:`, error);
+        }
+      },
+      connection.config.syncInterval * 60 * 1000
+    );
 
     this.syncTimers.set(connection.id, timer);
   }
@@ -514,7 +555,7 @@ export class IntegrationEngine {
     // 清除所有定時器
     this.syncTimers.forEach(timer => clearInterval(timer));
     this.syncTimers.clear();
-    
+
     // 清除事件監聽器
     this.eventListeners.clear();
   }

@@ -46,8 +46,8 @@ export class LearningDataManager {
   private static instance: LearningDataManager;
   private learningEngine: LearningEngine;
   private patternRecognizer: PatternRecognizer;
-  private dataPath: string;
-  private backupPath: string;
+  private dataPath!: string;
+  private backupPath!: string;
   private autoSaveInterval: NodeJS.Timeout | null = null;
 
   private constructor() {
@@ -72,13 +72,13 @@ export class LearningDataManager {
       async () => {
         const data = await this.collectLearningData();
         const jsonData = JSON.stringify(data, null, 2);
-        
+
         // 確保目錄存在
         await this.ensureDirectoryExists(path.dirname(this.dataPath));
-        
+
         // 保存數據
         await fs.promises.writeFile(this.dataPath, jsonData, 'utf8');
-        
+
         console.log(`學習數據已保存到: ${this.dataPath}`);
       },
       '保存學習數據',
@@ -107,13 +107,13 @@ export class LearningDataManager {
 
         // 恢復數據到各個系統
         await this.restoreLearningData(data);
-        
+
         console.log(`學習數據已從 ${this.dataPath} 加載`);
         return true;
       },
       '加載學習數據',
       { logError: true, showToUser: false }
-    ).then(result => result.success ? result.data! : false);
+    ).then(result => (result.success ? result.data! : false));
   }
 
   /**
@@ -140,7 +140,7 @@ export class LearningDataManager {
       },
       '創建學習數據備份',
       { logError: true, showToUser: true }
-    ).then(result => result.success ? result.data! : '');
+    ).then(result => (result.success ? result.data! : ''));
   }
 
   /**
@@ -288,12 +288,14 @@ export class LearningDataManager {
   /**
    * 清理學習數據
    */
-  async cleanupLearningData(options: {
-    removeOldEvents?: boolean;
-    removeUnusedPatterns?: boolean;
-    removeLowConfidencePreferences?: boolean;
-    daysToKeep?: number;
-  } = {}): Promise<void> {
+  async cleanupLearningData(
+    options: {
+      removeOldEvents?: boolean;
+      removeUnusedPatterns?: boolean;
+      removeLowConfidencePreferences?: boolean;
+      daysToKeep?: number;
+    } = {}
+  ): Promise<void> {
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const data = await this.collectLearningData();
@@ -400,7 +402,7 @@ export class LearningDataManager {
     };
 
     if (options.includeEvents) {
-      filtered.events = options.dateRange 
+      filtered.events = options.dateRange
         ? data.events.filter(e => e.timestamp >= options.dateRange!.start && e.timestamp <= options.dateRange!.end)
         : data.events;
     }
@@ -476,9 +478,12 @@ export class LearningDataManager {
    */
   private setupAutoSave(): void {
     // 每 5 分鐘自動保存一次
-    this.autoSaveInterval = setInterval(async () => {
-      await this.saveLearningData();
-    }, 5 * 60 * 1000);
+    this.autoSaveInterval = setInterval(
+      async () => {
+        await this.saveLearningData();
+      },
+      5 * 60 * 1000
+    );
   }
 
   /**

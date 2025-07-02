@@ -1,6 +1,11 @@
 import * as vscode from 'vscode';
-import { ConversationMessage, ConversationSession, ConversationContext, ConversationType } from './ConversationMemoryManager';
-import { CodeUnderstandingEngine } from '../ai/CodeUnderstandingEngine';
+import {
+  ConversationMessage,
+  ConversationSession,
+  ConversationContext,
+  ConversationType
+} from './ConversationMemoryManager';
+import { CodeUnderstandingEngine, SymbolType } from '../ai/CodeUnderstandingEngine';
 import { ErrorHandlingUtils } from '../utils/ErrorHandlingUtils';
 
 /**
@@ -78,43 +83,34 @@ export class ConversationContextAnalyzer {
   /**
    * 分析對話消息
    */
-  async analyzeMessage(
-    message: ConversationMessage,
-    session: ConversationSession
-  ): Promise<ContextAnalysisResult> {
+  async analyzeMessage(message: ConversationMessage, session: ConversationSession): Promise<ContextAnalysisResult> {
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const content = message.content.toLowerCase();
-        
+
         // 意圖識別
         const intent = await this.identifyIntent(content, session.type);
-        
+
         // 實體提取
         const entities = this.extractEntities(content);
-        
+
         // 主題識別
         const topics = this.identifyTopics(content, session.context);
-        
+
         // 代碼引用分析
         const codeReferences = await this.analyzeCodeReferences(content, session.context);
-        
+
         // 情感分析
         const sentiment = this.analyzeSentiment(content);
-        
+
         // 複雜度評估
         const complexity = this.assessComplexity(content, codeReferences);
-        
+
         // 信心度計算
         const confidence = this.calculateConfidence(intent, entities, topics, codeReferences);
-        
+
         // 生成建議
-        const suggestions = await this.generateSuggestions(
-          intent,
-          entities,
-          topics,
-          codeReferences,
-          session
-        );
+        const suggestions = await this.generateSuggestions(intent, entities, topics, codeReferences, session);
 
         return {
           intent,
@@ -129,7 +125,7 @@ export class ConversationContextAnalyzer {
       },
       '分析對話消息',
       { logError: true, showToUser: false }
-    ).then(result => result.success ? result.data! : this.getDefaultAnalysisResult());
+    ).then(result => (result.success ? result.data! : this.getDefaultAnalysisResult()));
   }
 
   /**
@@ -139,12 +135,10 @@ export class ConversationContextAnalyzer {
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const context = { ...session.context };
-        
+
         // 分析最近的消息
         const recentMessages = session.messages.slice(-10);
-        const analysisResults = await Promise.all(
-          recentMessages.map(msg => this.analyzeMessage(msg, session))
-        );
+        const analysisResults = await Promise.all(recentMessages.map(msg => this.analyzeMessage(msg, session)));
 
         // 聚合分析結果
         context.relatedTopics = this.aggregateTopics(analysisResults);
@@ -161,7 +155,7 @@ export class ConversationContextAnalyzer {
       },
       '分析會話上下文',
       { logError: true, showToUser: false }
-    ).then(result => result.success ? result.data! : session.context);
+    ).then(result => (result.success ? result.data! : session.context));
   }
 
   /**
@@ -174,22 +168,18 @@ export class ConversationContextAnalyzer {
   ): Promise<ConversationContext> {
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
-        const inheritedContext = { ...currentContext };
-        
+        let inheritedContext = { ...currentContext };
+
         // 查找適用的繼承規則
-        const applicableRules = this.inheritanceRules.filter(rule =>
-          rule.sourceType === sourceSession.type && rule.targetType === targetType
+        const applicableRules = this.inheritanceRules.filter(
+          rule => rule.sourceType === sourceSession.type && rule.targetType === targetType
         );
 
         for (const rule of applicableRules) {
           // 檢查條件
           if (this.checkInheritanceConditions(rule, sourceSession, currentContext)) {
             // 應用繼承
-            inheritedContext = this.applyInheritanceRule(
-              rule,
-              sourceSession.context,
-              inheritedContext
-            );
+            inheritedContext = this.applyInheritanceRule(rule, sourceSession.context, inheritedContext);
           }
         }
 
@@ -207,7 +197,7 @@ export class ConversationContextAnalyzer {
       },
       '繼承對話上下文',
       { logError: true, showToUser: false }
-    ).then(result => result.success ? result.data! : currentContext);
+    ).then(result => (result.success ? result.data! : currentContext));
   }
 
   /**
@@ -217,7 +207,10 @@ export class ConversationContextAnalyzer {
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const messages = session.messages.slice(-5); // 分析最近 5 條消息
-        const content = messages.map(m => m.content).join(' ').toLowerCase();
+        const content = messages
+          .map(m => m.content)
+          .join(' ')
+          .toLowerCase();
 
         for (const pattern of this.conversationPatterns.values()) {
           const matchScore = this.calculatePatternMatch(content, pattern);
@@ -232,7 +225,7 @@ export class ConversationContextAnalyzer {
       },
       '識別對話模式',
       { logError: true, showToUser: false }
-    ).then(result => result.success ? result.data! : null);
+    ).then(result => (result.success ? result.data! : null));
   }
 
   /**
@@ -243,7 +236,7 @@ export class ConversationContextAnalyzer {
       async () => {
         const pattern = await this.identifyConversationPattern(session);
         const context = await this.analyzeSessionContext(session);
-        
+
         const actions: string[] = [];
 
         // 基於模式的預測
@@ -264,7 +257,7 @@ export class ConversationContextAnalyzer {
       },
       '預測下一步行動',
       { logError: true, showToUser: false }
-    ).then(result => result.success ? result.data! : []);
+    ).then(result => (result.success ? result.data! : []));
   }
 
   /**
@@ -272,12 +265,12 @@ export class ConversationContextAnalyzer {
    */
   private async identifyIntent(content: string, sessionType: ConversationType): Promise<string> {
     const intentKeywords = {
-      'help': ['help', 'how', 'what', 'explain', 'show me'],
-      'debug': ['error', 'bug', 'issue', 'problem', 'fix', 'debug'],
-      'refactor': ['refactor', 'improve', 'optimize', 'clean', 'restructure'],
-      'implement': ['create', 'add', 'implement', 'build', 'make'],
-      'review': ['review', 'check', 'analyze', 'examine', 'look at'],
-      'learn': ['learn', 'understand', 'teach', 'explain', 'tutorial']
+      help: ['help', 'how', 'what', 'explain', 'show me'],
+      debug: ['error', 'bug', 'issue', 'problem', 'fix', 'debug'],
+      refactor: ['refactor', 'improve', 'optimize', 'clean', 'restructure'],
+      implement: ['create', 'add', 'implement', 'build', 'make'],
+      review: ['review', 'check', 'analyze', 'examine', 'look at'],
+      learn: ['learn', 'understand', 'teach', 'explain', 'tutorial']
     };
 
     for (const [intent, keywords] of Object.entries(intentKeywords)) {
@@ -306,7 +299,7 @@ export class ConversationContextAnalyzer {
    */
   private extractEntities(content: string): string[] {
     const entities: string[] = [];
-    
+
     // 提取文件名
     const filePattern = /\b[\w-]+\.(ts|js|py|java|cpp|c|cs|go|rs|php|rb)\b/g;
     const fileMatches = content.match(filePattern);
@@ -336,15 +329,15 @@ export class ConversationContextAnalyzer {
    */
   private identifyTopics(content: string, context: ConversationContext): string[] {
     const topics: string[] = [];
-    
+
     // 技術主題
     const techTopics = {
-      'react': ['react', 'jsx', 'component', 'hook', 'state'],
-      'typescript': ['typescript', 'type', 'interface', 'generic'],
-      'nodejs': ['node', 'express', 'npm', 'package'],
-      'database': ['database', 'sql', 'query', 'table', 'schema'],
-      'testing': ['test', 'unit', 'integration', 'mock', 'jest'],
-      'performance': ['performance', 'optimize', 'speed', 'memory', 'cache']
+      react: ['react', 'jsx', 'component', 'hook', 'state'],
+      typescript: ['typescript', 'type', 'interface', 'generic'],
+      nodejs: ['node', 'express', 'npm', 'package'],
+      database: ['database', 'sql', 'query', 'table', 'schema'],
+      testing: ['test', 'unit', 'integration', 'mock', 'jest'],
+      performance: ['performance', 'optimize', 'speed', 'memory', 'cache']
     };
 
     for (const [topic, keywords] of Object.entries(techTopics)) {
@@ -364,23 +357,21 @@ export class ConversationContextAnalyzer {
   /**
    * 代碼引用分析
    */
-  private async analyzeCodeReferences(
-    content: string,
-    context: ConversationContext
-  ): Promise<CodeReference[]> {
+  private async analyzeCodeReferences(content: string, context: ConversationContext): Promise<CodeReference[]> {
     const references: CodeReference[] = [];
-    
+
     // 如果有當前文件，分析其中的符號
     if (context.currentFile) {
       try {
-        const symbols = await this.codeEngine.getDocumentSymbols(context.currentFile);
-        
+        const document = await vscode.workspace.openTextDocument(context.currentFile);
+        const symbols = await this.codeEngine.getDocumentSymbols(document);
+
         for (const symbol of symbols) {
           if (content.includes(symbol.name)) {
             references.push({
-              type: this.mapSymbolKindToType(symbol.kind),
+              type: this.mapSymbolTypeToCodeReferenceType(symbol.type),
               name: symbol.name,
-              location: symbol.location,
+              location: new vscode.Location(symbol.uri, symbol.range),
               context: `Found in ${context.currentFile.fsPath}`,
               confidence: 0.8
             });
@@ -400,10 +391,10 @@ export class ConversationContextAnalyzer {
   private analyzeSentiment(content: string): 'positive' | 'negative' | 'neutral' {
     const positiveWords = ['good', 'great', 'excellent', 'perfect', 'thanks', 'helpful'];
     const negativeWords = ['bad', 'wrong', 'error', 'problem', 'issue', 'broken'];
-    
+
     const positiveCount = positiveWords.filter(word => content.includes(word)).length;
     const negativeCount = negativeWords.filter(word => content.includes(word)).length;
-    
+
     if (positiveCount > negativeCount) return 'positive';
     if (negativeCount > positiveCount) return 'negative';
     return 'neutral';
@@ -414,18 +405,18 @@ export class ConversationContextAnalyzer {
    */
   private assessComplexity(content: string, codeReferences: CodeReference[]): number {
     let complexity = 0;
-    
+
     // 基於內容長度
     complexity += Math.min(content.length / 1000, 1) * 0.3;
-    
+
     // 基於代碼引用數量
     complexity += Math.min(codeReferences.length / 10, 1) * 0.4;
-    
+
     // 基於技術術語數量
     const techTerms = ['function', 'class', 'interface', 'async', 'await', 'promise'];
     const techTermCount = techTerms.filter(term => content.includes(term)).length;
     complexity += Math.min(techTermCount / 5, 1) * 0.3;
-    
+
     return Math.min(complexity, 1);
   }
 
@@ -439,12 +430,12 @@ export class ConversationContextAnalyzer {
     codeReferences: CodeReference[]
   ): number {
     let confidence = 0.5; // 基礎信心度
-    
+
     if (intent !== 'help') confidence += 0.2;
     if (entities.length > 0) confidence += 0.1;
     if (topics.length > 0) confidence += 0.1;
     if (codeReferences.length > 0) confidence += 0.1;
-    
+
     return Math.min(confidence, 1);
   }
 
@@ -459,7 +450,7 @@ export class ConversationContextAnalyzer {
     session: ConversationSession
   ): Promise<string[]> {
     const suggestions: string[] = [];
-    
+
     // 基於意圖的建議
     switch (intent) {
       case 'debug':
@@ -472,12 +463,12 @@ export class ConversationContextAnalyzer {
         suggestions.push('創建新文件', '添加測試', '更新文檔');
         break;
     }
-    
+
     // 基於代碼引用的建議
     if (codeReferences.length > 0) {
       suggestions.push('查看相關代碼', '檢查函數簽名', '分析依賴關係');
     }
-    
+
     return suggestions.slice(0, 5);
   }
 
@@ -561,13 +552,15 @@ export class ConversationContextAnalyzer {
 
   private inferUserIntent(results: ContextAnalysisResult[]): string | undefined {
     const intents = results.map(r => r.intent);
-    const intentCounts = intents.reduce((acc, intent) => {
-      acc[intent] = (acc[intent] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const intentCounts = intents.reduce(
+      (acc, intent) => {
+        acc[intent] = (acc[intent] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
-    const mostCommonIntent = Object.entries(intentCounts)
-      .sort(([,a], [,b]) => b - a)[0];
+    const mostCommonIntent = Object.entries(intentCounts).sort(([, a], [, b]) => b - a)[0];
 
     return mostCommonIntent?.[0];
   }
@@ -591,7 +584,7 @@ export class ConversationContextAnalyzer {
       const packageJsonUri = vscode.Uri.joinPath(workspaceUri, 'package.json');
       const packageJson = await vscode.workspace.fs.readFile(packageJsonUri);
       const packageData = JSON.parse(packageJson.toString());
-      
+
       return Object.keys({
         ...packageData.dependencies,
         ...packageData.devDependencies
@@ -631,13 +624,13 @@ export class ConversationContextAnalyzer {
     targetContext: ConversationContext
   ): ConversationContext {
     const inherited = { ...targetContext };
-    
+
     rule.contextFields.forEach(field => {
       if (sourceContext[field as keyof ConversationContext]) {
         (inherited as any)[field] = (sourceContext as any)[field];
       }
     });
-    
+
     return inherited;
   }
 
@@ -651,12 +644,12 @@ export class ConversationContextAnalyzer {
 
   private getActionsForIntent(intent: string): string[] {
     const intentActions: Record<string, string[]> = {
-      'debug': ['檢查錯誤', '添加日誌', '運行測試'],
-      'refactor': ['提取函數', '重命名變數', '優化結構'],
-      'implement': ['創建文件', '添加功能', '編寫測試'],
-      'review': ['檢查代碼', '提供建議', '標記問題']
+      debug: ['檢查錯誤', '添加日誌', '運行測試'],
+      refactor: ['提取函數', '重命名變數', '優化結構'],
+      implement: ['創建文件', '添加功能', '編寫測試'],
+      review: ['檢查代碼', '提供建議', '標記問題']
     };
-    
+
     return intentActions[intent] || [];
   }
 
@@ -670,24 +663,22 @@ export class ConversationContextAnalyzer {
       [ConversationType.CHAT]: ['回答問題', '提供幫助'],
       [ConversationType.GENERAL]: ['提供建議', '解決問題']
     };
-    
+
     return typeActions[type] || [];
   }
 
-  private mapSymbolKindToType(kind: vscode.SymbolKind): CodeReference['type'] {
-    switch (kind) {
-      case vscode.SymbolKind.Function:
-      case vscode.SymbolKind.Method:
+  private mapSymbolTypeToCodeReferenceType(type: SymbolType): CodeReference['type'] {
+    switch (type) {
+      case SymbolType.FUNCTION:
+      case SymbolType.METHOD:
         return 'function';
-      case vscode.SymbolKind.Class:
+      case SymbolType.CLASS:
         return 'class';
-      case vscode.SymbolKind.Variable:
-      case vscode.SymbolKind.Property:
+      case SymbolType.VARIABLE:
+      case SymbolType.PROPERTY:
         return 'variable';
-      case vscode.SymbolKind.File:
-        return 'file';
-      case vscode.SymbolKind.Module:
-      case vscode.SymbolKind.Namespace:
+      case SymbolType.IMPORT:
+      case SymbolType.EXPORT:
         return 'module';
       default:
         return 'variable';

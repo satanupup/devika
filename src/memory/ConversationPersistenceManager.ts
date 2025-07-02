@@ -65,9 +65,9 @@ export interface StorageStats {
  */
 export class ConversationPersistenceManager {
   private static instance: ConversationPersistenceManager;
-  private storagePath: string;
-  private backupPath: string;
-  private config: StorageConfig;
+  private storagePath!: string;
+  private backupPath!: string;
+  private config!: StorageConfig;
   private backupTimer: NodeJS.Timeout | null = null;
 
   private constructor() {
@@ -90,26 +90,24 @@ export class ConversationPersistenceManager {
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const sessionPath = path.join(this.storagePath, 'sessions', `${session.id}.json`);
-        
+
         // 確保目錄存在
         await this.ensureDirectoryExists(path.dirname(sessionPath));
-        
+
         // 準備保存的數據
         const sessionData = this.prepareSessionForStorage(session);
-        
+
         // 壓縮數據（如果啟用）
-        const dataToSave = this.config.compressionEnabled 
+        const dataToSave = this.config.compressionEnabled
           ? await this.compressData(sessionData)
           : JSON.stringify(sessionData, null, 2);
-        
+
         // 加密數據（如果啟用）
-        const finalData = this.config.encryptionEnabled
-          ? await this.encryptData(dataToSave)
-          : dataToSave;
-        
+        const finalData = this.config.encryptionEnabled ? await this.encryptData(dataToSave) : dataToSave;
+
         // 寫入文件
         await fs.promises.writeFile(sessionPath, finalData, 'utf8');
-        
+
         console.log(`會話已保存: ${session.id}`);
       },
       '保存對話會話',
@@ -124,29 +122,27 @@ export class ConversationPersistenceManager {
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const sessionPath = path.join(this.storagePath, 'sessions', `${sessionId}.json`);
-        
+
         if (!fs.existsSync(sessionPath)) {
           return null;
         }
-        
+
         // 讀取文件
         let data = await fs.promises.readFile(sessionPath, 'utf8');
-        
+
         // 解密數據（如果需要）
         if (this.config.encryptionEnabled) {
           data = await this.decryptData(data);
         }
-        
+
         // 解壓縮數據（如果需要）
-        const sessionData = this.config.compressionEnabled
-          ? await this.decompressData(data)
-          : JSON.parse(data);
-        
+        const sessionData = this.config.compressionEnabled ? await this.decompressData(data) : JSON.parse(data);
+
         return this.restoreSessionFromStorage(sessionData);
       },
       '加載對話會話',
       { logError: true, showToUser: false }
-    ).then(result => result.success ? result.data! : null);
+    ).then(result => (result.success ? result.data! : null));
   }
 
   /**
@@ -156,14 +152,14 @@ export class ConversationPersistenceManager {
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const sessionsDir = path.join(this.storagePath, 'sessions');
-        
+
         if (!fs.existsSync(sessionsDir)) {
           return [];
         }
-        
+
         const sessionFiles = await fs.promises.readdir(sessionsDir);
         const sessions: ConversationSession[] = [];
-        
+
         for (const file of sessionFiles) {
           if (file.endsWith('.json')) {
             const sessionId = file.replace('.json', '');
@@ -173,12 +169,12 @@ export class ConversationPersistenceManager {
             }
           }
         }
-        
+
         return sessions.sort((a, b) => b.lastActivity.getTime() - a.lastActivity.getTime());
       },
       '加載所有對話會話',
       { logError: true, showToUser: false }
-    ).then(result => result.success ? result.data! : []);
+    ).then(result => (result.success ? result.data! : []));
   }
 
   /**
@@ -188,7 +184,7 @@ export class ConversationPersistenceManager {
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const sessionPath = path.join(this.storagePath, 'sessions', `${sessionId}.json`);
-        
+
         if (fs.existsSync(sessionPath)) {
           await fs.promises.unlink(sessionPath);
           console.log(`會話已刪除: ${sessionId}`);
@@ -207,22 +203,22 @@ export class ConversationPersistenceManager {
       async () => {
         const sessions = await this.loadAllSessions();
         const cutoffDate = new Date(Date.now() - this.config.retentionDays * 24 * 60 * 60 * 1000);
-        
+
         let deletedCount = 0;
-        
+
         for (const session of sessions) {
           if (session.lastActivity < cutoffDate) {
             await this.deleteSession(session.id);
             deletedCount++;
           }
         }
-        
+
         console.log(`清理了 ${deletedCount} 個過期會話`);
         return deletedCount;
       },
       '清理過期對話會話',
       { logError: true, showToUser: false }
-    ).then(result => result.success ? result.data! : 0);
+    ).then(result => (result.success ? result.data! : 0));
   }
 
   /**
@@ -234,10 +230,10 @@ export class ConversationPersistenceManager {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         const backupFileName = `conversations-backup-${timestamp}.json`;
         const backupFilePath = path.join(this.backupPath, backupFileName);
-        
+
         // 加載所有會話
         const sessions = await this.loadAllSessions();
-        
+
         // 創建備份數據
         const backupData = {
           version: '1.0.0',
@@ -245,26 +241,22 @@ export class ConversationPersistenceManager {
           sessionCount: sessions.length,
           sessions: sessions.map(session => this.prepareSessionForStorage(session))
         };
-        
+
         // 確保備份目錄存在
         await this.ensureDirectoryExists(this.backupPath);
-        
+
         // 寫入備份文件
-        await fs.promises.writeFile(
-          backupFilePath,
-          JSON.stringify(backupData, null, 2),
-          'utf8'
-        );
-        
+        await fs.promises.writeFile(backupFilePath, JSON.stringify(backupData, null, 2), 'utf8');
+
         // 清理舊備份
         await this.cleanupOldBackups();
-        
+
         console.log(`備份已創建: ${backupFilePath}`);
         return backupFilePath;
       },
       '創建對話備份',
       { logError: true, showToUser: true }
-    ).then(result => result.success ? result.data! : '');
+    ).then(result => (result.success ? result.data! : ''));
   }
 
   /**
@@ -276,17 +268,17 @@ export class ConversationPersistenceManager {
         if (!fs.existsSync(backupPath)) {
           throw new Error(`備份文件不存在: ${backupPath}`);
         }
-        
+
         const backupData = JSON.parse(await fs.promises.readFile(backupPath, 'utf8'));
-        
+
         if (!backupData.sessions || !Array.isArray(backupData.sessions)) {
           throw new Error('無效的備份文件格式');
         }
-        
+
         let importedCount = 0;
         let skippedCount = 0;
         const errors: string[] = [];
-        
+
         for (const sessionData of backupData.sessions) {
           try {
             const session = this.restoreSessionFromStorage(sessionData);
@@ -297,7 +289,7 @@ export class ConversationPersistenceManager {
             errors.push(`會話 ${sessionData.id}: ${error}`);
           }
         }
-        
+
         return {
           success: true,
           importedSessions: importedCount,
@@ -307,12 +299,16 @@ export class ConversationPersistenceManager {
       },
       '從備份恢復對話',
       { logError: true, showToUser: true }
-    ).then(result => result.success ? result.data! : {
-      success: false,
-      importedSessions: 0,
-      skippedSessions: 0,
-      errors: ['恢復失敗']
-    });
+    ).then(result =>
+      result.success
+        ? result.data!
+        : {
+            success: false,
+            importedSessions: 0,
+            skippedSessions: 0,
+            errors: ['恢復失敗']
+          }
+    );
   }
 
   /**
@@ -322,29 +318,28 @@ export class ConversationPersistenceManager {
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const sessions = await this.loadAllSessions();
-        
+
         // 過濾會話
         let filteredSessions = sessions;
-        
+
         if (options.includeSessions.length > 0) {
           filteredSessions = sessions.filter(s => options.includeSessions.includes(s.id));
         }
-        
+
         if (options.dateRange) {
-          filteredSessions = filteredSessions.filter(s =>
-            s.startTime >= options.dateRange!.start &&
-            s.startTime <= options.dateRange!.end
+          filteredSessions = filteredSessions.filter(
+            s => s.startTime >= options.dateRange!.start && s.startTime <= options.dateRange!.end
           );
         }
-        
+
         // 匿名化處理
         if (options.anonymize) {
           filteredSessions = filteredSessions.map(session => this.anonymizeSession(session));
         }
-        
+
         // 根據格式導出
         let exportData: string;
-        
+
         switch (options.format) {
           case 'json':
             exportData = JSON.stringify(filteredSessions, null, 2);
@@ -358,7 +353,7 @@ export class ConversationPersistenceManager {
           default:
             throw new Error(`不支援的導出格式: ${options.format}`);
         }
-        
+
         await fs.promises.writeFile(exportPath, exportData, 'utf8');
         console.log(`對話數據已導出到: ${exportPath}`);
       },
@@ -374,7 +369,7 @@ export class ConversationPersistenceManager {
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const sessions = await this.loadAllSessions();
-        
+
         if (sessions.length === 0) {
           return {
             totalSessions: 0,
@@ -391,21 +386,21 @@ export class ConversationPersistenceManager {
             }
           };
         }
-        
+
         const totalMessages = sessions.reduce((sum, s) => sum + s.messages.length, 0);
         const averageSessionLength = totalMessages / sessions.length;
-        
+
         const dates = sessions.map(s => s.startTime);
         const oldestSession = new Date(Math.min(...dates.map(d => d.getTime())));
         const newestSession = new Date(Math.max(...dates.map(d => d.getTime())));
-        
+
         // 計算存儲大小
         const storageSize = await this.calculateStorageSize();
-        
+
         return {
           totalSessions: sessions.length,
           totalMessages,
-          totalSize: storageSize.total,
+          totalSize: storageSize.sessions + storageSize.messages + storageSize.metadata + storageSize.backups,
           oldestSession,
           newestSession,
           averageSessionLength,
@@ -414,15 +409,19 @@ export class ConversationPersistenceManager {
       },
       '獲取存儲統計',
       { logError: true, showToUser: false }
-    ).then(result => result.success ? result.data! : {
-      totalSessions: 0,
-      totalMessages: 0,
-      totalSize: 0,
-      oldestSession: new Date(),
-      newestSession: new Date(),
-      averageSessionLength: 0,
-      storageUsage: { sessions: 0, messages: 0, metadata: 0, backups: 0 }
-    });
+    ).then(result =>
+      result.success
+        ? result.data!
+        : {
+            totalSessions: 0,
+            totalMessages: 0,
+            totalSize: 0,
+            oldestSession: new Date(),
+            newestSession: new Date(),
+            averageSessionLength: 0,
+            storageUsage: { sessions: 0, messages: 0, metadata: 0, backups: 0 }
+          }
+    );
   }
 
   /**
@@ -454,9 +453,12 @@ export class ConversationPersistenceManager {
    */
   private setupAutoBackup(): void {
     if (this.config.backupEnabled) {
-      this.backupTimer = setInterval(async () => {
-        await this.createBackup();
-      }, this.config.backupInterval * 60 * 60 * 1000);
+      this.backupTimer = setInterval(
+        async () => {
+          await this.createBackup();
+        },
+        this.config.backupInterval * 60 * 60 * 1000
+      );
     }
   }
 
@@ -532,29 +534,29 @@ export class ConversationPersistenceManager {
    */
   private convertToMarkdown(sessions: ConversationSession[], includeMetadata: boolean): string {
     let markdown = '# 對話導出\n\n';
-    
+
     for (const session of sessions) {
       markdown += `## ${session.title}\n\n`;
-      
+
       if (includeMetadata) {
         markdown += `**類型**: ${session.type}\n`;
         markdown += `**開始時間**: ${session.startTime.toLocaleString()}\n`;
         markdown += `**最後活動**: ${session.lastActivity.toLocaleString()}\n`;
         markdown += `**消息數量**: ${session.messages.length}\n\n`;
       }
-      
+
       for (const message of session.messages) {
         markdown += `### ${message.role}\n\n`;
         markdown += `${message.content}\n\n`;
-        
+
         if (includeMetadata) {
           markdown += `*時間: ${message.timestamp.toLocaleString()}*\n\n`;
         }
       }
-      
+
       markdown += '---\n\n';
     }
-    
+
     return markdown;
   }
 
@@ -566,9 +568,9 @@ export class ConversationPersistenceManager {
     if (includeMetadata) {
       headers.push('Session Type', 'Message ID');
     }
-    
+
     let csv = headers.join(',') + '\n';
-    
+
     for (const session of sessions) {
       for (const message of session.messages) {
         const row = [
@@ -578,15 +580,15 @@ export class ConversationPersistenceManager {
           `"${message.content.replace(/"/g, '""')}"`,
           message.timestamp.toISOString()
         ];
-        
+
         if (includeMetadata) {
           row.push(session.type, message.id);
         }
-        
+
         csv += row.join(',') + '\n';
       }
     }
-    
+
     return csv;
   }
 
@@ -600,7 +602,7 @@ export class ConversationPersistenceManager {
       metadata: 0,
       backups: 0
     };
-    
+
     try {
       const sessionsDir = path.join(this.storagePath, 'sessions');
       if (fs.existsSync(sessionsDir)) {
@@ -611,7 +613,7 @@ export class ConversationPersistenceManager {
           usage.sessions += stats.size;
         }
       }
-      
+
       if (fs.existsSync(this.backupPath)) {
         const files = await fs.promises.readdir(this.backupPath);
         for (const file of files) {
@@ -623,7 +625,7 @@ export class ConversationPersistenceManager {
     } catch (error) {
       console.warn('計算存儲大小失敗:', error);
     }
-    
+
     return usage;
   }
 
@@ -635,13 +637,13 @@ export class ConversationPersistenceManager {
       if (!fs.existsSync(this.backupPath)) {
         return;
       }
-      
+
       const files = await fs.promises.readdir(this.backupPath);
       const backupFiles = files
         .filter(f => f.startsWith('conversations-backup-'))
         .sort()
         .reverse();
-      
+
       // 保留最近 10 個備份
       if (backupFiles.length > 10) {
         const filesToDelete = backupFiles.slice(10);
