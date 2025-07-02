@@ -181,7 +181,16 @@ export class TaskTreeView implements vscode.TreeDataProvider<TaskTreeItem> {
    * 獲取子任務
    */
   private getSubtasks(task: Task): TaskTreeItem[] {
-    return task.subtasks?.map(subtask => this.createTaskItem(subtask)) || [];
+    if (!task.subtasks) {
+      return [];
+    }
+
+    return (
+      task.subtasks
+        .map(subtaskId => this.taskManager.getTask(subtaskId))
+        .filter((subtask): subtask is Task => subtask !== undefined)
+        .map(subtask => this.createTaskItem(subtask)) || []
+    );
   }
 
   /**
