@@ -4,7 +4,7 @@
  */
 
 import * as vscode from 'vscode';
-import { TypeGuards } from './TypeGuards';
+import * as TypeGuards from './TypeGuards';
 
 /**
  * 嚴格的配置類型
@@ -108,21 +108,21 @@ export interface StrictApiResponse<T = unknown> {
  * 類型驗證器類
  */
 export class TypeValidator {
-    
+
     /**
      * 驗證配置對象
      */
     static validateConfig(value: unknown): value is StrictConfig {
         if (!TypeGuards.isObject(value)) return false;
-        
+
         // 驗證 apiKeys
-        if (!TypeGuards.hasProperty(value, 'apiKeys') || 
+        if (!TypeGuards.hasProperty(value, 'apiKeys') ||
             !TypeGuards.isObject(value.apiKeys)) return false;
-        
+
         // 驗證 preferences
-        if (!TypeGuards.hasProperty(value, 'preferences') || 
+        if (!TypeGuards.hasProperty(value, 'preferences') ||
             !TypeGuards.isObject(value.preferences)) return false;
-        
+
         const prefs = value.preferences;
         if (!TypeGuards.hasPropertyOfType(prefs, 'preferredModel', TypeGuards.isString) ||
             !['gpt-4o', 'claude-3-5-sonnet', 'gemini-2.5-pro'].includes(prefs.preferredModel) ||
@@ -131,18 +131,18 @@ export class TypeValidator {
             !TypeGuards.hasPropertyOfType(prefs, 'enableCodeIndexing', TypeGuards.isBoolean)) {
             return false;
         }
-        
+
         // 驗證 performance
-        if (!TypeGuards.hasProperty(value, 'performance') || 
+        if (!TypeGuards.hasProperty(value, 'performance') ||
             !TypeGuards.isObject(value.performance)) return false;
-        
+
         const perf = value.performance;
         if (!TypeGuards.hasPropertyOfType(perf, 'cacheSize', TypeGuards.isPositiveNumber) ||
             !TypeGuards.hasPropertyOfType(perf, 'maxConcurrency', TypeGuards.isPositiveNumber) ||
             !TypeGuards.hasPropertyOfType(perf, 'timeoutMs', TypeGuards.isPositiveNumber)) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -151,7 +151,7 @@ export class TypeValidator {
      */
     static validateTask(value: unknown): value is StrictTask {
         if (!TypeGuards.isObject(value)) return false;
-        
+
         return TypeGuards.hasPropertyOfType(value, 'id', TypeGuards.isNonEmptyString) &&
                TypeGuards.hasPropertyOfType(value, 'title', TypeGuards.isNonEmptyString) &&
                TypeGuards.hasPropertyOfType(value, 'description', TypeGuards.isString) &&
@@ -170,7 +170,7 @@ export class TypeValidator {
      */
     static validateCodeAnalysis(value: unknown): value is StrictCodeAnalysis {
         if (!TypeGuards.isObject(value)) return false;
-        
+
         return TypeGuards.hasPropertyOfType(value, 'uri', TypeGuards.isVSCodeUri) &&
                TypeGuards.hasPropertyOfType(value, 'language', TypeGuards.isNonEmptyString) &&
                TypeGuards.hasProperty(value, 'symbols') &&
@@ -190,30 +190,30 @@ export class TypeValidator {
         dataValidator?: (data: unknown) => data is T
     ): value is StrictApiResponse<T> {
         if (!TypeGuards.isObject(value)) return false;
-        
-        const hasValidStructure = 
+
+        const hasValidStructure =
             TypeGuards.hasPropertyOfType(value, 'success', TypeGuards.isBoolean) &&
             TypeGuards.hasPropertyOfType(value, 'timestamp', TypeGuards.isDate) &&
             TypeGuards.hasPropertyOfType(value, 'requestId', TypeGuards.isNonEmptyString);
-        
+
         if (!hasValidStructure) return false;
-        
+
         // 如果成功，檢查數據
         if (value.success) {
             if (!TypeGuards.hasProperty(value, 'data')) return false;
             if (dataValidator && !dataValidator(value.data)) return false;
         } else {
             // 如果失敗，檢查錯誤
-            if (!TypeGuards.hasProperty(value, 'error') || 
+            if (!TypeGuards.hasProperty(value, 'error') ||
                 !TypeGuards.isObject(value.error)) return false;
-            
+
             const error = value.error;
             if (!TypeGuards.hasPropertyOfType(error, 'code', TypeGuards.isNonEmptyString) ||
                 !TypeGuards.hasPropertyOfType(error, 'message', TypeGuards.isNonEmptyString)) {
                 return false;
             }
         }
-        
+
         return true;
     }
 }
@@ -222,7 +222,7 @@ export class TypeValidator {
  * 類型安全的工廠函數
  */
 export class TypeSafeFactory {
-    
+
     /**
      * 創建嚴格的配置對象
      */
@@ -241,7 +241,7 @@ export class TypeSafeFactory {
                 timeoutMs: 30000 // 30秒
             }
         };
-        
+
         return {
             ...defaultConfig,
             ...partial,
@@ -256,7 +256,7 @@ export class TypeSafeFactory {
      */
     static createTask(partial: Partial<StrictTask> & Pick<StrictTask, 'title'>): StrictTask {
         const now = new Date();
-        
+
         return {
             id: partial.id || `task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             title: partial.title,
@@ -311,7 +311,7 @@ export class TypeSafeFactory {
  * 類型安全的轉換器
  */
 export class TypeSafeConverter {
-    
+
     /**
      * 安全地轉換為配置對象
      */
@@ -319,7 +319,7 @@ export class TypeSafeConverter {
         if (TypeValidator.validateConfig(value)) {
             return value;
         }
-        
+
         // 嘗試修復常見問題
         if (TypeGuards.isObject(value)) {
             try {
@@ -328,7 +328,7 @@ export class TypeSafeConverter {
                 return null;
             }
         }
-        
+
         return null;
     }
 
@@ -339,7 +339,7 @@ export class TypeSafeConverter {
         if (TypeValidator.validateTask(value)) {
             return value;
         }
-        
+
         // 嘗試修復常見問題
         if (TypeGuards.isObject(value) && TypeGuards.hasPropertyOfType(value, 'title', TypeGuards.isString)) {
             try {
@@ -348,7 +348,7 @@ export class TypeSafeConverter {
                 return null;
             }
         }
-        
+
         return null;
     }
 
@@ -360,7 +360,7 @@ export class TypeSafeConverter {
         itemConverter: (item: unknown) => T | null
     ): T[] {
         if (!TypeGuards.isArray(value)) return [];
-        
+
         return value
             .map(itemConverter)
             .filter(TypeGuards.isNotNullish);
@@ -375,17 +375,17 @@ export function validateParams<T extends any[]>(
 ) {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
         const originalMethod = descriptor.value;
-        
+
         descriptor.value = function (...args: any[]) {
             for (let i = 0; i < validators.length; i++) {
                 if (!validators[i](args[i])) {
                     throw new TypeError(`參數 ${i} 類型驗證失敗`);
                 }
             }
-            
+
             return originalMethod.apply(this, args);
         };
-        
+
         return descriptor;
     };
 }
@@ -396,17 +396,17 @@ export function validateParams<T extends any[]>(
 export function validateReturn<T>(validator: (value: unknown) => value is T) {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
         const originalMethod = descriptor.value;
-        
+
         descriptor.value = function (...args: any[]) {
             const result = originalMethod.apply(this, args);
-            
+
             if (!validator(result)) {
                 throw new TypeError(`返回值類型驗證失敗`);
             }
-            
+
             return result;
         };
-        
+
         return descriptor;
     };
 }

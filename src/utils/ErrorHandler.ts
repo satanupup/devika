@@ -32,7 +32,7 @@ export class DevikaError extends Error {
     public readonly type: ErrorType;
     public readonly severity: ErrorSeverity;
     public readonly code: string;
-    public readonly context?: Record<string, any>;
+    public readonly context: Record<string, any> | undefined;
     public readonly timestamp: Date;
     public readonly recoverable: boolean;
 
@@ -354,7 +354,7 @@ Recoverable: ${error.recoverable}
      */
     private async recoverConfiguration(): Promise<void> {
         // 重新加載配置
-        const config = vscode.workspace.getConfiguration('devika');
+        const _config = vscode.workspace.getConfiguration('devika');
         // 觸發配置驗證
         // 這裡可以添加具體的配置恢復邏輯
     }

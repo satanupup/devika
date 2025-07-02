@@ -118,21 +118,24 @@ export class CodeCompletionEngine implements vscode.CompletionItemProvider {
   private codeEngine: CodeUnderstandingEngine;
   private contextManager: ContextManager;
   private learningEngine: LearningEngine;
+  private context: vscode.ExtensionContext;
   private config: CompletionConfig;
   private completionCache: Map<string, CodeCompletionItem[]> = new Map();
   private usageStats: Map<string, number> = new Map();
   private recentCompletions: CodeCompletionItem[] = [];
 
-  private constructor() {
+  private constructor(context: vscode.ExtensionContext) {
+    this.context = context;
     this.codeEngine = CodeUnderstandingEngine.getInstance();
-    this.contextManager = ContextManager.getInstance();
+    this.contextManager = new ContextManager(context);
     this.learningEngine = LearningEngine.getInstance();
+    this.config = {} as CompletionConfig; // Initialize with a default value
     this.loadConfiguration();
   }
 
-  static getInstance(): CodeCompletionEngine {
+  static getInstance(context: vscode.ExtensionContext): CodeCompletionEngine {
     if (!CodeCompletionEngine.instance) {
-      CodeCompletionEngine.instance = new CodeCompletionEngine();
+      CodeCompletionEngine.instance = new CodeCompletionEngine(context);
     }
     return CodeCompletionEngine.instance;
   }
@@ -582,12 +585,12 @@ export class CodeCompletionEngine implements vscode.CompletionItemProvider {
       item.additionalTextEdits = completion.additionalTextEdits;
 
       // 添加自定義數據
-      item.data = {
-        id: completion.id,
-        type: completion.type,
-        source: completion.source,
-        confidence: completion.confidence
-      };
+      // item.data = {
+      //   id: completion.id,
+      //   type: completion.type,
+      //   source: completion.source,
+      //   confidence: completion.confidence
+      // };
 
       return item;
     });

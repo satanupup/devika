@@ -45,7 +45,7 @@ export interface TaskCreationPattern {
  * 通用模式工具類
  */
 export class CommonPatterns {
-    
+
     /**
      * 統一的代碼分析流程
      */
@@ -61,7 +61,7 @@ export class CommonPatterns {
         const {
             progressMessage = '正在分析程式碼...',
             successMessage = '分析完成',
-            errorMessage = '分析失敗'
+            errorMessage: _errorMessage = '分析失敗'
         } = options;
 
         return ErrorHandlingUtils.executeWithErrorHandling(
@@ -114,7 +114,6 @@ export class CommonPatterns {
             'LLM 調用',
             {
                 retryCount: options.retryCount || 2,
-                timeoutMs: options.timeoutMs || 30000,
                 logError: true,
                 showToUser: false
             }
@@ -142,11 +141,11 @@ export class CommonPatterns {
         return ErrorHandlingUtils.executeWithErrorHandling(
             async () => {
                 const createdTasks = [];
-                
+
                 // 分批處理任務
                 for (let i = 0; i < patterns.length; i += batchSize) {
                     const batch = patterns.slice(i, i + batchSize);
-                    
+
                     if (showProgress) {
                         vscode.window.showInformationMessage(
                             `正在創建任務 ${i + 1}-${Math.min(i + batchSize, patterns.length)} / ${patterns.length}`
@@ -157,7 +156,7 @@ export class CommonPatterns {
                     const batchTasks = await Promise.all(
                         batch.map(pattern => taskManager.addTask(pattern))
                     );
-                    
+
                     createdTasks.push(...batchTasks);
                 }
 
@@ -225,7 +224,7 @@ export class CommonPatterns {
     ): Promise<T | T[] | undefined> {
         const quickPickItems = items.map(item => ({
             label: options.itemToLabel ? options.itemToLabel(item) : String(item),
-            description: options.itemToDescription ? options.itemToDescription(item) : undefined,
+            description: options.itemToDescription ? options.itemToDescription(item) : '',
             item
         }));
 
@@ -234,12 +233,12 @@ export class CommonPatterns {
                 placeHolder: options.placeHolder,
                 canPickMany: true
             });
-            return selected ? selected.map(s => s.item) : undefined;
+            return selected ? (selected as any[]).map(s => s.item) : undefined;
         } else {
             const selected = await vscode.window.showQuickPick(quickPickItems, {
                 placeHolder: options.placeHolder
             });
-            return selected ? selected.item : undefined;
+            return selected ? (selected as any).item : undefined;
         }
     }
 
@@ -293,13 +292,13 @@ export class CommonPatterns {
      */
     private static async getCodeContext(pattern: CodeAnalysisPattern): Promise<any> {
         const { document, selection, contextLines = 10 } = pattern;
-        
+
         const startLine = Math.max(0, selection.start.line - contextLines);
         const endLine = Math.min(document.lineCount - 1, selection.end.line + contextLines);
-        
+
         const contextRange = new vscode.Range(startLine, 0, endLine, 0);
         const contextText = document.getText(contextRange);
-        
+
         return {
             selectedText: pattern.selectedText,
             contextText,
@@ -332,12 +331,12 @@ export class CommonPatterns {
         const units = ['B', 'KB', 'MB', 'GB'];
         let size = bytes;
         let unitIndex = 0;
-        
+
         while (size >= 1024 && unitIndex < units.length - 1) {
             size /= 1024;
             unitIndex++;
         }
-        
+
         return `${size.toFixed(1)} ${units[unitIndex]}`;
     }
 
@@ -346,11 +345,11 @@ export class CommonPatterns {
      */
     static formatTimeDiff(startTime: number, endTime: number = Date.now()): string {
         const diff = endTime - startTime;
-        
+
         if (diff < 1000) return `${diff}ms`;
         if (diff < 60000) return `${(diff / 1000).toFixed(1)}s`;
         if (diff < 3600000) return `${(diff / 60000).toFixed(1)}m`;
-        
+
         return `${(diff / 3600000).toFixed(1)}h`;
     }
 
@@ -373,7 +372,7 @@ export class CommonPatterns {
         wait: number
     ): (...args: Parameters<T>) => void {
         let timeout: NodeJS.Timeout;
-        
+
         return (...args: Parameters<T>) => {
             clearTimeout(timeout);
             timeout = setTimeout(() => func(...args), wait);
@@ -388,7 +387,7 @@ export class CommonPatterns {
         limit: number
     ): (...args: Parameters<T>) => void {
         let inThrottle: boolean;
-        
+
         return (...args: Parameters<T>) => {
             if (!inThrottle) {
                 func(...args);

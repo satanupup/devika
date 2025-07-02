@@ -180,9 +180,13 @@ export class ConfigManager {
         const errors: string[] = [];
 
         // 檢查是否至少有一個 API 金鑰
-        const hasOpenAI = this.getOpenAIApiKey().length > 0;
-        const hasClaude = this.getClaudeApiKey().length > 0;
-        const hasGemini = this.getGeminiApiKey().length > 0;
+        const openAIKey = this.getOpenAIApiKey();
+        const claudeKey = this.getClaudeApiKey();
+        const geminiKey = this.getGeminiApiKey();
+
+        const hasOpenAI = !!openAIKey && openAIKey.length > 0;
+        const hasClaude = !!claudeKey && claudeKey.length > 0;
+        const hasGemini = !!geminiKey && geminiKey.length > 0;
 
         if (!hasOpenAI && !hasClaude && !hasGemini) {
             errors.push('請至少設定一個 AI 模型的 API 金鑰');
@@ -212,10 +216,14 @@ export class ConfigManager {
 
     // 取得所有配置的摘要
     getConfigurationSummary(): any {
+        const openAIKey = this.getOpenAIApiKey();
+        const claudeKey = this.getClaudeApiKey();
+        const geminiKey = this.getGeminiApiKey();
+
         return {
-            hasOpenAIKey: this.getOpenAIApiKey().length > 0,
-            hasClaudeKey: this.getClaudeApiKey().length > 0,
-            hasGeminiKey: this.getGeminiApiKey().length > 0,
+            hasOpenAIKey: !!openAIKey && openAIKey.length > 0,
+            hasClaudeKey: !!claudeKey && claudeKey.length > 0,
+            hasGeminiKey: !!geminiKey && geminiKey.length > 0,
             preferredModel: this.getPreferredModel(),
             autoScanTodos: this.getAutoScanTodos(),
             enableCodeIndexing: this.getEnableCodeIndexing(),

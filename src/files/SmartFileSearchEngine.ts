@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 
 export interface SearchOptions {
     include?: string | string[];
@@ -35,6 +34,20 @@ export interface FileSearchResult {
     type: 'file' | 'directory';
 }
 
+export interface TextSearchQuery {
+    pattern: string;
+    isRegExp?: boolean;
+    isCaseSensitive?: boolean;
+    isWordMatch?: boolean;
+}
+
+export interface VscodeTextSearchResult {
+    range: vscode.Range;
+    text: string;
+    preview: {
+        text: string;
+    }
+}
 export class SmartFileSearchEngine {
     private searchHistory: string[] = [];
     private maxHistorySize = 50;
@@ -70,7 +83,7 @@ export class SmartFileSearchEngine {
             });
 
             // 執行文本搜索
-            const textSearchResults = await vscode.workspace.findTextInFiles(
+            const textSearchResults = await (vscode.workspace as any).findTextInFiles(
                 searchPattern,
                 {
                     include: Array.isArray(include) ? `{${include.join(',')}}` : include,
@@ -88,7 +101,7 @@ export class SmartFileSearchEngine {
             const results: SearchResult[] = [];
             for (const [uri, matches] of textSearchResults) {
                 const relativePath = vscode.workspace.asRelativePath(uri);
-                const searchMatches: SearchMatch[] = matches.map(match => ({
+                const searchMatches: SearchMatch[] = matches.map((match: VscodeTextSearchResult) => ({
                     line: match.range.start.line + 1,
                     column: match.range.start.character + 1,
                     text: match.text,
@@ -317,7 +330,7 @@ export class SmartFileSearchEngine {
     private buildSearchPattern(
         query: string,
         options: { useRegex: boolean; caseSensitive: boolean; wholeWord: boolean }
-    ): vscode.TextSearchQuery {
+    ): TextSearchQuery {
         const { useRegex, caseSensitive, wholeWord } = options;
 
         if (useRegex) {
@@ -431,7 +444,7 @@ export class SmartFileSearchEngine {
             ];
 
             suggestions.push(
-                ...patterns.filter(pattern => 
+                ...patterns.filter(pattern =>
                     pattern.toLowerCase().includes(partialQuery.toLowerCase())
                 )
             );

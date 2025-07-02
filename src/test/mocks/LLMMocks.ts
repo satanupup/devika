@@ -1,4 +1,3 @@
-import { jest } from '@jest/globals';
 
 /**
  * LLM 服務模擬物件
@@ -111,26 +110,26 @@ export class LLMMocks {
    */
   static createMockAxios() {
     return {
-      get: jest.fn(),
-      post: jest.fn(),
-      put: jest.fn(),
-      delete: jest.fn(),
-      patch: jest.fn(),
-      head: jest.fn(),
-      options: jest.fn(),
-      request: jest.fn(),
+      get: sinon.stub(),
+      post: sinon.stub(),
+      put: sinon.stub(),
+      delete: sinon.stub(),
+      patch: sinon.stub(),
+      head: sinon.stub(),
+      options: sinon.stub(),
+      request: sinon.stub(),
       defaults: {
         headers: {},
         timeout: 30000
       },
       interceptors: {
         request: {
-          use: jest.fn(),
-          eject: jest.fn()
+          use: sinon.stub(),
+          eject: sinon.stub()
         },
         response: {
-          use: jest.fn(),
-          eject: jest.fn()
+          use: sinon.stub(),
+          eject: sinon.stub()
         }
       }
     };
@@ -146,19 +145,19 @@ export class LLMMocks {
         const content = `OpenAI response for: ${data.messages?.[0]?.content || 'prompt'}`;
         return Promise.resolve(this.createOpenAIResponse(content, data.model));
       }
-      
+
       // Claude 響應
       if (url.includes('anthropic.com')) {
         const content = `Claude response for: ${data.messages?.[0]?.content || 'prompt'}`;
         return Promise.resolve(this.createClaudeResponse(content, data.model));
       }
-      
+
       // Gemini 響應
       if (url.includes('generativelanguage.googleapis.com')) {
         const content = `Gemini response for: ${data.contents?.[0]?.parts?.[0]?.text || 'prompt'}`;
         return Promise.resolve(this.createGeminiResponse(content));
       }
-      
+
       return Promise.reject(new Error('Unknown API endpoint'));
     });
   }
@@ -182,10 +181,10 @@ export class LLMMocks {
    */
   static createStreamingResponse(chunks: string[]) {
     let chunkIndex = 0;
-    
+
     return {
       data: {
-        on: jest.fn((event: string, callback: Function) => {
+        on: sinon.stub().callsFake((event: string, callback: Function) => {
           if (event === 'data') {
             chunks.forEach((chunk, index) => {
               setTimeout(() => {
@@ -198,13 +197,13 @@ export class LLMMocks {
                 })}\n\n`);
               }, index * 100);
             });
-            
+
             setTimeout(() => {
               callback('data: [DONE]\n\n');
             }, chunks.length * 100);
           }
         }),
-        pipe: jest.fn()
+        pipe: sinon.stub()
       }
     };
   }
@@ -214,7 +213,7 @@ export class LLMMocks {
    */
   static createMockLLMService() {
     return {
-      generateCompletion: jest.fn(async (prompt: string, options: any = {}) => {
+      generateCompletion: sinon.stub().callsFake(async (prompt: string, options: any = {}) => {
         const model = options.model || 'gpt-4';
         let content = '';
 
@@ -236,18 +235,18 @@ export class LLMMocks {
           timestamp: new Date()
         };
       }),
-      
-      checkAPIHealth: jest.fn(async () => ({
+
+      checkAPIHealth: sinon.stub().callsFake(async () => ({
         openai: true,
         claude: true,
         gemini: true
       })),
-      
-      estimateTokens: jest.fn(async (text: string) => Math.floor(text.length / 4)),
-      
-      isOpenAIModel: jest.fn((model: string) => model.includes('gpt')),
-      isClaudeModel: jest.fn((model: string) => model.includes('claude')),
-      isGeminiModel: jest.fn((model: string) => model.includes('gemini'))
+
+      estimateTokens: sinon.stub().callsFake(async (text: string) => Math.floor(text.length / 4)),
+
+      isOpenAIModel: sinon.stub().callsFake((model: string) => model.includes('gpt')),
+      isClaudeModel: sinon.stub().callsFake((model: string) => model.includes('claude')),
+      isGeminiModel: sinon.stub().callsFake((model: string) => model.includes('gemini'))
     };
   }
 
@@ -273,12 +272,12 @@ export class LLMMocks {
 
 Overall Score: 8/10`
       },
-      
+
       commitMessage: {
         prompt: 'Generate a commit message for these changes',
         response: 'feat: add user authentication with JWT tokens\n\n- Implement login and registration endpoints\n- Add JWT token validation middleware\n- Create user model with password hashing\n- Add authentication tests'
       },
-      
+
       refactoring: {
         prompt: 'Suggest refactoring for this code',
         response: `Refactoring Suggestions:
@@ -297,7 +296,7 @@ Here's the refactored version:
 // Refactored code would go here
 \`\`\``
       },
-      
+
       documentation: {
         prompt: 'Generate documentation for this code',
         response: `# API Documentation

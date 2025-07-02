@@ -179,24 +179,19 @@ export class ChatInterface {
         if (!this.currentSession) return;
 
         const currentMode = this.modeManager.getCurrentMode();
-        
+
         // 顯示正在輸入指示器
         await this.sendToWebview('typingStart', {});
 
         try {
             // 構建對話上下文
             const conversationHistory = this.buildConversationHistory();
-            
+
             // 根據當前模式構建提示
             const prompt = await this.buildPrompt(userInput, currentMode, conversationHistory);
 
             // 調用 LLM
-            const response = await this.llmService.generateCompletion(prompt, {
-                stream: true,
-                onToken: (token: string) => {
-                    this.sendToWebview('tokenReceived', { token });
-                }
-            });
+            const response = await this.llmService.generateCompletion(prompt);
 
             // 解析回應中的工具調用
             const { content, toolCalls } = await this.parseResponse(response.content);
@@ -210,7 +205,6 @@ export class ChatInterface {
                 metadata: {
                     mode: currentMode.id,
                     toolCalls: toolCalls,
-                    tokens: response.tokens,
                     model: response.model
                 }
             };
@@ -255,7 +249,7 @@ export class ChatInterface {
         if (!this.currentSession) return '';
 
         const recentMessages = this.currentSession.messages.slice(-10); // 最近10條消息
-        return recentMessages.map(msg => 
+        return recentMessages.map(msg =>
             `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`
         ).join('\n\n');
     }
@@ -265,19 +259,21 @@ export class ChatInterface {
      */
     private async buildPrompt(userInput: string, mode: any, conversationHistory: string): Promise<string> {
         const context = this.getCurrentContext();
-        
+
         let prompt = `${mode.systemPrompt}\n\n`;
-        
-        if (context.workspaceFolder) {
-            prompt += `當前工作區: ${context.workspaceFolder}\n`;
-        }
-        
-        if (context.activeFile) {
-            prompt += `當前文件: ${context.activeFile}\n`;
-        }
-        
-        if (context.selectedText) {
-            prompt += `選中的文本:\n${context.selectedText}\n`;
+
+        if (context) {
+            if (context.workspaceFolder) {
+                prompt += `當前工作區: ${context.workspaceFolder}\n`;
+            }
+
+            if (context.activeFile) {
+                prompt += `當前文件: ${context.activeFile}\n`;
+            }
+
+            if (context.selectedText) {
+                prompt += `選中的文本:\n${context.selectedText}\n`;
+            }
         }
 
         if (conversationHistory) {
@@ -302,7 +298,7 @@ export class ChatInterface {
         let match;
         while ((match = toolCallRegex.exec(content)) !== null) {
             const [fullMatch, toolName, parametersStr, description] = match;
-            
+
             try {
                 const parameters = JSON.parse(parametersStr);
                 toolCalls.push({
@@ -311,7 +307,7 @@ export class ChatInterface {
                     parameters,
                     approved: false
                 });
-                
+
                 // 從內容中移除工具調用標記
                 cleanContent = cleanContent.replace(fullMatch, `[將執行: ${toolName}]`);
             } catch (error) {
@@ -451,7 +447,7 @@ export class ChatInterface {
      */
     private async deleteSession(sessionId: string): Promise<void> {
         this.sessions.delete(sessionId);
-        
+
         if (this.currentSession?.id === sessionId) {
             // 切換到其他會話或創建新會話
             const remainingSessions = Array.from(this.sessions.values());
@@ -475,7 +471,7 @@ export class ChatInterface {
         if (!session) return;
 
         const content = this.generateSessionExport(session);
-        
+
         const uri = await vscode.window.showSaveDialog({
             defaultUri: vscode.Uri.file(`${session.title}.md`),
             filters: {
@@ -528,7 +524,7 @@ export class ChatInterface {
      */
     private loadSessions(): void {
         const sessionsData = this.context.globalState.get<ChatSession[]>('chatSessions', []);
-        
+
         for (const session of sessionsData) {
             // 恢復日期對象
             session.createdAt = new Date(session.createdAt);
@@ -536,13 +532,13 @@ export class ChatInterface {
             session.messages.forEach(msg => {
                 msg.timestamp = new Date(msg.timestamp);
             });
-            
+
             this.sessions.set(session.id, session);
         }
 
         // 設置最近的會話為當前會話
         if (sessionsData.length > 0) {
-            const mostRecent = sessionsData.reduce((latest, session) => 
+            const mostRecent = sessionsData.reduce((latest, session) =>
                 session.updatedAt > latest.updatedAt ? session : latest
             );
             this.currentSession = this.sessions.get(mostRecent.id);
@@ -570,46 +566,46 @@ export class ChatInterface {
             <title>Devika AI Assistant</title>
             <style>
                 /* 基本樣式，完整樣式將在 ChatWebview.html 中實作 */
-                body { 
-                    font-family: var(--vscode-font-family); 
-                    margin: 0; 
-                    padding: 20px; 
+                body {
+                    font-family: var(--vscode-font-family);
+                    margin: 0;
+                    padding: 20px;
                     background: var(--vscode-editor-background);
                     color: var(--vscode-editor-foreground);
                 }
-                .chat-container { 
-                    max-width: 800px; 
-                    margin: 0 auto; 
+                .chat-container {
+                    max-width: 800px;
+                    margin: 0 auto;
                 }
-                .message { 
-                    margin: 10px 0; 
-                    padding: 10px; 
-                    border-radius: 8px; 
+                .message {
+                    margin: 10px 0;
+                    padding: 10px;
+                    border-radius: 8px;
                 }
-                .user-message { 
-                    background: var(--vscode-button-background); 
-                    margin-left: 20%; 
+                .user-message {
+                    background: var(--vscode-button-background);
+                    margin-left: 20%;
                 }
-                .assistant-message { 
-                    background: var(--vscode-editor-selectionBackground); 
-                    margin-right: 20%; 
+                .assistant-message {
+                    background: var(--vscode-editor-selectionBackground);
+                    margin-right: 20%;
                 }
-                .input-container { 
-                    position: fixed; 
-                    bottom: 0; 
-                    left: 0; 
-                    right: 0; 
-                    padding: 20px; 
-                    background: var(--vscode-editor-background); 
-                    border-top: 1px solid var(--vscode-panel-border); 
+                .input-container {
+                    position: fixed;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    padding: 20px;
+                    background: var(--vscode-editor-background);
+                    border-top: 1px solid var(--vscode-panel-border);
                 }
-                .input-box { 
-                    width: 100%; 
-                    padding: 10px; 
-                    border: 1px solid var(--vscode-input-border); 
-                    background: var(--vscode-input-background); 
-                    color: var(--vscode-input-foreground); 
-                    border-radius: 4px; 
+                .input-box {
+                    width: 100%;
+                    padding: 10px;
+                    border: 1px solid var(--vscode-input-border);
+                    background: var(--vscode-input-background);
+                    color: var(--vscode-input-foreground);
+                    border-radius: 4px;
                 }
             </style>
         </head>
@@ -623,7 +619,7 @@ export class ChatInterface {
             <script>
                 // 基本 JavaScript，完整腳本將在 ChatWebview.js 中實作
                 const vscode = acquireVsCodeApi();
-                
+
                 document.getElementById('messageInput').addEventListener('keypress', function(e) {
                     if (e.key === 'Enter') {
                         const message = this.value.trim();
@@ -633,7 +629,7 @@ export class ChatInterface {
                         }
                     }
                 });
-                
+
                 window.addEventListener('message', event => {
                     const message = event.data;
                     switch (message.type) {
@@ -648,7 +644,7 @@ export class ChatInterface {
                             break;
                     }
                 });
-                
+
                 function addMessage(message) {
                     const messagesDiv = document.getElementById('messages');
                     const messageDiv = document.createElement('div');
@@ -657,11 +653,11 @@ export class ChatInterface {
                     messagesDiv.appendChild(messageDiv);
                     messagesDiv.scrollTop = messagesDiv.scrollHeight;
                 }
-                
+
                 function showTyping() {
                     // 顯示正在輸入指示器
                 }
-                
+
                 function hideTyping() {
                     // 隱藏正在輸入指示器
                 }

@@ -4,19 +4,18 @@
  */
 
 import * as vscode from 'vscode';
-import { StrictTypes } from './StrictTypes';
 
 /**
  * 運行時類型檢查器
  */
 export class RuntimeTypeChecker {
-    
+
     /**
      * 檢查是否為有效的 API 金鑰
      */
     static isValidApiKey(value: unknown): value is string {
-        return typeof value === 'string' && 
-               value.length > 0 && 
+        return typeof value === 'string' &&
+               value.length > 0 &&
                value.trim().length > 0 &&
                !value.includes(' ');
     }
@@ -25,8 +24,8 @@ export class RuntimeTypeChecker {
      * 檢查是否為有效的文件路徑
      */
     static isValidFilePath(value: unknown): value is string {
-        return typeof value === 'string' && 
-               value.length > 0 && 
+        return typeof value === 'string' &&
+               value.length > 0 &&
                (value.includes('/') || value.includes('\\'));
     }
 
@@ -55,7 +54,7 @@ export class RuntimeTypeChecker {
      * 檢查是否為有效的文檔
      */
     static isValidTextDocument(value: unknown): value is vscode.TextDocument {
-        return value != null && 
+        return value != null &&
                typeof value === 'object' &&
                'uri' in value &&
                'getText' in value &&
@@ -66,7 +65,7 @@ export class RuntimeTypeChecker {
      * 檢查是否為有效的任務狀態
      */
     static isValidTaskStatus(value: unknown): value is 'pending' | 'in-progress' | 'completed' | 'cancelled' {
-        return typeof value === 'string' && 
+        return typeof value === 'string' &&
                ['pending', 'in-progress', 'completed', 'cancelled'].includes(value);
     }
 
@@ -74,7 +73,7 @@ export class RuntimeTypeChecker {
      * 檢查是否為有效的優先級
      */
     static isValidPriority(value: unknown): value is 'low' | 'medium' | 'high' | 'urgent' {
-        return typeof value === 'string' && 
+        return typeof value === 'string' &&
                ['low', 'medium', 'high', 'urgent'].includes(value);
     }
 
@@ -82,7 +81,7 @@ export class RuntimeTypeChecker {
      * 檢查是否為有效的 LLM 提供商
      */
     static isValidLLMProvider(value: unknown): value is 'openai' | 'claude' | 'gemini' {
-        return typeof value === 'string' && 
+        return typeof value === 'string' &&
                ['openai', 'claude', 'gemini'].includes(value);
     }
 
@@ -90,8 +89,8 @@ export class RuntimeTypeChecker {
      * 檢查是否為有效的配置對象
      */
     static isValidConfig(value: unknown): value is Record<string, unknown> {
-        return value != null && 
-               typeof value === 'object' && 
+        return value != null &&
+               typeof value === 'object' &&
                !Array.isArray(value);
     }
 
@@ -107,7 +106,7 @@ export class RuntimeTypeChecker {
  * 類型安全的配置管理器
  */
 export class TypeSafeConfigManager {
-    
+
     /**
      * 安全獲取字符串配置
      */
@@ -136,18 +135,18 @@ export class TypeSafeConfigManager {
      * 安全獲取數組配置
      */
     static getArray<T>(
-        config: vscode.WorkspaceConfiguration, 
-        key: string, 
+        config: vscode.WorkspaceConfiguration,
+        key: string,
         defaultValue: T[] = [],
         itemChecker?: (item: unknown) => item is T
     ): T[] {
         const value = config.get(key);
         if (!Array.isArray(value)) return defaultValue;
-        
+
         if (itemChecker) {
             return value.filter(itemChecker);
         }
-        
+
         return value as T[];
     }
 
@@ -155,8 +154,8 @@ export class TypeSafeConfigManager {
      * 安全獲取對象配置
      */
     static getObject<T extends Record<string, unknown>>(
-        config: vscode.WorkspaceConfiguration, 
-        key: string, 
+        config: vscode.WorkspaceConfiguration,
+        key: string,
         defaultValue: T
     ): T {
         const value = config.get(key);
@@ -168,7 +167,7 @@ export class TypeSafeConfigManager {
  * 類型安全的錯誤處理
  */
 export class TypeSafeErrorHandler {
-    
+
     /**
      * 安全的錯誤消息提取
      */
@@ -176,16 +175,16 @@ export class TypeSafeErrorHandler {
         if (error instanceof Error) {
             return error.message;
         }
-        
+
         if (typeof error === 'string') {
             return error;
         }
-        
+
         if (error && typeof error === 'object' && 'message' in error) {
             const message = (error as any).message;
             return typeof message === 'string' ? message : '未知錯誤';
         }
-        
+
         return '未知錯誤';
     }
 
@@ -210,10 +209,10 @@ export class TypeSafeErrorHandler {
             code?: string;
             details?: Record<string, unknown>;
         };
-        
+
         if (code) error.code = code;
         if (details) error.details = details;
-        
+
         return error;
     }
 }
@@ -222,7 +221,7 @@ export class TypeSafeErrorHandler {
  * 類型安全的 Promise 工具
  */
 export class TypeSafePromiseUtils {
-    
+
     /**
      * 安全的 Promise.all 包裝
      */
@@ -231,7 +230,7 @@ export class TypeSafePromiseUtils {
         onError?: (error: unknown, index: number) => void
     ): Promise<(T | null)[]> {
         const results = await Promise.allSettled(promises);
-        
+
         return results.map((result, index) => {
             if (result.status === 'fulfilled') {
                 return result.value;
@@ -265,19 +264,19 @@ export class TypeSafePromiseUtils {
         delayMs: number = 1000
     ): Promise<T> {
         let lastError: unknown;
-        
+
         for (let attempt = 1; attempt <= maxAttempts; attempt++) {
             try {
                 return await operation();
             } catch (error) {
                 lastError = error;
-                
+
                 if (attempt < maxAttempts) {
                     await new Promise(resolve => setTimeout(resolve, delayMs * attempt));
                 }
             }
         }
-        
+
         throw lastError;
     }
 }
@@ -286,7 +285,7 @@ export class TypeSafePromiseUtils {
  * 類型安全的 JSON 處理
  */
 export class TypeSafeJsonUtils {
-    
+
     /**
      * 安全的 JSON 解析
      */
@@ -317,22 +316,22 @@ export class TypeSafeJsonUtils {
         if (obj === null || typeof obj !== 'object') {
             return obj;
         }
-        
+
         if (obj instanceof Date) {
             return new Date(obj.getTime()) as unknown as T;
         }
-        
+
         if (Array.isArray(obj)) {
             return obj.map(item => this.deepClone(item)) as unknown as T;
         }
-        
+
         const cloned = {} as T;
         for (const key in obj) {
             if (Object.prototype.hasOwnProperty.call(obj, key)) {
                 cloned[key] = this.deepClone(obj[key]);
             }
         }
-        
+
         return cloned;
     }
 }

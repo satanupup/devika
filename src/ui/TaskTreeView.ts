@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { TaskManager, Task, TaskStatus, TaskPriority } from '../tasks/TaskManager';
+import { Task, TaskManager, TaskPriority, TaskStatus } from '../tasks/TaskManager';
 
 export class TaskTreeView implements vscode.TreeDataProvider<TaskTreeItem> {
     private _onDidChangeTreeData: vscode.EventEmitter<TaskTreeItem | undefined | null | void> = new vscode.EventEmitter<TaskTreeItem | undefined | null | void>();
@@ -65,7 +65,7 @@ export class TaskTreeView implements vscode.TreeDataProvider<TaskTreeItem> {
     private getGroupedTasks(): TaskTreeItem[] {
         const filteredTasks = this.filterTasks(this.tasks);
         const sortedTasks = this.sortTasks(filteredTasks);
-        
+
         switch (this.groupBy) {
             case 'status':
                 return this.groupByStatus(sortedTasks);
@@ -85,7 +85,7 @@ export class TaskTreeView implements vscode.TreeDataProvider<TaskTreeItem> {
      */
     private groupByStatus(tasks: Task[]): TaskTreeItem[] {
         const groups = new Map<TaskStatus, Task[]>();
-        
+
         for (const task of tasks) {
             if (!groups.has(task.status)) {
                 groups.set(task.status, []);
@@ -115,7 +115,7 @@ export class TaskTreeView implements vscode.TreeDataProvider<TaskTreeItem> {
      */
     private groupByPriority(tasks: Task[]): TaskTreeItem[] {
         const groups = new Map<TaskPriority, Task[]>();
-        
+
         for (const task of tasks) {
             if (!groups.has(task.priority)) {
                 groups.set(task.priority, []);
@@ -145,7 +145,7 @@ export class TaskTreeView implements vscode.TreeDataProvider<TaskTreeItem> {
      */
     private groupByProject(tasks: Task[]): TaskTreeItem[] {
         const groups = new Map<string, Task[]>();
-        
+
         for (const task of tasks) {
             const project = task.project || '未分類';
             if (!groups.has(project)) {
@@ -164,7 +164,7 @@ export class TaskTreeView implements vscode.TreeDataProvider<TaskTreeItem> {
      */
     private groupByAssignee(tasks: Task[]): TaskTreeItem[] {
         const groups = new Map<string, Task[]>();
-        
+
         for (const task of tasks) {
             const assignee = task.assignee || '未分配';
             if (!groups.has(assignee)) {
@@ -211,24 +211,24 @@ export class TaskTreeView implements vscode.TreeDataProvider<TaskTreeItem> {
      */
     private createTaskItem(task: Task): TaskTreeItem {
         const hasSubtasks = task.subtasks && task.subtasks.length > 0;
-        const collapsibleState = hasSubtasks 
-            ? vscode.TreeItemCollapsibleState.Collapsed 
+        const collapsibleState = hasSubtasks
+            ? vscode.TreeItemCollapsibleState.Collapsed
             : vscode.TreeItemCollapsibleState.None;
 
         const item = new TaskTreeItem(task.title, collapsibleState);
         item.task = task;
         item.contextValue = 'task';
         item.id = task.id;
-        
+
         // 設置圖標
         item.iconPath = this.getTaskIcon(task);
-        
+
         // 設置描述
         item.description = this.getTaskDescription(task);
-        
+
         // 設置工具提示
         item.tooltip = this.getTaskTooltip(task);
-        
+
         // 設置命令
         item.command = {
             command: 'devika.openTask',
@@ -244,13 +244,11 @@ export class TaskTreeView implements vscode.TreeDataProvider<TaskTreeItem> {
      */
     private getTaskIcon(task: Task): vscode.ThemeIcon {
         switch (task.status) {
-            case 'todo':
+            case 'pending':
                 return new vscode.ThemeIcon('circle-outline');
-            case 'in_progress':
+            case 'in-progress':
                 return new vscode.ThemeIcon('sync', new vscode.ThemeColor('charts.blue'));
-            case 'review':
-                return new vscode.ThemeIcon('eye', new vscode.ThemeColor('charts.orange'));
-            case 'done':
+            case 'completed':
                 return new vscode.ThemeIcon('check', new vscode.ThemeColor('charts.green'));
             case 'cancelled':
                 return new vscode.ThemeIcon('x', new vscode.ThemeColor('charts.red'));
@@ -264,20 +262,20 @@ export class TaskTreeView implements vscode.TreeDataProvider<TaskTreeItem> {
      */
     private getTaskDescription(task: Task): string {
         const parts: string[] = [];
-        
+
         if (task.priority !== 'medium') {
             parts.push(this.getPriorityDisplayName(task.priority));
         }
-        
+
         if (task.assignee) {
             parts.push(`@${task.assignee}`);
         }
-        
+
         if (task.dueDate) {
             const dueDate = new Date(task.dueDate);
             const now = new Date();
             const diffDays = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-            
+
             if (diffDays < 0) {
                 parts.push(`逾期 ${Math.abs(diffDays)} 天`);
             } else if (diffDays === 0) {
@@ -286,7 +284,7 @@ export class TaskTreeView implements vscode.TreeDataProvider<TaskTreeItem> {
                 parts.push(`${diffDays} 天後到期`);
             }
         }
-        
+
         return parts.join(' • ');
     }
 
@@ -296,37 +294,39 @@ export class TaskTreeView implements vscode.TreeDataProvider<TaskTreeItem> {
     private getTaskTooltip(task: Task): vscode.MarkdownString {
         const tooltip = new vscode.MarkdownString();
         tooltip.appendMarkdown(`**${task.title}**\n\n`);
-        
+
         if (task.description) {
             tooltip.appendMarkdown(`${task.description}\n\n`);
         }
-        
+
         tooltip.appendMarkdown(`**狀態:** ${this.getStatusDisplayName(task.status)}\n`);
         tooltip.appendMarkdown(`**優先級:** ${this.getPriorityDisplayName(task.priority)}\n`);
-        
+
         if (task.assignee) {
             tooltip.appendMarkdown(`**負責人:** ${task.assignee}\n`);
         }
-        
+
         if (task.project) {
             tooltip.appendMarkdown(`**項目:** ${task.project}\n`);
         }
-        
+
         if (task.dueDate) {
             tooltip.appendMarkdown(`**截止日期:** ${new Date(task.dueDate).toLocaleDateString()}\n`);
         }
-        
+
         tooltip.appendMarkdown(`**創建時間:** ${task.createdAt.toLocaleDateString()}\n`);
-        tooltip.appendMarkdown(`**更新時間:** ${task.updatedAt.toLocaleDateString()}\n`);
-        
+        if (task.updatedAt) {
+            tooltip.appendMarkdown(`**更新時間:** ${task.updatedAt.toLocaleDateString()}\n`);
+        }
+
         if (task.tags && task.tags.length > 0) {
             tooltip.appendMarkdown(`**標籤:** ${task.tags.join(', ')}\n`);
         }
-        
+
         if (task.subtasks && task.subtasks.length > 0) {
             tooltip.appendMarkdown(`**子任務:** ${task.subtasks.length} 個\n`);
         }
-        
+
         return tooltip;
     }
 
@@ -351,9 +351,9 @@ export class TaskTreeView implements vscode.TreeDataProvider<TaskTreeItem> {
                 case 'created':
                     return b.createdAt.getTime() - a.createdAt.getTime();
                 case 'updated':
-                    return b.updatedAt.getTime() - a.updatedAt.getTime();
+                    return (b.updatedAt?.getTime() || 0) - (a.updatedAt?.getTime() || 0);
                 case 'priority':
-                    const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
+                    const priorityOrder: Record<TaskPriority, number> = { urgent: 4, high: 3, medium: 2, low: 1 };
                     return priorityOrder[b.priority] - priorityOrder[a.priority];
                 default:
                     return 0;
@@ -374,7 +374,7 @@ export class TaskTreeView implements vscode.TreeDataProvider<TaskTreeItem> {
         this.treeView.onDidChangeSelection(e => {
             if (e.selection.length > 0) {
                 const item = e.selection[0];
-                if (item.task) {
+                if (item && item.task) {
                     vscode.commands.executeCommand('devika.selectTask', item.task);
                 }
             }
@@ -495,7 +495,7 @@ export class TaskTreeView implements vscode.TreeDataProvider<TaskTreeItem> {
 
         this.context.subscriptions.push(
             vscode.commands.registerCommand('devika.toggleTaskStatus', async (task: Task) => {
-                const newStatus = task.status === 'done' ? 'todo' : 'done';
+                const newStatus: TaskStatus = task.status === 'completed' ? 'pending' : 'completed';
                 await this.taskManager.updateTask(task.id, { status: newStatus });
                 this.refresh();
             })
@@ -504,30 +504,28 @@ export class TaskTreeView implements vscode.TreeDataProvider<TaskTreeItem> {
 
     // 輔助方法
     private getStatusDisplayName(status: TaskStatus): string {
-        const names = {
-            todo: '待辦',
-            in_progress: '進行中',
-            review: '審核中',
-            done: '已完成',
+        const names: Record<TaskStatus, string> = {
+            pending: '待辦',
+            'in-progress': '進行中',
+            completed: '已完成',
             cancelled: '已取消'
         };
         return names[status];
     }
 
     private getStatusIcon(status: TaskStatus): string {
-        const icons = {
-            todo: '⭕',
-            in_progress: '🔄',
-            review: '👁️',
-            done: '✅',
+        const icons: Record<TaskStatus, string> = {
+            pending: '⭕',
+            'in-progress': '🔄',
+            completed: '✅',
             cancelled: '❌'
         };
         return icons[status];
     }
 
     private getPriorityDisplayName(priority: TaskPriority): string {
-        const names = {
-            critical: '緊急',
+        const names: Record<TaskPriority, string> = {
+            urgent: '緊急',
             high: '高',
             medium: '中',
             low: '低'
@@ -536,8 +534,8 @@ export class TaskTreeView implements vscode.TreeDataProvider<TaskTreeItem> {
     }
 
     private getPriorityIcon(priority: TaskPriority): string {
-        const icons = {
-            critical: '🔴',
+        const icons: Record<TaskPriority, string> = {
+            urgent: '🔴',
             high: '🟠',
             medium: '🟡',
             low: '🟢'
@@ -549,7 +547,7 @@ export class TaskTreeView implements vscode.TreeDataProvider<TaskTreeItem> {
      * 顯示樹視圖
      */
     show(): void {
-        this.treeView.reveal(undefined, { select: false, focus: true });
+        this.treeView.show({ focus: true });
     }
 
     /**
@@ -594,7 +592,7 @@ class TaskDragAndDropController implements vscode.TreeDragAndDropController<Task
         if (!transferItem) return;
 
         const tasks = transferItem.value as Task[];
-        
+
         // 實作拖拽邏輯
         if (target?.task) {
             // 拖拽到另一個任務上 - 設為子任務

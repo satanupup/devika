@@ -39,6 +39,27 @@ export function isArray(value: unknown): value is unknown[] {
 }
 
 /**
+ * 檢查值是否為字符串數組
+ */
+export function isStringArray(value: unknown): value is string[] {
+    return isArray(value) && value.every(isString);
+}
+
+/**
+ * 檢查值是否為 VSCode Uri 對象
+ */
+export function isVSCodeUri(value: unknown): value is import('vscode').Uri {
+    return isObject(value) && 'fsPath' in value && 'scheme' in value;
+}
+
+/**
+ * 檢查值是否不為 null 或 undefined
+ */
+export function isNotNullish<T>(value: T | null | undefined): value is T {
+    return value !== null && value !== undefined;
+}
+
+/**
  * 檢查值是否為函數
  */
 export function isFunction(value: unknown): value is Function {
@@ -101,7 +122,7 @@ export function isValidUrl(value: unknown): value is string {
     if (!isString(value)) {
         return false;
     }
-    
+
     try {
         new URL(value);
         return true;
@@ -117,7 +138,7 @@ export function isValidEmail(value: unknown): value is string {
     if (!isString(value)) {
         return false;
     }
-    
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(value);
 }
@@ -129,7 +150,7 @@ export function isValidJson(value: unknown): value is string {
     if (!isString(value)) {
         return false;
     }
-    
+
     try {
         JSON.parse(value);
         return true;
@@ -414,8 +435,8 @@ export class Optional<T> {
     }
 
     map<U>(mapper: (value: T) => U): Optional<U> {
-        return isNullOrUndefined(this.value) 
-            ? Optional.empty<U>() 
+        return isNullOrUndefined(this.value)
+            ? Optional.empty<U>()
             : Optional.of(mapper(this.value));
     }
 

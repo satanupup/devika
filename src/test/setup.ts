@@ -1,44 +1,43 @@
-import { jest } from '@jest/globals';
 
 // Mock VS Code API
 const mockVSCode = {
   window: {
-    showInformationMessage: jest.fn(),
-    showWarningMessage: jest.fn(),
-    showErrorMessage: jest.fn(),
-    createStatusBarItem: jest.fn(() => ({
+    showInformationMessage: sinon.stub(),
+    showWarningMessage: sinon.stub(),
+    showErrorMessage: sinon.stub(),
+    createStatusBarItem: sinon.stub().returns({
       text: '',
       tooltip: '',
-      show: jest.fn(),
-      hide: jest.fn(),
-      dispose: jest.fn()
-    })),
-    createWebviewPanel: jest.fn(),
+      show: sinon.stub(),
+      hide: sinon.stub(),
+      dispose: sinon.stub()
+    }),
+    createWebviewPanel: sinon.stub(),
     activeTextEditor: undefined,
-    onDidChangeActiveTextEditor: jest.fn()
+    onDidChangeActiveTextEditor: sinon.stub()
   },
   workspace: {
     workspaceFolders: [],
-    getConfiguration: jest.fn(() => ({
-      get: jest.fn(),
-      update: jest.fn(),
-      has: jest.fn()
-    })),
-    onDidChangeConfiguration: jest.fn(),
-    findFiles: jest.fn(),
+    getConfiguration: sinon.stub().returns({
+      get: sinon.stub(),
+      update: sinon.stub(),
+      has: sinon.stub()
+    }),
+    onDidChangeConfiguration: sinon.stub(),
+    findFiles: sinon.stub(),
     fs: {
-      readFile: jest.fn(),
-      writeFile: jest.fn(),
-      readDirectory: jest.fn()
+      readFile: sinon.stub(),
+      writeFile: sinon.stub(),
+      readDirectory: sinon.stub()
     }
   },
   commands: {
-    registerCommand: jest.fn(),
-    executeCommand: jest.fn()
+    registerCommand: sinon.stub(),
+    executeCommand: sinon.stub()
   },
   Uri: {
-    file: jest.fn((path: string) => ({ fsPath: path, path })),
-    joinPath: jest.fn()
+    file: sinon.stub().callsFake((path: string) => ({ fsPath: path, path })),
+    joinPath: sinon.stub()
   },
   ViewColumn: {
     One: 1,
@@ -60,98 +59,112 @@ const mockVSCode = {
     Left: 1,
     Right: 2
   },
-  EventEmitter: jest.fn(() => ({
-    event: jest.fn(),
-    fire: jest.fn(),
-    dispose: jest.fn()
-  })),
-  Disposable: jest.fn(() => ({
-    dispose: jest.fn()
-  })),
-  Range: jest.fn(),
-  Position: jest.fn(),
-  Selection: jest.fn(),
+  EventEmitter: sinon.stub().returns({
+    event: sinon.stub(),
+    fire: sinon.stub(),
+    dispose: sinon.stub()
+  }),
+  Disposable: sinon.stub().returns({
+    dispose: sinon.stub()
+  }),
+  Range: sinon.stub(),
+  Position: sinon.stub(),
+  Selection: sinon.stub(),
   TextEdit: {
-    replace: jest.fn(),
-    insert: jest.fn(),
-    delete: jest.fn()
+    replace: sinon.stub(),
+    insert: sinon.stub(),
+    delete: sinon.stub()
   },
-  WorkspaceEdit: jest.fn(() => ({
-    set: jest.fn(),
-    replace: jest.fn(),
-    insert: jest.fn(),
-    delete: jest.fn()
-  }))
+  WorkspaceEdit: sinon.stub().returns({
+    set: sinon.stub(),
+    replace: sinon.stub(),
+    insert: sinon.stub(),
+    delete: sinon.stub()
+  })
 };
 
-// Mock Node.js modules
-jest.mock('fs', () => ({
-  promises: {
-    readFile: jest.fn(),
-    writeFile: jest.fn(),
-    readdir: jest.fn(),
-    stat: jest.fn(),
-    mkdir: jest.fn(),
-    access: jest.fn()
-  },
-  existsSync: jest.fn(),
-  readFileSync: jest.fn(),
-  writeFileSync: jest.fn()
-}));
+// Mock Node.js modules - using require.cache manipulation for Mocha
+const Module = require('module');
+const originalRequire = Module.prototype.require;
 
-jest.mock('path', () => ({
-  join: jest.fn((...args: string[]) => args.join('/')),
-  resolve: jest.fn((...args: string[]) => args.join('/')),
-  dirname: jest.fn((path: string) => path.split('/').slice(0, -1).join('/')),
-  basename: jest.fn((path: string) => path.split('/').pop() || ''),
-  extname: jest.fn((path: string) => {
-    const parts = path.split('.');
-    return parts.length > 1 ? '.' + parts.pop() : '';
-  }),
-  relative: jest.fn(),
-  isAbsolute: jest.fn()
-}));
+Module.prototype.require = function(id: string) {
+  if (id === 'fs') {
+    return {
+      promises: {
+        readFile: sinon.stub(),
+        writeFile: sinon.stub(),
+        readdir: sinon.stub(),
+        stat: sinon.stub(),
+        mkdir: sinon.stub(),
+        access: sinon.stub()
+      },
+      existsSync: sinon.stub(),
+      readFileSync: sinon.stub(),
+      writeFileSync: sinon.stub()
+    };
+  }
 
-// Mock sqlite3
-jest.mock('sqlite3', () => ({
-  Database: jest.fn(() => ({
-    run: jest.fn((sql: string, params: any[], callback?: Function) => {
-      if (callback) callback(null);
-    }),
-    get: jest.fn((sql: string, params: any[], callback?: Function) => {
-      if (callback) callback(null, {});
-    }),
-    all: jest.fn((sql: string, params: any[], callback?: Function) => {
-      if (callback) callback(null, []);
-    }),
-    close: jest.fn((callback?: Function) => {
-      if (callback) callback(null);
-    })
-  }))
-}));
+  if (id === 'path') {
+    return {
+      join: sinon.stub().callsFake((...args: string[]) => args.join('/')),
+      resolve: sinon.stub().callsFake((...args: string[]) => args.join('/')),
+      dirname: sinon.stub().callsFake((path: string) => path.split('/').slice(0, -1).join('/')),
+      basename: sinon.stub().callsFake((path: string) => path.split('/').pop() || ''),
+      extname: sinon.stub().callsFake((path: string) => {
+        const parts = path.split('.');
+        return parts.length > 1 ? '.' + parts.pop() : '';
+      }),
+      relative: sinon.stub(),
+      isAbsolute: sinon.stub()
+    };
+  }
 
-// Mock axios
-jest.mock('axios', () => ({
-  default: {
-    get: jest.fn(),
-    post: jest.fn(),
-    put: jest.fn(),
-    delete: jest.fn()
-  },
-  get: jest.fn(),
-  post: jest.fn(),
-  put: jest.fn(),
-  delete: jest.fn()
-}));
+  return originalRequire.apply(this, arguments);
+};
+
+  // Continue with other mocks
+  if (id === 'sqlite3') {
+    return {
+      Database: sinon.stub().returns({
+        run: sinon.stub().callsFake((sql: string, params: any[], callback?: Function) => {
+          if (callback) callback(null);
+        }),
+        get: sinon.stub().callsFake((sql: string, params: any[], callback?: Function) => {
+          if (callback) callback(null, {});
+        }),
+        all: sinon.stub().callsFake((sql: string, params: any[], callback?: Function) => {
+          if (callback) callback(null, []);
+        }),
+        close: sinon.stub().callsFake((callback?: Function) => {
+          if (callback) callback(null);
+        })
+      })
+    };
+  }
+
+  if (id === 'axios') {
+    return {
+      default: {
+        get: sinon.stub(),
+        post: sinon.stub(),
+        put: sinon.stub(),
+        delete: sinon.stub()
+      },
+      get: sinon.stub(),
+      post: sinon.stub(),
+      put: sinon.stub(),
+      delete: sinon.stub()
+    };
+  }
 
 // Set up global mocks
 (global as any).vscode = mockVSCode;
 
 // Set up test environment
 beforeEach(() => {
-  jest.clearAllMocks();
+  sinon.restore();
 });
 
 afterEach(() => {
-  jest.restoreAllMocks();
+  sinon.restore();
 });

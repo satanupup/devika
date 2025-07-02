@@ -121,7 +121,7 @@ export class DependencyContainer {
 
         this.services.set(token, descriptor);
         this.instances.set(token, instance);
-        
+
         this.logger.debug('DependencyContainer', `Registered instance: ${String(token)}`);
         return this;
     }
@@ -186,7 +186,7 @@ export class DependencyContainer {
         }
 
         // 檢查是否已有實例
-        const existingInstance = this.getExistingInstance(token, descriptor.lifetime);
+        const existingInstance = this.getExistingInstance<T>(token, descriptor.lifetime);
         if (existingInstance) {
             return existingInstance;
         }
@@ -234,17 +234,17 @@ export class DependencyContainer {
         switch (lifetime) {
             case ServiceLifetime.SINGLETON:
                 return this.instances.get(token);
-            
+
             case ServiceLifetime.SCOPED:
                 if (this.currentScope) {
                     const scopedInstances = this.scopedInstances.get(this.currentScope);
                     return scopedInstances?.get(token);
                 }
                 return undefined;
-            
+
             case ServiceLifetime.TRANSIENT:
                 return undefined;
-            
+
             default:
                 return undefined;
         }
@@ -258,7 +258,7 @@ export class DependencyContainer {
             case ServiceLifetime.SINGLETON:
                 this.instances.set(token, instance);
                 break;
-            
+
             case ServiceLifetime.SCOPED:
                 if (this.currentScope) {
                     let scopedInstances = this.scopedInstances.get(this.currentScope);
@@ -269,7 +269,7 @@ export class DependencyContainer {
                     scopedInstances.set(token, instance);
                 }
                 break;
-            
+
             case ServiceLifetime.TRANSIENT:
                 // 瞬態服務不存儲實例
                 break;
@@ -301,7 +301,7 @@ export class DependencyContainer {
                     }
                 }
             }
-            
+
             this.scopedInstances.delete(scopeId);
         }
 
@@ -397,10 +397,10 @@ export class DependencyContainer {
 export function Injectable(token?: string | symbol) {
     return function <T extends new (...args: any[]) => any>(constructor: T) {
         const serviceToken = token || constructor.name;
-        
+
         // 這裡可以添加元數據來自動註冊服務
         // 實際實現可能需要使用 reflect-metadata 庫
-        
+
         return constructor;
     };
 }

@@ -4,8 +4,7 @@
  */
 
 import * as vscode from 'vscode';
-import { DevikaError, ErrorType, ErrorSeverity } from './ErrorHandler';
-import { TypeSafeErrorHandler } from '../types/TypeSafetyEnforcer';
+import { DevikaError, ErrorType } from './ErrorHandler';
 
 /**
  * 恢復策略接口
@@ -21,9 +20,9 @@ export interface RecoveryStrategy {
  */
 export class ApiErrorRecoveryStrategy implements RecoveryStrategy {
     canRecover(error: DevikaError): boolean {
-        return error.type === ErrorType.API && 
-               (error.code === 'RATE_LIMIT' || 
-                error.code === 'TIMEOUT' || 
+        return error.type === ErrorType.API &&
+               (error.code === 'RATE_LIMIT' ||
+                error.code === 'TIMEOUT' ||
                 error.code === 'NETWORK_ERROR');
     }
 
@@ -33,7 +32,7 @@ export class ApiErrorRecoveryStrategy implements RecoveryStrategy {
                 // 等待並重試
                 await this.waitWithBackoff(5000);
                 return true;
-                
+
             case 'TIMEOUT':
                 // 增加超時時間並重試
                 if (context?.retryCount < 3) {
@@ -41,7 +40,7 @@ export class ApiErrorRecoveryStrategy implements RecoveryStrategy {
                     return true;
                 }
                 break;
-                
+
             case 'NETWORK_ERROR':
                 // 檢查網絡連接並重試
                 const isOnline = await this.checkNetworkConnection();
@@ -64,7 +63,7 @@ export class ApiErrorRecoveryStrategy implements RecoveryStrategy {
 
     private async checkNetworkConnection(): Promise<boolean> {
         try {
-            const response = await fetch('https://www.google.com', { 
+            await fetch('https://www.google.com', {
                 method: 'HEAD',
                 mode: 'no-cors'
             });
@@ -88,7 +87,7 @@ export class FileSystemErrorRecoveryStrategy implements RecoveryStrategy {
             case 'FILE_NOT_FOUND':
                 // 嘗試創建文件或目錄
                 return await this.createMissingFile(context?.filePath);
-                
+
             case 'PERMISSION_DENIED':
                 // 提示用戶檢查權限
                 const choice = await vscode.window.showWarningMessage(
@@ -97,7 +96,7 @@ export class FileSystemErrorRecoveryStrategy implements RecoveryStrategy {
                     '跳過'
                 );
                 return choice === '重試';
-                
+
             case 'DISK_FULL':
                 // 提示用戶清理磁盤空間
                 await vscode.window.showErrorMessage(
@@ -114,7 +113,7 @@ export class FileSystemErrorRecoveryStrategy implements RecoveryStrategy {
 
     private async createMissingFile(filePath?: string): Promise<boolean> {
         if (!filePath) return false;
-        
+
         try {
             const uri = vscode.Uri.file(filePath);
             await vscode.workspace.fs.writeFile(uri, new Uint8Array());
@@ -133,7 +132,7 @@ export class ConfigurationErrorRecoveryStrategy implements RecoveryStrategy {
         return error.type === ErrorType.CONFIGURATION;
     }
 
-    async recover(error: DevikaError, context?: any): Promise<boolean> {
+    async recover(error: DevikaError, _context?: any): Promise<boolean> {
         switch (error.code) {
             case 'MISSING_API_KEY':
                 // 引導用戶設置 API 金鑰
@@ -142,13 +141,13 @@ export class ConfigurationErrorRecoveryStrategy implements RecoveryStrategy {
                     '設置',
                     '稍後'
                 );
-                
+
                 if (choice === '設置') {
                     await vscode.commands.executeCommand('devika.setApiKey');
                     return true;
                 }
                 break;
-                
+
             case 'INVALID_CONFIG':
                 // 重置為默認配置
                 const resetChoice = await vscode.window.showWarningMessage(
@@ -156,7 +155,7 @@ export class ConfigurationErrorRecoveryStrategy implements RecoveryStrategy {
                     '重置',
                     '手動修復'
                 );
-                
+
                 if (resetChoice === '重置') {
                     await this.resetToDefaultConfig();
                     return true;
@@ -248,9 +247,9 @@ export class ErrorRecoveryManager {
             vscode.window.showInformationMessage(recoveryMessage);
 
             // 嘗試恢復
-            const recovered = await strategy.recover(error, { 
-                ...context, 
-                retryCount 
+            const recovered = await strategy.recover(error, {
+                ...context,
+                retryCount
             });
 
             if (recovered) {

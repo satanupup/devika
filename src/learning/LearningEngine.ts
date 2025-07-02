@@ -319,8 +319,8 @@ export class LearningEngine {
       preferencesIdentified: this.preferences.size,
       averageConfidence,
       learningRate,
-      lastLearningSession: events.length > 0 
-        ? events[events.length - 1].timestamp 
+      lastLearningSession: events.length > 0
+        ? events[events.length - 1].timestamp
         : new Date()
     };
   }
@@ -568,5 +568,22 @@ export class LearningEngine {
     this.events.clear();
     this.patterns.clear();
     this.preferences.clear();
+  }
+
+  /**
+   * 獲取完成模式
+   */
+  async getCompletionPatterns(languageId: string, currentWord: string): Promise<any[]> {
+    // 佔位符實現
+    console.log(`Getting completion patterns for ${languageId} with word ${currentWord}`);
+    return [];
+  }
+
+  /**
+   * 記錄完成使用情況
+   */
+  recordCompletionUsage(completionId: string, usageDate: Date): void {
+    // 佔位符實現
+    console.log(`Recording usage for completion ${completionId} at ${usageDate}`);
   }
 }

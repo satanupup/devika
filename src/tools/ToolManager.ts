@@ -20,8 +20,8 @@ export interface ToolParameter {
 }
 
 export interface ToolContext {
-    workspaceFolder?: vscode.WorkspaceFolder;
-    activeEditor?: vscode.TextEditor;
+    workspaceFolder: vscode.WorkspaceFolder | undefined;
+    activeEditor: vscode.TextEditor | undefined;
     extensionContext: vscode.ExtensionContext;
     dbManager: DatabaseManager;
 }
@@ -71,7 +71,7 @@ export class ToolManager {
                     required: true
                 }
             ],
-            execute: async (params, context) => {
+            execute: async (params, _context) => {
                 const uri = vscode.Uri.file(params.path);
                 const content = await vscode.workspace.fs.readFile(uri);
                 return new TextDecoder().decode(content);
@@ -97,7 +97,7 @@ export class ToolManager {
                     required: true
                 }
             ],
-            execute: async (params, context) => {
+            execute: async (params, _context) => {
                 const uri = vscode.Uri.file(params.path);
                 const content = new TextEncoder().encode(params.content);
                 await vscode.workspace.fs.writeFile(uri, content);
@@ -134,7 +134,7 @@ export class ToolManager {
 
                 const pattern = new vscode.RelativePattern(workspaceFolder, params.pattern);
                 const files = await vscode.workspace.findFiles(pattern);
-                
+
                 return files.map(uri => ({
                     path: vscode.workspace.asRelativePath(uri),
                     fullPath: uri.fsPath
@@ -168,21 +168,44 @@ export class ToolManager {
                     required: false
                 }
             ],
-            execute: async (params, context) => {
-                const results = await vscode.workspace.findTextInFiles(
-                    { pattern: params.query },
-                    { include: params.include, exclude: params.exclude }
+            execute: async (params, _context) => {
+                // 使用 vscode.workspace.findFiles 和手動搜索
+                const files = await vscode.workspace.findFiles(
+                    params.include || '**/*',
+                    params.exclude || '**/node_modules/**'
                 );
 
-                return Array.from(results.entries()).map(([uri, matches]) => ({
-                    file: vscode.workspace.asRelativePath(uri),
-                    matches: matches.map(match => ({
-                        line: match.range.start.line + 1,
-                        column: match.range.start.character + 1,
-                        text: match.text,
-                        preview: match.preview.text
-                    }))
-                }));
+                const results = [];
+                for (const file of files) {
+                    try {
+                        const document = await vscode.workspace.openTextDocument(file);
+                        const text = document.getText();
+                        const lines = text.split('\n');
+                        const matches = [];
+
+                        for (let i = 0; i < lines.length; i++) {
+                            if (lines[i].includes(params.query)) {
+                                matches.push({
+                                    line: i + 1,
+                                    column: lines[i].indexOf(params.query) + 1,
+                                    text: lines[i],
+                                    preview: lines[i].trim()
+                                });
+                            }
+                        }
+
+                        if (matches.length > 0) {
+                            results.push({
+                                file: vscode.workspace.asRelativePath(file),
+                                matches
+                            });
+                        }
+                    } catch (error) {
+                        // 忽略無法讀取的文件
+                    }
+                }
+
+                return results;
             }
         });
 
@@ -240,7 +263,7 @@ export class ToolManager {
                     required: true
                 }
             ],
-            execute: async (params, context) => {
+            execute: async (params, _context) => {
                 const uri = vscode.Uri.file(params.path);
                 const symbols = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>(
                     'vscode.executeDocumentSymbolProvider',
@@ -289,11 +312,11 @@ export class ToolManager {
                     required: true
                 }
             ],
-            execute: async (params, context) => {
+            execute: async (params, _context) => {
                 // 簡化的 diff 應用實作
                 const uri = vscode.Uri.file(params.path);
-                const document = await vscode.workspace.openTextDocument(uri);
-                
+                await vscode.workspace.openTextDocument(uri);
+
                 // 這裡應該實作完整的 diff 解析和應用邏輯
                 // 暫時返回成功狀態
                 return {
@@ -324,7 +347,7 @@ export class ToolManager {
                     required: false
                 }
             ],
-            execute: async (params, context) => {
+            execute: async (params, _context) => {
                 let response: string | undefined;
 
                 if (params.options && params.options.length > 0) {
@@ -357,7 +380,7 @@ export class ToolManager {
                     required: true
                 }
             ],
-            execute: async (params, context) => {
+            execute: async (params, _context) => {
                 vscode.window.showInformationMessage(`任務完成: ${params.result}`);
                 return {
                     completed: true,
@@ -393,7 +416,7 @@ export class ToolManager {
                     enum: ['analysis', 'refactor', 'test', 'todo', 'fix', 'feature', 'documentation', 'deployment']
                 }
             ],
-            execute: async (params, context) => {
+            execute: async (params, _context) => {
                 // 這裡會調用 TaskManager 創建新任務
                 // 暫時返回模擬結果
                 return {
@@ -419,7 +442,7 @@ export class ToolManager {
                     enum: ['code', 'architect', 'ask', 'debug', 'custom']
                 }
             ],
-            execute: async (params, context) => {
+            execute: async (params, _context) => {
                 // 這裡會調用 ModeManager 切換模式
                 return {
                     success: true,
@@ -462,7 +485,7 @@ export class ToolManager {
                     required: false
                 }
             ],
-            execute: async (params, context) => {
+            execute: async (params, _context) => {
                 // 基礎的瀏覽器操作實作
                 switch (params.action) {
                     case 'open':
@@ -474,7 +497,7 @@ export class ToolManager {
                     default:
                         return { success: false, error: '瀏覽器操作功能開發中' };
                 }
-                
+
                 return { success: false, error: '無效的瀏覽器操作' };
             }
         });
@@ -612,7 +635,7 @@ export class ToolManager {
 
             if (parameters[param.name] !== undefined) {
                 const value = parameters[param.name];
-                
+
                 // 類型檢查
                 switch (param.type) {
                     case 'string':
@@ -709,7 +732,7 @@ export class ToolManager {
      */
     getToolUsageStats(): { [toolName: string]: number } {
         const stats: { [toolName: string]: number } = {};
-        
+
         for (const entry of this.executionHistory) {
             stats[entry.toolName] = (stats[entry.toolName] || 0) + 1;
         }

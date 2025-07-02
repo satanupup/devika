@@ -1,23 +1,28 @@
 import * as vscode from 'vscode';
 
+export type TaskStatus = 'pending' | 'in-progress' | 'completed' | 'cancelled';
+export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
+
 export interface Task {
     id: string;
     title: string;
     description: string;
-    status: 'pending' | 'in-progress' | 'completed' | 'cancelled';
+    status: TaskStatus;
     type: 'analysis' | 'refactor' | 'test' | 'todo' | 'fix' | 'feature' | 'documentation' | 'deployment';
     filePath?: string;
     range?: vscode.Range;
     createdAt: Date;
     updatedAt?: Date;
     completedAt?: Date;
-    priority: 'low' | 'medium' | 'high' | 'urgent';
+    priority: TaskPriority;
     tags: string[];
     assignee?: string;
+    project?: string;
+    dueDate?: Date;
     estimatedTime?: number; // 預估時間（分鐘）
     actualTime?: number; // 實際時間（分鐘）
     dependencies?: string[]; // 依賴的任務 ID
-    subtasks?: string[]; // 子任務 ID
+    subtasks?: Task[]; // 子任務
     metadata?: any;
 }
 

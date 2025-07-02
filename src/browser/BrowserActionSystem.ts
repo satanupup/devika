@@ -106,7 +106,7 @@ export class BrowserActionSystem {
         enableForms?: boolean;
     } = {}): Promise<string> {
         const sessionId = this.generateSessionId();
-        
+
         const panel = vscode.window.createWebviewPanel(
             'browserSession',
             options.title || '瀏覽器',
@@ -146,7 +146,7 @@ export class BrowserActionSystem {
         });
 
         this.sessions.set(sessionId, session);
-        
+
         return sessionId;
     }
 
@@ -291,7 +291,7 @@ export class BrowserActionSystem {
      */
     async scrapeWebsite(config: WebScrapingConfig): Promise<any[]> {
         const results: any[] = [];
-        
+
         try {
             const sessionId = await this.createBrowserSession(config.url, {
                 title: `抓取: ${config.url}`
@@ -319,27 +319,28 @@ export class BrowserActionSystem {
 
                 if (extractResult.success && extractResult.data) {
                     let pageData = Array.isArray(extractResult.data) ? extractResult.data : [extractResult.data];
-                    
+
                     // 應用過濾器
                     if (config.filters) {
                         pageData = this.applyFilters(pageData, config.filters);
                     }
-                    
+
                     results.push(...pageData);
                 }
 
                 // 檢查是否有下一頁
                 if (config.pagination) {
+                    const paginationConfig = config.pagination;
                     try {
                         await this.executeBrowserAction(sessionId, {
                             id: 'next-page',
                             type: 'click',
                             description: '點擊下一頁',
-                            parameters: { selector: config.pagination.nextSelector }
+                            parameters: { selector: paginationConfig.nextSelector }
                         });
 
                         // 等待頁面載入
-                        await new Promise(resolve => setTimeout(resolve, config.pagination.waitTime));
+                        await new Promise(resolve => setTimeout(resolve, paginationConfig.waitTime));
                         currentPage++;
                     } catch {
                         hasNextPage = false;
@@ -368,7 +369,7 @@ export class BrowserActionSystem {
         const url = action.parameters.url;
         session.url = url;
         session.history.push(url);
-        
+
         return new Promise((resolve, reject) => {
             session.webview.postMessage({
                 command: 'navigate',
@@ -574,13 +575,13 @@ export class BrowserActionSystem {
                     currentUrl = targetUrl;
                     document.getElementById('loading').style.display = 'block';
                     document.getElementById('contentFrame').style.display = 'none';
-                    
+
                     // 模擬導航
                     setTimeout(() => {
                         document.getElementById('loading').style.display = 'none';
                         document.getElementById('contentFrame').style.display = 'block';
                         document.getElementById('contentFrame').src = targetUrl;
-                        
+
                         vscode.postMessage({
                             command: 'navigationComplete',
                             url: targetUrl,
@@ -604,7 +605,7 @@ export class BrowserActionSystem {
                 // 處理來自擴展的消息
                 window.addEventListener('message', event => {
                     const message = event.data;
-                    
+
                     switch (message.command) {
                         case 'navigate':
                             navigate(message.url);
@@ -648,7 +649,7 @@ export class BrowserActionSystem {
                     for (const [key, selector] of Object.entries(selectors)) {
                         data[key] = 'extracted-data-' + key;
                     }
-                    
+
                     vscode.postMessage({
                         command: 'extractComplete',
                         data: data
@@ -757,10 +758,10 @@ export class BrowserActionSystem {
 
     private convertToCSV(data: any[]): string {
         if (data.length === 0) return '';
-        
+
         const headers = Object.keys(data[0]);
         const rows = [headers.join(',')];
-        
+
         for (const item of data) {
             const row = headers.map(header => {
                 const value = item[header];
@@ -768,13 +769,13 @@ export class BrowserActionSystem {
             });
             rows.push(row.join(','));
         }
-        
+
         return rows.join('\n');
     }
 
     private convertToXML(data: any[]): string {
         let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<data>\n';
-        
+
         for (const item of data) {
             xml += '  <item>\n';
             for (const [key, value] of Object.entries(item)) {
@@ -782,7 +783,7 @@ export class BrowserActionSystem {
             }
             xml += '  </item>\n';
         }
-        
+
         xml += '</data>';
         return xml;
     }
@@ -791,7 +792,7 @@ export class BrowserActionSystem {
         const total = results.length;
         const successful = results.filter(r => r.success).length;
         const failed = total - successful;
-        
+
         return `執行了 ${total} 個動作，成功 ${successful} 個，失敗 ${failed} 個。狀態: ${status}`;
     }
 
@@ -828,7 +829,7 @@ export class BrowserActionSystem {
             id,
             results: []
         };
-        
+
         this.automations.set(id, fullAutomation);
         return id;
     }

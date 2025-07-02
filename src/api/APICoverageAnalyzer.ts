@@ -3,7 +3,7 @@ import { DatabaseManager } from '../storage/DatabaseManager';
 
 export interface APICoverageReport {
     totalAPIs: number;
-    implementedAPIs: number;
+    implementedAPIsCount: number;
     coveragePercentage: number;
     categories: CategoryCoverage[];
     missingAPIs: MissingAPI[];
@@ -103,26 +103,26 @@ export class APICoverageAnalyzer {
         try {
             // 獲取所有 VS Code API
             const allAPIs = await this.getAllVSCodeAPIs(options);
-            
+
             // 掃描項目中的 API 使用
             const implementedAPIs = await this.scanImplementedAPIs();
-            
+
             // 分析覆蓋率
             const coverage = this.calculateCoverage(allAPIs, implementedAPIs);
-            
+
             // 生成建議
             const recommendations = this.generateRecommendations(allAPIs, implementedAPIs);
-            
+
             // 分析趨勢
             const trends = this.analyzeTrends();
-            
+
             const report: APICoverageReport = {
                 totalAPIs: allAPIs.length,
-                implementedAPIs: implementedAPIs.length,
+                implementedAPIsCount: implementedAPIs.length,
+                implementedAPIs: implementedAPIs,
                 coveragePercentage: Math.round((implementedAPIs.length / allAPIs.length) * 100),
                 categories: coverage.categories,
                 missingAPIs: coverage.missing,
-                implementedAPIs: implementedAPIs,
                 recommendations,
                 trends,
                 timestamp: new Date()
@@ -130,7 +130,7 @@ export class APICoverageAnalyzer {
 
             this.lastAnalysis = report;
             await this.saveCoverageTrend(report);
-            
+
             return report;
         } catch (error) {
             throw new Error(`API 覆蓋率分析失敗: ${error}`);
@@ -142,11 +142,11 @@ export class APICoverageAnalyzer {
      */
     private async getAllVSCodeAPIs(options: APIAnalysisOptions): Promise<VSCodeAPI[]> {
         const apis: VSCodeAPI[] = [];
-        
+
         try {
             // 從數據庫獲取 API 信息
             const apiData = await this.databaseManager.query(`
-                SELECT * FROM vscode_apis 
+                SELECT * FROM vscode_apis
                 WHERE 1=1
                 ${!options.includeDeprecated ? 'AND deprecated = 0' : ''}
                 ${!options.includeExperimental ? 'AND experimental = 0' : ''}
@@ -184,7 +184,7 @@ export class APICoverageAnalyzer {
      */
     private async scanImplementedAPIs(): Promise<ImplementedAPI[]> {
         const implementedAPIs: ImplementedAPI[] = [];
-        
+
         try {
             // 掃描工作區中的 TypeScript/JavaScript 文件
             const files = await vscode.workspace.findFiles(
@@ -195,7 +195,7 @@ export class APICoverageAnalyzer {
             for (const file of files) {
                 const document = await vscode.workspace.openTextDocument(file);
                 const content = document.getText();
-                
+
                 // 查找 vscode API 使用
                 const apiUsages = this.findAPIUsages(content, file.fsPath);
                 implementedAPIs.push(...apiUsages);
@@ -216,13 +216,13 @@ export class APICoverageAnalyzer {
 
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
-            
+
             // 查找 vscode.* API 調用
             const vscodeMatches = line.match(/vscode\.(\w+(?:\.\w+)*)/g);
             if (vscodeMatches) {
                 for (const match of vscodeMatches) {
                     const apiName = match.replace('vscode.', '');
-                    
+
                     apis.push({
                         name: apiName,
                         category: this.categorizeAPI(apiName),
@@ -295,7 +295,7 @@ export class APICoverageAnalyzer {
 
         // 計算百分比
         for (const category of categories.values()) {
-            category.coveragePercentage = category.totalAPIs > 0 
+            category.coveragePercentage = category.totalAPIs > 0
                 ? Math.round((category.implementedAPIs / category.totalAPIs) * 100)
                 : 0;
         }
@@ -314,8 +314,8 @@ export class APICoverageAnalyzer {
         const implementedNames = new Set(implementedAPIs.map(api => api.name));
 
         // 建議實作高優先級的缺失 API
-        const missingHighPriority = allAPIs.filter(api => 
-            !implementedNames.has(api.name) && 
+        const missingHighPriority = allAPIs.filter(api =>
+            !implementedNames.has(api.name) &&
             (api.priority === 'critical' || api.priority === 'high')
         );
 
@@ -388,7 +388,7 @@ export class APICoverageAnalyzer {
 
     private deduplicateImplementedAPIs(apis: ImplementedAPI[]): ImplementedAPI[] {
         const uniqueAPIs = new Map<string, ImplementedAPI>();
-        
+
         for (const api of apis) {
             const existing = uniqueAPIs.get(api.name);
             if (existing) {
@@ -404,7 +404,7 @@ export class APICoverageAnalyzer {
     private getCategoryPriority(category: string): 'high' | 'medium' | 'low' {
         const highPriority = ['commands', 'window', 'workspace'];
         const mediumPriority = ['languages', 'debug', 'tasks'];
-        
+
         if (highPriority.includes(category)) return 'high';
         if (mediumPriority.includes(category)) return 'medium';
         return 'low';
@@ -465,14 +465,14 @@ export class APICoverageAnalyzer {
         const trend: CoverageTrend = {
             date: new Date(),
             totalAPIs: report.totalAPIs,
-            implementedAPIs: report.implementedAPIs,
+            implementedAPIs: report.implementedAPIsCount,
             coveragePercentage: report.coveragePercentage,
             newImplementations: [], // 需要與上次比較
             removedImplementations: []
         };
 
         this.coverageHistory.push(trend);
-        
+
         // 保持最近50次記錄
         if (this.coverageHistory.length > 50) {
             this.coverageHistory = this.coverageHistory.slice(-50);
@@ -600,13 +600,13 @@ export class APICoverageAnalyzer {
             <div class="summary">
                 <h2>總覽</h2>
                 <p>總 API 數: ${report.totalAPIs}</p>
-                <p>已實作: ${report.implementedAPIs}</p>
+                <p>已實作: ${report.implementedAPIsCount}</p>
                 <p>覆蓋率: ${report.coveragePercentage}%</p>
                 <div class="progress">
                     <div class="progress-bar" style="width: ${report.coveragePercentage}%"></div>
                 </div>
             </div>
-            
+
             <h2>類別覆蓋率</h2>
             ${report.categories.map(cat => `
                 <div class="category">
@@ -616,7 +616,7 @@ export class APICoverageAnalyzer {
                     </div>
                 </div>
             `).join('')}
-            
+
             <h2>缺失的 API</h2>
             <table>
                 <tr><th>API 名稱</th><th>類別</th><th>優先級</th><th>複雜度</th></tr>

@@ -74,15 +74,15 @@ export class SmartSuggestionGenerator {
   private suggestionCache: Map<string, SmartSuggestion[]> = new Map();
   private patternDatabase: Map<string, string[]> = new Map();
 
-  private constructor() {
+  private constructor(context: vscode.ExtensionContext) {
     this.codeEngine = CodeUnderstandingEngine.getInstance();
-    this.contextManager = ContextManager.getInstance();
+    this.contextManager = new ContextManager(context);
     this.initializePatternDatabase();
   }
 
-  static getInstance(): SmartSuggestionGenerator {
+  static getInstance(context: vscode.ExtensionContext): SmartSuggestionGenerator {
     if (!SmartSuggestionGenerator.instance) {
-      SmartSuggestionGenerator.instance = new SmartSuggestionGenerator();
+      SmartSuggestionGenerator.instance = new SmartSuggestionGenerator(context);
     }
     return SmartSuggestionGenerator.instance;
   }
@@ -98,7 +98,7 @@ export class SmartSuggestionGenerator {
       async () => {
         // 構建建議上下文
         const suggestionContext = await this.buildSuggestionContext(context);
-        
+
         // 檢查快取
         const cacheKey = this.generateCacheKey(suggestionContext);
         if (this.suggestionCache.has(cacheKey)) {
@@ -121,7 +121,7 @@ export class SmartSuggestionGenerator {
         ];
 
         const results = await Promise.allSettled(generators);
-        
+
         results.forEach((result, index) => {
           if (result.status === 'fulfilled') {
             suggestions.push(...result.value);
@@ -153,11 +153,11 @@ export class SmartSuggestionGenerator {
     try {
       // 分析當前上下文中的變數命名模式
       const namingPatterns = this.analyzeNamingPatterns(context);
-      
+
       // 基於類型推斷建議變數名
       if (context.semanticInfo.expectedType) {
         const typeBasedNames = this.generateTypeBasedNames(context.semanticInfo.expectedType);
-        
+
         for (const name of typeBasedNames) {
           suggestions.push({
             id: `var-${name}`,
@@ -201,10 +201,10 @@ export class SmartSuggestionGenerator {
     try {
       // 分析函數用途
       const functionPurpose = this.analyzeFunctionPurpose(context);
-      
+
       if (functionPurpose) {
         const functionNames = this.generateFunctionNames(functionPurpose);
-        
+
         for (const name of functionNames) {
           suggestions.push({
             id: `func-${name}`,
@@ -234,7 +234,7 @@ export class SmartSuggestionGenerator {
     try {
       // 分析未解析的符號
       const unresolvedSymbols = await this.findUnresolvedSymbols(context);
-      
+
       for (const symbol of unresolvedSymbols) {
         const importSuggestions = await this.suggestImportsForSymbol(symbol, context);
         suggestions.push(...importSuggestions);
@@ -272,10 +272,10 @@ export class SmartSuggestionGenerator {
       if (context.document.languageId === 'typescript') {
         // 分析需要類型註解的位置
         const typeAnnotationNeeded = this.analyzeTypeAnnotationNeeds(context);
-        
+
         if (typeAnnotationNeeded) {
           const inferredType = await this.inferType(context);
-          
+
           if (inferredType) {
             suggestions.push({
               id: `type-${inferredType}`,
@@ -306,7 +306,7 @@ export class SmartSuggestionGenerator {
     try {
       // 檢測常見的代碼模式
       const detectedPatterns = this.detectCodePatterns(context);
-      
+
       for (const pattern of detectedPatterns) {
         const completion = this.getPatternCompletion(pattern, context);
         if (completion) {
@@ -339,7 +339,7 @@ export class SmartSuggestionGenerator {
     try {
       // 分析當前使用的 API
       const currentAPI = this.analyzeCurrentAPI(context);
-      
+
       if (currentAPI) {
         const apiSuggestions = await this.getAPISuggestions(currentAPI, context);
         suggestions.push(...apiSuggestions);
@@ -361,7 +361,7 @@ export class SmartSuggestionGenerator {
     try {
       // 檢查代碼品質問題
       const qualityIssues = this.analyzeCodeQuality(context);
-      
+
       for (const issue of qualityIssues) {
         const bestPractice = this.getBestPracticeForIssue(issue);
         if (bestPractice) {
@@ -394,7 +394,7 @@ export class SmartSuggestionGenerator {
     try {
       // 獲取當前文件的診斷信息
       const diagnostics = vscode.languages.getDiagnostics(context.document.uri);
-      
+
       for (const diagnostic of diagnostics) {
         if (this.isNearPosition(diagnostic.range, context.position)) {
           const fix = this.generateErrorFix(diagnostic, context);
@@ -469,7 +469,7 @@ export class SmartSuggestionGenerator {
       if (a.confidence !== b.confidence) {
         return b.confidence - a.confidence;
       }
-      
+
       // 按類型優先級排序
       const typePriority = {
         [SmartSuggestionType.ERROR_FIX]: 10,
@@ -483,7 +483,7 @@ export class SmartSuggestionGenerator {
         [SmartSuggestionType.PARAMETER_NAME]: 2,
         [SmartSuggestionType.REFACTORING]: 1
       };
-      
+
       return (typePriority[b.type] || 0) - (typePriority[a.type] || 0);
     });
   }
@@ -525,7 +525,7 @@ export class SmartSuggestionGenerator {
       [SmartSuggestionType.API_USAGE]: vscode.CompletionItemKind.Method,
       [SmartSuggestionType.BEST_PRACTICE]: vscode.CompletionItemKind.Text
     };
-    
+
     return kindMap[type] || vscode.CompletionItemKind.Text;
   }
 
@@ -536,13 +536,13 @@ export class SmartSuggestionGenerator {
       'promise-catch',
       'async-await-try'
     ]);
-    
+
     this.patternDatabase.set('async-patterns', [
       'promise-chain',
       'async-await',
       'callback-pattern'
     ]);
-    
+
     this.patternDatabase.set('react-patterns', [
       'useEffect-hook',
       'useState-hook',

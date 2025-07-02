@@ -1,11 +1,23 @@
 /**
  * 下一步編輯導航系統模組
- * 
+ *
  * 此模組實現了 Devika VS Code Extension 的智能編輯導航功能，
  * 提供逐步編輯指導、自動化編輯執行和進度追蹤。
  */
 
 import * as vscode from 'vscode';
+import {
+  EditNavigationEngine,
+  EditStep,
+  EditStepType,
+  EditStepStatus,
+  EditStepPriority,
+  EditPlan,
+  EditNavigationConfig,
+  EditNavigationEvent
+} from './EditNavigationEngine';
+import { EditNavigationProvider } from './EditNavigationProvider';
+import { EditNavigationCommandProvider } from './EditNavigationCommandProvider';
 
 // 核心編輯導航引擎
 export {
@@ -38,7 +50,7 @@ export {
 
 /**
  * 初始化下一步編輯導航系統
- * 
+ *
  * @param context VS Code 擴展上下文
  * @returns Promise<void>
  */
@@ -46,20 +58,20 @@ export async function initializeEditNavigationSystem(context: vscode.ExtensionCo
   try {
     // 創建編輯導航提供者
     const navigationProvider = new EditNavigationProvider();
-    
+
     // 註冊樹視圖
     const treeView = vscode.window.createTreeView('devika.editNavigation', {
       treeDataProvider: navigationProvider,
       showCollapseAll: true,
       canSelectMany: false
     });
-    
+
     // 創建命令提供者
     const commandProvider = new EditNavigationCommandProvider(navigationProvider);
-    
+
     // 註冊命令
     commandProvider.registerCommands(context);
-    
+
     // 設置清理回調
     context.subscriptions.push(
       treeView,
@@ -70,7 +82,7 @@ export async function initializeEditNavigationSystem(context: vscode.ExtensionCo
         }
       }
     );
-    
+
     console.log('下一步編輯導航系統初始化完成');
   } catch (error) {
     console.error('下一步編輯導航系統初始化失敗:', error);
@@ -84,34 +96,34 @@ export async function initializeEditNavigationSystem(context: vscode.ExtensionCo
 export interface EditNavigationSystemConfig {
   /** 是否啟用編輯導航 */
   enabled: boolean;
-  
+
   /** 是否自動前進到下一步 */
   autoAdvance: boolean;
-  
+
   /** 是否顯示預覽 */
   showPreview: boolean;
-  
+
   /** 執行前是否確認 */
   confirmBeforeExecute: boolean;
-  
+
   /** 是否跳過可選步驟 */
   skipOptionalSteps: boolean;
-  
+
   /** 最大重試次數 */
   maxRetries: number;
-  
+
   /** 超時時間（秒） */
   timeoutSeconds: number;
-  
+
   /** 是否啟用驗證 */
   enableValidation: boolean;
-  
+
   /** 是否顯示預估時間 */
   showEstimatedTime: boolean;
-  
+
   /** 是否啟用智能建議 */
   enableSmartSuggestions: boolean;
-  
+
   /** 是否自動保存進度 */
   autoSaveProgress: boolean;
 }
@@ -139,37 +151,37 @@ export const DEFAULT_EDIT_NAVIGATION_CONFIG: EditNavigationSystemConfig = {
 export interface EditNavigationSystemStatus {
   /** 是否已初始化 */
   initialized: boolean;
-  
+
   /** 是否啟用 */
   enabled: boolean;
-  
+
   /** 是否有活躍計劃 */
   hasActivePlan: boolean;
-  
+
   /** 當前計劃標題 */
   currentPlanTitle?: string;
-  
+
   /** 當前步驟索引 */
   currentStepIndex: number;
-  
+
   /** 總步驟數 */
   totalSteps: number;
-  
+
   /** 已完成步驟數 */
   completedSteps: number;
-  
+
   /** 進度百分比 */
   progressPercentage: number;
-  
+
   /** 預估剩餘時間（分鐘） */
   estimatedTimeRemaining: number;
-  
+
   /** 執行狀態 */
   executionStatus: 'planning' | 'executing' | 'completed' | 'cancelled' | 'paused';
-  
+
   /** 最後活動時間 */
   lastActivity: Date | null;
-  
+
   /** 錯誤信息 */
   errors: string[];
 }
@@ -182,7 +194,7 @@ export function getEditNavigationSystemStatus(): EditNavigationSystemStatus {
     const navigationEngine = EditNavigationEngine.getInstance();
     const activePlan = navigationEngine.getActivePlan();
     const progress = navigationEngine.getProgress();
-    
+
     return {
       initialized: true,
       enabled: true, // 從配置獲取
@@ -251,7 +263,7 @@ export class EditNavigationUtils {
     };
     return statusMap[status] || '❓ 未知';
   }
-  
+
   /**
    * 格式化步驟類型
    */
@@ -279,7 +291,7 @@ export class EditNavigationUtils {
     };
     return typeMap[type] || '❓ 未知類型';
   }
-  
+
   /**
    * 格式化優先級
    */
@@ -292,24 +304,24 @@ export class EditNavigationUtils {
     };
     return priorityMap[priority] || '❓ 未知';
   }
-  
+
   /**
    * 計算預估完成時間
    */
   static calculateEstimatedCompletion(steps: EditStep[], currentIndex: number): Date {
     const remainingSteps = steps.slice(currentIndex);
     const totalMinutes = remainingSteps.reduce((sum, step) => sum + step.estimatedTime, 0);
-    
+
     const now = new Date();
     return new Date(now.getTime() + totalMinutes * 60 * 1000);
   }
-  
+
   /**
    * 生成進度報告
    */
   static generateProgressReport(plan: EditPlan, progress: any): string {
     const completionTime = this.calculateEstimatedCompletion(plan.steps, plan.currentStepIndex);
-    
+
     return `
 編輯導航進度報告
 ================
@@ -331,95 +343,95 @@ export class EditNavigationUtils {
 最後更新: ${plan.updatedAt.toLocaleString()}
     `.trim();
   }
-  
+
   /**
    * 驗證編輯計劃
    */
   static validateEditPlan(plan: EditPlan): { valid: boolean; issues: string[] } {
     const issues: string[] = [];
-    
+
     // 檢查基本信息
     if (!plan.title || plan.title.trim().length === 0) {
       issues.push('計劃標題不能為空');
     }
-    
+
     if (!plan.steps || plan.steps.length === 0) {
       issues.push('計劃必須包含至少一個步驟');
     }
-    
+
     // 檢查步驟
-    plan.steps.forEach((step, index) => {
+    plan.steps.forEach((step: EditStep, index: number) => {
       if (!step.title || step.title.trim().length === 0) {
         issues.push(`步驟 ${index + 1} 標題不能為空`);
       }
-      
+
       if (!step.targetFile) {
         issues.push(`步驟 ${index + 1} 必須指定目標文件`);
       }
-      
+
       if (step.estimatedTime <= 0) {
         issues.push(`步驟 ${index + 1} 預估時間必須大於 0`);
       }
     });
-    
+
     // 檢查依賴關係
-    plan.steps.forEach((step, index) => {
-      step.dependencies.forEach(depId => {
-        const depExists = plan.steps.some(s => s.id === depId);
+    plan.steps.forEach((step: EditStep, index: number) => {
+      step.dependencies.forEach((depId: string) => {
+        const depExists = plan.steps.some((s: EditStep) => s.id === depId);
         if (!depExists) {
           issues.push(`步驟 ${index + 1} 依賴的步驟 ${depId} 不存在`);
         }
       });
     });
-    
+
     return {
       valid: issues.length === 0,
       issues
     };
   }
-  
+
   /**
    * 優化編輯計劃
    */
   static optimizeEditPlan(plan: EditPlan): EditPlan {
     // 創建計劃副本
     const optimizedPlan = { ...plan };
-    
+
     // 按依賴關係和優先級重新排序步驟
     optimizedPlan.steps = this.sortStepsByDependencies(plan.steps);
-    
+
     // 重新計算總預估時間
     optimizedPlan.totalEstimatedTime = optimizedPlan.steps.reduce(
-      (sum, step) => sum + step.estimatedTime, 
+      (sum: number, step: EditStep) => sum + step.estimatedTime,
       0
     );
-    
+
     // 更新時間戳
     optimizedPlan.updatedAt = new Date();
-    
+
     return optimizedPlan;
   }
-  
+
   /**
    * 按依賴關係排序步驟
    */
   private static sortStepsByDependencies(steps: EditStep[]): EditStep[] {
     const sorted: EditStep[] = [];
     const remaining = [...steps];
-    
+
     while (remaining.length > 0) {
-      const canExecute = remaining.filter(step => 
-        step.dependencies.every(depId => 
-          sorted.some(s => s.id === depId)
+      const canExecute = remaining.filter(step =>
+        step.dependencies.every((depId: string) =>
+          sorted.some((s: EditStep) => s.id === depId)
         )
       );
-      
+
       if (canExecute.length === 0) {
         // 如果沒有可執行的步驟，說明有循環依賴，直接添加剩餘步驟
         sorted.push(...remaining);
         break;
       }
-      
+
       // 按優先級排序可執行的步驟
       canExecute.sort((a, b) => {
         const priorityOrder = {
@@ -430,16 +442,16 @@ export class EditNavigationUtils {
         };
         return priorityOrder[b.priority] - priorityOrder[a.priority];
       });
-      
+
       // 添加第一個可執行的步驟
       const nextStep = canExecute[0];
       sorted.push(nextStep);
       remaining.splice(remaining.indexOf(nextStep), 1);
     }
-    
+
     return sorted;
   }
-  
+
   /**
    * 生成步驟摘要
    */

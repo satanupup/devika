@@ -2,13 +2,15 @@ import * as vscode from 'vscode';
 import { Task, TaskManager } from '../tasks/TaskManager';
 
 export class TaskTreeItem extends vscode.TreeItem {
+    public override command?: vscode.Command;
+
     constructor(
         public readonly task: Task,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+        public override readonly collapsibleState: vscode.TreeItemCollapsibleState,
         public readonly parent?: TaskTreeItem
     ) {
         super(task.title, collapsibleState);
-        
+
         this.tooltip = this.getTooltip();
         this.description = this.getDescription();
         this.iconPath = this.getIcon();
@@ -47,7 +49,7 @@ export class TaskTreeItem extends vscode.TreeItem {
 
     private getDescription(): string {
         const parts: string[] = [];
-        
+
         // 顯示進度
         if (this.task.subtasks && this.task.subtasks.length > 0) {
             const completedSubtasks = this.getCompletedSubtasksCount();
@@ -88,15 +90,15 @@ export class TaskTreeItem extends vscode.TreeItem {
 
     private getContextValue(): string {
         const values = ['task'];
-        
+
         values.push(`status-${this.task.status}`);
         values.push(`type-${this.task.type}`);
         values.push(`priority-${this.task.priority}`);
-        
+
         if (this.task.subtasks && this.task.subtasks.length > 0) {
             values.push('has-subtasks');
         }
-        
+
         if (this.task.dependencies && this.task.dependencies.length > 0) {
             values.push('has-dependencies');
         }
@@ -144,7 +146,7 @@ export class TaskTreeProvider implements vscode.TreeDataProvider<TaskTreeItem> {
     constructor(taskManager: TaskManager) {
         this.taskManager = taskManager;
         this.loadTasks();
-        
+
         // 監聽任務變更
         this.taskManager.onTaskChanged(() => {
             this.refresh();
@@ -176,10 +178,10 @@ export class TaskTreeProvider implements vscode.TreeDataProvider<TaskTreeItem> {
 
     private loadTasks(): void {
         const allTasks = this.taskManager.getAllTasks();
-        
+
         // 找出根任務（沒有父任務的任務）
         this.rootTasks = allTasks.filter(task => {
-            return !allTasks.some(otherTask => 
+            return !allTasks.some(otherTask =>
                 otherTask.subtasks?.includes(task.id)
             );
         });
@@ -203,8 +205,8 @@ export class TaskTreeProvider implements vscode.TreeDataProvider<TaskTreeItem> {
 
     private createTaskItem(task: Task, parent?: TaskTreeItem): TaskTreeItem {
         const hasSubtasks = task.subtasks && task.subtasks.length > 0;
-        const collapsibleState = hasSubtasks 
-            ? vscode.TreeItemCollapsibleState.Collapsed 
+        const collapsibleState = hasSubtasks
+            ? vscode.TreeItemCollapsibleState.Collapsed
             : vscode.TreeItemCollapsibleState.None;
 
         return new TaskTreeItem(task, collapsibleState, parent);
@@ -264,16 +266,16 @@ export class TaskTreeProvider implements vscode.TreeDataProvider<TaskTreeItem> {
         });
 
         if (priority) {
-            await this.taskManager.updateTask(newTask.id, { 
-                priority: priority.label as any 
+            await this.taskManager.updateTask(newTask.id, {
+                priority: priority.label as any
             });
         }
 
         // 如果有父任務，添加到父任務的子任務列表
         if (parentTask) {
             const updatedSubtasks = [...(parentTask.subtasks || []), newTask.id];
-            await this.taskManager.updateTask(parentTask.id, { 
-                subtasks: updatedSubtasks 
+            await this.taskManager.updateTask(parentTask.id, {
+                subtasks: updatedSubtasks
             });
         }
 
@@ -300,11 +302,16 @@ export class TaskTreeProvider implements vscode.TreeDataProvider<TaskTreeItem> {
      * 更新任務狀態
      */
     async updateTaskStatus(task: Task, newStatus: Task['status']): Promise<void> {
-        await this.taskManager.updateTask(task.id, { 
+        const updateData: Partial<Task> = {
             status: newStatus,
-            updatedAt: new Date(),
-            completedAt: newStatus === 'completed' ? new Date() : undefined
-        });
+            updatedAt: new Date()
+        };
+
+        if (newStatus === 'completed') {
+            updateData.completedAt = new Date();
+        }
+
+        await this.taskManager.updateTask(task.id, updateData);
         this.refresh();
     }
 
@@ -318,7 +325,7 @@ export class TaskTreeProvider implements vscode.TreeDataProvider<TaskTreeItem> {
         });
 
         if (newTitle && newTitle !== task.title) {
-            await this.taskManager.updateTask(task.id, { 
+            await this.taskManager.updateTask(task.id, {
                 title: newTitle,
                 updatedAt: new Date()
             });

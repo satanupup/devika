@@ -56,21 +56,21 @@ export class VSCodeAPICrawler {
      */
     async crawlVSCodeAPI(): Promise<CrawlResult> {
         console.log('開始爬取 VS Code API...');
-        
+
         try {
             // 獲取主要 API 頁面
             const mainPageContent = await this.fetchPage(`${this.baseUrl}/references/vscode-api`);
-            
+
             // 解析 API 結構
             const namespaces = await this.parseAPIStructure(mainPageContent);
-            
+
             // 獲取詳細的 API 信息
             const detailedNamespaces = await this.enrichAPIDetails(namespaces);
-            
+
             // 比較與之前的版本
             const previousResult = await this.getLastCrawlResult();
             const comparison = this.compareAPIVersions(detailedNamespaces, previousResult);
-            
+
             const result: CrawlResult = {
                 timestamp: new Date(),
                 version: await this.detectVSCodeVersion(),
@@ -83,9 +83,9 @@ export class VSCodeAPICrawler {
 
             // 保存結果到數據庫
             await this.saveCrawlResult(result);
-            
+
             console.log(`爬取完成！發現 ${result.totalAPIs} 個 API，其中新增 ${result.newAPIs.length} 個`);
-            
+
             return result;
         } catch (error) {
             console.error('API 爬取失敗:', error);
@@ -104,7 +104,7 @@ export class VSCodeAPICrawler {
                 },
                 timeout: 30000
             });
-            
+
             return response.data;
         } catch (error) {
             console.error(`獲取頁面失敗 ${url}:`, error);
@@ -123,7 +123,7 @@ export class VSCodeAPICrawler {
         $('.api-namespace, .namespace-section').each((index, element) => {
             const $element = $(element);
             const namespaceName = $element.find('h2, h3').first().text().trim();
-            
+
             if (namespaceName) {
                 const namespace: APINamespace = {
                     name: namespaceName,
@@ -136,7 +136,7 @@ export class VSCodeAPICrawler {
                 $element.find('.api-item, .member').each((i, apiElement) => {
                     const $api = $(apiElement);
                     const apiName = $api.find('.api-name, .member-name').text().trim();
-                    
+
                     if (apiName) {
                         const endpoint: APIEndpoint = {
                             name: apiName,
@@ -159,7 +159,7 @@ export class VSCodeAPICrawler {
 
         // 如果沒有找到結構化的命名空間，嘗試其他解析方法
         if (namespaces.length === 0) {
-            return await this.parseAlternativeStructure($);
+            return await this.parseAlternativeStructure($ as any);
         }
 
         return namespaces;
@@ -170,7 +170,7 @@ export class VSCodeAPICrawler {
      */
     private async parseAlternativeStructure($: cheerio.CheerioAPI): Promise<APINamespace[]> {
         const namespaces: APINamespace[] = [];
-        
+
         // 查找所有可能的 API 鏈接
         const apiLinks: string[] = [];
         $('a[href*="/api/"]').each((index, element) => {
@@ -213,7 +213,7 @@ export class VSCodeAPICrawler {
         $('.api-definition, .member-definition').each((index, element) => {
             const $element = $(element);
             const name = $element.find('h1, h2, h3, .name').first().text().trim();
-            
+
             if (name) {
                 const endpoint: APIEndpoint = {
                     name: name,
@@ -280,7 +280,7 @@ export class VSCodeAPICrawler {
                 const paramName = $param.find('.param-name, .name').text().trim();
                 const paramType = $param.find('.param-type, .type').text().trim();
                 const paramDesc = $param.find('.param-description, .description').text().trim();
-                
+
                 if (paramName) {
                     parameters.push({
                         name: paramName,
@@ -325,7 +325,7 @@ export class VSCodeAPICrawler {
     /**
      * 檢測 API 類型
      */
-    private detectAPIType($element: cheerio.Cheerio<cheerio.Element>): APIEndpoint['type'] {
+    private detectAPIType($element: cheerio.Cheerio): APIEndpoint['type'] {
         const text = $element.text().toLowerCase();
         const classNames = $element.attr('class') || '';
 
@@ -370,7 +370,7 @@ export class VSCodeAPICrawler {
         try {
             const versionPage = await this.fetchPage('https://code.visualstudio.com/updates');
             const $ = cheerio.load(versionPage);
-            
+
             // 查找版本信息
             const version = $('.version, .release-version').first().text().trim();
             return version || 'unknown';
@@ -393,7 +393,7 @@ export class VSCodeAPICrawler {
      * 比較 API 版本
      */
     private compareAPIVersions(
-        currentNamespaces: APINamespace[], 
+        currentNamespaces: APINamespace[],
         previousResult: CrawlResult | null
     ): { newAPIs: APIEndpoint[]; updatedAPIs: APIEndpoint[]; deprecatedAPIs: APIEndpoint[] } {
         const newAPIs: APIEndpoint[] = [];
@@ -459,7 +459,7 @@ export class VSCodeAPICrawler {
             const result = await this.dbManager.get<any>(
                 'SELECT * FROM api_crawl_history ORDER BY timestamp DESC LIMIT 1'
             );
-            
+
             if (result) {
                 return {
                     timestamp: new Date(result.timestamp),
@@ -471,7 +471,7 @@ export class VSCodeAPICrawler {
                     deprecatedAPIs: JSON.parse(result.deprecated_apis || '[]')
                 };
             }
-            
+
             return null;
         } catch (error) {
             console.warn('獲取上次爬取結果失敗:', error);
@@ -486,7 +486,7 @@ export class VSCodeAPICrawler {
         try {
             await this.dbManager.run(`
                 INSERT INTO api_crawl_history (
-                    timestamp, version, namespaces, total_apis, 
+                    timestamp, version, namespaces, total_apis,
                     new_apis, updated_apis, deprecated_apis
                 ) VALUES (?, ?, ?, ?, ?, ?, ?)
             `, [

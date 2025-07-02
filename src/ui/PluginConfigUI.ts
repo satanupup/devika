@@ -101,7 +101,7 @@ export class PluginConfigUI {
             }
 
             vscode.window.showInformationMessage('配置已更新');
-            
+
             // Refresh the panel
             if (this.panel) {
                 this.panel.webview.html = this.getConfigHtml();
@@ -126,9 +126,9 @@ export class PluginConfigUI {
             await config.update('openaiApiKey', undefined, vscode.ConfigurationTarget.Global);
             await config.update('claudeApiKey', undefined, vscode.ConfigurationTarget.Global);
             await config.update('geminiApiKey', undefined, vscode.ConfigurationTarget.Global);
-            
+
             vscode.window.showInformationMessage('配置已重置');
-            
+
             if (this.panel) {
                 this.panel.webview.html = this.getConfigHtml();
             }
@@ -151,7 +151,7 @@ export class PluginConfigUI {
         };
 
         const configJson = JSON.stringify(config, null, 2);
-        
+
         const uri = await vscode.window.showSaveDialog({
             defaultUri: vscode.Uri.file('devika-config.json'),
             filters: {
@@ -175,14 +175,14 @@ export class PluginConfigUI {
             }
         });
 
-        if (uris && uris.length > 0) {
+        if (uris && uris.length > 0 && uris[0]) {
             try {
                 const content = await vscode.workspace.fs.readFile(uris[0]);
                 const config = JSON.parse(content.toString());
-                
+
                 await this.updateConfig(config);
                 vscode.window.showInformationMessage('配置已导入');
-                
+
             } catch (error) {
                 vscode.window.showErrorMessage(`配置导入失败: ${error}`);
             }
@@ -278,7 +278,7 @@ export class PluginConfigUI {
         </head>
         <body>
             <h1>🤖 Devika AI 助理配置</h1>
-            
+
             <div class="section">
                 <h3>🔑 API 密钥配置</h3>
                 <div class="form-group">

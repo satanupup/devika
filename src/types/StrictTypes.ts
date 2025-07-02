@@ -212,9 +212,9 @@ export type UnionToTuple<T, L = LastOf<T>, N = [T] extends [never] ? true : fals
 /**
  * 嚴格的配置對象類型
  */
-export interface StrictConfig<T> {
+export type StrictConfig<T> = {
     readonly [K in keyof T]: T[K];
-}
+};
 
 /**
  * 創建嚴格配置
@@ -231,12 +231,12 @@ export interface TypedEventEmitter<TEvents extends Record<string, any[]>> {
         eventName: TEventName,
         listener: (...args: TEvents[TEventName]) => void
     ): this;
-    
+
     off<TEventName extends keyof TEvents>(
         eventName: TEventName,
         listener: (...args: TEvents[TEventName]) => void
     ): this;
-    
+
     emit<TEventName extends keyof TEvents>(
         eventName: TEventName,
         ...args: TEvents[TEventName]
@@ -299,7 +299,11 @@ export function createTypedSet<T>(): TypedSet<T> {
 /**
  * 不可變數組操作
  */
-export interface ImmutableArray<T> extends ReadonlyArray<T> {
+export interface ImmutableArray<T> {
+    readonly length: number;
+    readonly [index: number]: T;
+    [Symbol.iterator](): Iterator<T>;
+
     append(item: T): ImmutableArray<T>;
     prepend(item: T): ImmutableArray<T>;
     insert(index: number, item: T): ImmutableArray<T>;
@@ -308,14 +312,50 @@ export interface ImmutableArray<T> extends ReadonlyArray<T> {
     filter(predicate: (item: T, index: number) => boolean): ImmutableArray<T>;
     map<U>(mapper: (item: T, index: number) => U): ImmutableArray<U>;
     slice(start?: number, end?: number): ImmutableArray<T>;
+
+    // ReadonlyArray methods
+    forEach(callbackfn: (value: T, index: number, array: readonly T[]) => void): void;
+    indexOf(searchElement: T, fromIndex?: number): number;
+    includes(searchElement: T, fromIndex?: number): boolean;
+    join(separator?: string): string;
+    every(predicate: (value: T, index: number, array: readonly T[]) => boolean): boolean;
+    some(predicate: (value: T, index: number, array: readonly T[]) => boolean): boolean;
+    find(predicate: (value: T, index: number, obj: readonly T[]) => boolean): T | undefined;
+    findIndex(predicate: (value: T, index: number, obj: readonly T[]) => boolean): number;
 }
 
 /**
  * 創建不可變數組
  */
 export function createImmutableArray<T>(items: T[] = []): ImmutableArray<T> {
-    const array = [...items] as ImmutableArray<T>;
-    
+    const array = Object.create(Array.prototype) as ImmutableArray<T>;
+
+    // Copy array properties
+    Object.defineProperty(array, 'length', {
+        value: items.length,
+        writable: false,
+        enumerable: false,
+        configurable: false
+    });
+
+    // Copy array elements
+    items.forEach((item, index) => {
+        Object.defineProperty(array, index, {
+            value: item,
+            writable: false,
+            enumerable: true,
+            configurable: false
+        });
+    });
+
+    // Add iterator
+    array[Symbol.iterator] = function* (): Iterator<T> {
+        for (let i = 0; i < items.length; i++) {
+            yield items[i]!;
+        }
+    };
+
+    // Add immutable methods
     array.append = (item: T) => createImmutableArray([...items, item]);
     array.prepend = (item: T) => createImmutableArray([item, ...items]);
     array.insert = (index: number, item: T) => {
@@ -333,12 +373,24 @@ export function createImmutableArray<T>(items: T[] = []): ImmutableArray<T> {
         newItems[index] = item;
         return createImmutableArray(newItems);
     };
-    array.filter = (predicate: (item: T, index: number) => boolean) => 
+    array.filter = (predicate: (item: T, index: number) => boolean) =>
         createImmutableArray(items.filter(predicate));
-    array.map = <U>(mapper: (item: T, index: number) => U) => 
+    array.map = <U>(mapper: (item: T, index: number) => U) =>
         createImmutableArray(items.map(mapper));
-    array.slice = (start?: number, end?: number) => 
+    array.slice = (start?: number, end?: number) =>
         createImmutableArray(items.slice(start, end));
-    
+
+    // Add ReadonlyArray methods
+    array.forEach = (callbackfn: (value: T, index: number, array: readonly T[]) => void) => {
+        items.forEach(callbackfn);
+    };
+    array.indexOf = (searchElement: T, fromIndex?: number) => items.indexOf(searchElement, fromIndex);
+    array.includes = (searchElement: T, fromIndex?: number) => items.includes(searchElement, fromIndex);
+    array.join = (separator?: string) => items.join(separator);
+    array.every = (predicate: (value: T, index: number, array: readonly T[]) => boolean) => items.every(predicate);
+    array.some = (predicate: (value: T, index: number, array: readonly T[]) => boolean) => items.some(predicate);
+    array.find = (predicate: (value: T, index: number, obj: readonly T[]) => boolean) => items.find(predicate);
+    array.findIndex = (predicate: (value: T, index: number, obj: readonly T[]) => boolean) => items.findIndex(predicate);
+
     return Object.freeze(array);
 }

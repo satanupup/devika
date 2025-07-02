@@ -89,7 +89,7 @@ export class DevikaCoreManager {
                 );
 
                 if (!llmResult.success) {
-                    throw new Error(llmResult.error || 'LLM 調用失敗');
+                    throw new Error(llmResult.error?.message || 'LLM 調用失敗');
                 }
 
                 const analysis = llmResult.data!;
@@ -145,7 +145,7 @@ export class DevikaCoreManager {
                 );
 
                 if (!llmResult.success) {
-                    throw new Error(llmResult.error || 'LLM 調用失敗');
+                    throw new Error(llmResult.error?.message || 'LLM 調用失敗');
                 }
 
                 const refactorSuggestion = llmResult.data!;
@@ -275,6 +275,7 @@ export class DevikaCoreManager {
         for (const todo of todos) {
             const task = {
                 id: `todo-${Date.now()}-${Math.random()}`,
+                title: todo.text.substring(0, 100),
                 description: todo.text,
                 status: 'pending' as const,
                 filePath: document.uri.fsPath,
@@ -443,7 +444,14 @@ ${changes.join('\n\n')}
             filePath,
             startLine,
             endLine,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            // Properties for CodeSnippet
+            id: `snippet-${Date.now()}`,
+            title: `Snippet from ${filePath.split('/').pop()}:${startLine}-${endLine}`,
+            language: (filePath.split('.').pop() || 'plaintext'),
+            tags: [],
+            createdAt: new Date(),
+            usageCount: 0
         };
 
         // 添加到上下文服务

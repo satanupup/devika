@@ -77,6 +77,7 @@ export interface CodeAnalysis {
     maintainabilityIndex: number;
     testCoverage?: number;
     issues: CodeIssue[];
+    dependencies?: string[];
 }
 
 /**
@@ -124,7 +125,7 @@ export class CodeUnderstandingEngine {
 
             const tsconfigPath = path.join(workspaceRoot, 'tsconfig.json');
             const configFile = ts.readConfigFile(tsconfigPath, ts.sys.readFile);
-            
+
             if (configFile.error) {
                 console.warn('無法讀取 tsconfig.json:', configFile.error);
                 return;
@@ -147,7 +148,7 @@ export class CodeUnderstandingEngine {
      */
     async analyzeFile(uri: vscode.Uri): Promise<CodeAnalysis> {
         const cacheKey = uri.toString();
-        
+
         // 檢查緩存
         if (this.analysisCache.has(cacheKey)) {
             return this.analysisCache.get(cacheKey)!;
@@ -195,7 +196,7 @@ export class CodeUnderstandingEngine {
      */
     private async extractSymbols(uri: vscode.Uri, content: string): Promise<CodeSymbol[]> {
         const symbols: CodeSymbol[] = [];
-        
+
         try {
             const sourceFile = ts.createSourceFile(
                 uri.fsPath,
@@ -287,11 +288,11 @@ export class CodeUnderstandingEngine {
      */
     private async analyzeRelationships(symbols: CodeSymbol[]): Promise<CodeRelationship[]> {
         const relationships: CodeRelationship[] = [];
-        
+
         // 分析繼承關係
         // 分析依賴關係
         // 分析調用關係
-        
+
         return relationships;
     }
 
@@ -300,7 +301,7 @@ export class CodeUnderstandingEngine {
      */
     private calculateComplexity(content: string): number {
         let complexity = 1; // 基礎複雜度
-        
+
         // 計算決策點
         const decisionPoints = [
             /\bif\b/g,
@@ -331,9 +332,9 @@ export class CodeUnderstandingEngine {
     private calculateMaintainabilityIndex(content: string, complexity: number): number {
         const linesOfCode = content.split('\n').length;
         const halsteadVolume = this.calculateHalsteadVolume(content);
-        
+
         // 簡化的可維護性指數計算
-        const maintainabilityIndex = Math.max(0, 
+        const maintainabilityIndex = Math.max(0,
             171 - 5.2 * Math.log(halsteadVolume) - 0.23 * complexity - 16.2 * Math.log(linesOfCode)
         );
 
@@ -347,15 +348,15 @@ export class CodeUnderstandingEngine {
         // 簡化的 Halstead 體積計算
         const operators = content.match(/[+\-*/=<>!&|?:;,(){}[\]]/g) || [];
         const operands = content.match(/\b[a-zA-Z_][a-zA-Z0-9_]*\b/g) || [];
-        
+
         const uniqueOperators = new Set(operators).size;
         const uniqueOperands = new Set(operands).size;
         const totalOperators = operators.length;
         const totalOperands = operands.length;
-        
+
         const vocabulary = uniqueOperators + uniqueOperands;
         const length = totalOperators + totalOperands;
-        
+
         return length * Math.log2(vocabulary || 1);
     }
 
@@ -364,12 +365,12 @@ export class CodeUnderstandingEngine {
      */
     private async detectIssues(uri: vscode.Uri, content: string): Promise<CodeIssue[]> {
         const issues: CodeIssue[] = [];
-        
+
         // 檢測常見問題
         await this.detectComplexityIssues(uri, content, issues);
         await this.detectNamingIssues(uri, content, issues);
         await this.detectDuplicationIssues(uri, content, issues);
-        
+
         return issues;
     }
 
@@ -378,7 +379,7 @@ export class CodeUnderstandingEngine {
      */
     private async detectComplexityIssues(uri: vscode.Uri, content: string, issues: CodeIssue[]): Promise<void> {
         const lines = content.split('\n');
-        
+
         lines.forEach((line, index) => {
             if (line.length > 120) {
                 issues.push({
@@ -400,7 +401,7 @@ export class CodeUnderstandingEngine {
         // 檢測變量命名規範
         const variablePattern = /\b(var|let|const)\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
         let match;
-        
+
         while ((match = variablePattern.exec(content)) !== null) {
             const variableName = match[2];
             if (variableName.length < 3 && !['i', 'j', 'k', 'id'].includes(variableName)) {
@@ -424,7 +425,7 @@ export class CodeUnderstandingEngine {
         // 簡化的重複代碼檢測
         const lines = content.split('\n');
         const lineMap = new Map<string, number[]>();
-        
+
         lines.forEach((line, index) => {
             const trimmedLine = line.trim();
             if (trimmedLine.length > 10) { // 忽略短行
@@ -434,7 +435,7 @@ export class CodeUnderstandingEngine {
                 lineMap.get(trimmedLine)!.push(index);
             }
         });
-        
+
         lineMap.forEach((lineNumbers, line) => {
             if (lineNumbers.length > 1) {
                 lineNumbers.forEach(lineNumber => {
@@ -504,7 +505,7 @@ export class CodeUnderstandingEngine {
 
     private calculateFunctionComplexity(node: ts.FunctionDeclaration | ts.MethodDeclaration): number {
         let complexity = 1;
-        
+
         const visit = (node: ts.Node) => {
             switch (node.kind) {
                 case ts.SyntaxKind.IfStatement:
@@ -520,7 +521,7 @@ export class CodeUnderstandingEngine {
             }
             ts.forEachChild(node, visit);
         };
-        
+
         visit(node);
         return complexity;
     }
@@ -549,8 +550,44 @@ export class CodeUnderstandingEngine {
      */
     async getSymbolSuggestions(query: string, uri: vscode.Uri): Promise<CodeSymbol[]> {
         const analysis = await this.analyzeFile(uri);
-        return analysis.symbols.filter(symbol => 
+        return analysis.symbols.filter(symbol =>
             symbol.name.toLowerCase().includes(query.toLowerCase())
         );
+    }
+
+    /**
+     * 獲取文件符號
+     */
+    async getDocumentSymbols(document: vscode.TextDocument): Promise<CodeSymbol[]> {
+        const analysis = await this.analyzeFile(document.uri);
+        return analysis.symbols;
+    }
+
+    /**
+     * 獲取工作區符號
+     */
+    async getWorkspaceSymbols(query: string): Promise<CodeSymbol[]> {
+        // 這是一個簡化的實現，實際應用中需要更高效的索引
+        const allSymbols: CodeSymbol[] = [];
+        for (const uriString of this.analysisCache.keys()) {
+            const analysis = this.analysisCache.get(uriString)!;
+            allSymbols.push(...analysis.symbols);
+        }
+        return allSymbols.filter(symbol =>
+            symbol.name.toLowerCase().includes(query.toLowerCase())
+        );
+    }
+
+    /**
+     * 生成智能建議
+     */
+    async generateSmartSuggestions(
+        document: vscode.TextDocument,
+        position: vscode.Position,
+        options: { maxSuggestions: number; includeDocumentation: boolean; contextWindow: number }
+    ): Promise<any[]> {
+        // 佔位符實現
+        console.log('Generating smart suggestions for', document.uri.fsPath, 'at', position);
+        return [];
     }
 }

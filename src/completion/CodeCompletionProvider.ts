@@ -14,18 +14,18 @@ export class CodeCompletionProvider implements vscode.CompletionItemProvider, vs
   private smartSuggestionGenerator: SmartSuggestionGenerator;
   private disposables: vscode.Disposable[] = [];
 
-  constructor() {
-    this.completionEngine = CodeCompletionEngine.getInstance();
+  constructor(context: vscode.ExtensionContext) {
+    this.completionEngine = CodeCompletionEngine.getInstance(context);
     this.snippetManager = SnippetManager.getInstance();
-    this.smartSuggestionGenerator = SmartSuggestionGenerator.getInstance();
+    this.smartSuggestionGenerator = SmartSuggestionGenerator.getInstance(context);
   }
 
   /**
    * 註冊代碼完成提供者
    */
   static register(context: vscode.ExtensionContext): CodeCompletionProvider {
-    const provider = new CodeCompletionProvider();
-    
+    const provider = new CodeCompletionProvider(context);
+
     // 註冊完成提供者
     const completionProvider = vscode.languages.registerCompletionItemProvider(
       [
@@ -133,7 +133,7 @@ export class CodeCompletionProvider implements vscode.CompletionItemProvider, vs
       async () => {
         // 手動觸發完成
         await vscode.commands.executeCommand('editor.action.triggerSuggest');
-        
+
         vscode.window.showInformationMessage('智能建議已觸發');
       },
       '觸發智能建議',
@@ -247,7 +247,7 @@ export class CodeCompletionProvider implements vscode.CompletionItemProvider, vs
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const stats = this.completionEngine.getStatistics();
-        
+
         const message = `
 代碼完成統計
 ============
@@ -294,8 +294,8 @@ export class CodeCompletionProvider implements vscode.CompletionItemProvider, vs
   ): boolean {
     // 檢查文件類型
     const config = vscode.workspace.getConfiguration('devika.completion');
-    const supportedLanguages = config.get('languages', []);
-    
+    const supportedLanguages: string[] = config.get('languages', []);
+
     if (supportedLanguages.length > 0 && !supportedLanguages.includes(document.languageId)) {
       return false;
     }
@@ -303,7 +303,7 @@ export class CodeCompletionProvider implements vscode.CompletionItemProvider, vs
     // 檢查排除模式
     const excludePatterns = config.get('excludePatterns', []);
     const filePath = document.uri.fsPath;
-    
+
     for (const pattern of excludePatterns) {
       if (filePath.includes(pattern)) {
         return false;
@@ -313,7 +313,7 @@ export class CodeCompletionProvider implements vscode.CompletionItemProvider, vs
     // 檢查是否在註釋中
     const line = document.lineAt(position);
     const linePrefix = line.text.substring(0, position.character);
-    
+
     if (this.isInComment(linePrefix) && !config.get('enableInComments', false)) {
       return false;
     }
@@ -383,7 +383,7 @@ export class CodeCompletionProvider implements vscode.CompletionItemProvider, vs
 
   private async previewSnippet(snippet: any): Promise<void> {
     const content = Array.isArray(snippet.body) ? snippet.body.join('\n') : snippet.body;
-    
+
     const document = await vscode.workspace.openTextDocument({
       content,
       language: snippet.scope[0] || 'plaintext'
@@ -432,7 +432,7 @@ export class CodeCompletionProvider implements vscode.CompletionItemProvider, vs
   dispose(): void {
     this.disposables.forEach(disposable => disposable.dispose());
     this.disposables = [];
-    
+
     this.completionEngine.dispose();
     this.snippetManager.dispose();
     this.smartSuggestionGenerator.dispose();

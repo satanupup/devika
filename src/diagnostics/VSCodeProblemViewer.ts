@@ -72,7 +72,7 @@ export interface ProblemTrend {
 
 export class VSCodeProblemViewer {
     private problemAnalyses: Map<string, ProblemAnalysis> = new Map();
-    private problemHistory: ProblemStatistics[] = [];
+    private problemHistory: ProblemTrend[] = [];
     private autoAnalyzeEnabled = true;
     private analysisInProgress = false;
 
@@ -94,7 +94,7 @@ export class VSCodeProblemViewer {
         }
 
         this.analysisInProgress = true;
-        
+
         try {
             const diagnostics = vscode.languages.getDiagnostics();
             const analyses: ProblemAnalysis[] = [];
@@ -130,7 +130,7 @@ export class VSCodeProblemViewer {
 
             // 使用 LLM 分析問題
             const analysis = await this.performLLMAnalysis(diagnostic, problemLine.text, context);
-            
+
             // 生成解決方案
             const solutions = await this.generateSolutions(diagnostic, analysis, context);
 
@@ -180,8 +180,8 @@ ${context}
         `;
 
         try {
-            const response = await this.llmService.generateResponse(prompt, 'analyze');
-            const analysisData = JSON.parse(response);
+            const llmResponse = await this.llmService.generateCompletion(prompt);
+            const analysisData = JSON.parse(llmResponse.content);
 
             return {
                 category: analysisData.category || 'other',
@@ -275,8 +275,8 @@ ${context}
         `;
 
         try {
-            const response = await this.llmService.generateResponse(prompt, 'solve');
-            const solutionsData = JSON.parse(response);
+            const llmResponse = await this.llmService.generateCompletion(prompt);
+            const solutionsData = JSON.parse(llmResponse.content);
 
             return solutionsData.map((data: any, index: number) => ({
                 id: `custom_${index}`,
@@ -451,7 +451,7 @@ ${context}
                     </div>
                     <p>${solution.description}</p>
                     <p><strong>工作量:</strong> ${solution.effort}</p>
-                    
+
                     ${solution.steps.length > 0 ? `
                         <div class="steps">
                             <strong>步驟:</strong>
@@ -460,7 +460,7 @@ ${context}
                             `).join('')}
                         </div>
                     ` : ''}
-                    
+
                     <button class="apply-btn" onclick="applySolution('${solution.id}')">
                         應用此解決方案
                     </button>
@@ -469,14 +469,14 @@ ${context}
 
             <script>
                 const vscode = acquireVsCodeApi();
-                
+
                 function applySolution(solutionId) {
                     vscode.postMessage({
                         command: 'applySolution',
                         solutionId: solutionId
                     });
                 }
-                
+
                 function refreshAnalysis() {
                     vscode.postMessage({
                         command: 'refreshAnalysis'
@@ -565,26 +565,26 @@ ${context}
     private getCodeContext(document: vscode.TextDocument, range: vscode.Range): string {
         const startLine = Math.max(0, range.start.line - 3);
         const endLine = Math.min(document.lineCount - 1, range.end.line + 3);
-        
+
         const lines: string[] = [];
         for (let i = startLine; i <= endLine; i++) {
             const line = document.lineAt(i);
             const prefix = i === range.start.line ? '>>> ' : '    ';
             lines.push(`${prefix}${i + 1}: ${line.text}`);
         }
-        
+
         return lines.join('\n');
     }
 
-    private categorizeProblem(diagnostic: vscode.Diagnostic): string {
+    private categorizeProblem(diagnostic: vscode.Diagnostic): 'syntax' | 'type' | 'logic' | 'style' | 'security' | 'performance' | 'other' {
         const message = diagnostic.message.toLowerCase();
-        
+
         if (message.includes('syntax') || message.includes('parse')) return 'syntax';
         if (message.includes('type') || message.includes('cannot assign')) return 'type';
         if (message.includes('unused') || message.includes('unreachable')) return 'style';
         if (message.includes('security') || message.includes('vulnerable')) return 'security';
         if (message.includes('performance') || message.includes('slow')) return 'performance';
-        
+
         return 'other';
     }
 
@@ -605,20 +605,20 @@ ${context}
 
     private findRelatedProblems(file: string, diagnostic: vscode.Diagnostic): vscode.Diagnostic[] {
         const allDiagnostics = vscode.languages.getDiagnostics(vscode.Uri.file(file));
-        return allDiagnostics.filter(d => 
-            d !== diagnostic && 
+        return allDiagnostics.filter(d =>
+            d !== diagnostic &&
             Math.abs(d.range.start.line - diagnostic.range.start.line) <= 5
         );
     }
 
     private calculateConfidence(analysis: DiagnosticAnalysis, solutions: ProblemSolution[]): number {
-        const avgSolutionConfidence = solutions.length > 0 
-            ? solutions.reduce((sum, s) => sum + s.confidence, 0) / solutions.length 
+        const avgSolutionConfidence = solutions.length > 0
+            ? solutions.reduce((sum, s) => sum + s.confidence, 0) / solutions.length
             : 0.5;
-        
-        const complexityFactor = analysis.complexity === 'simple' ? 0.9 : 
+
+        const complexityFactor = analysis.complexity === 'simple' ? 0.9 :
                                analysis.complexity === 'moderate' ? 0.7 : 0.5;
-        
+
         return Math.min(0.95, avgSolutionConfidence * complexityFactor);
     }
 
@@ -630,14 +630,14 @@ ${context}
             errorCount: stats.errorCount,
             warningCount: stats.warningCount
         };
-        
+
         this.problemHistory.push(trend);
-        
+
         // 保持最近100天的記錄
         if (this.problemHistory.length > 100) {
             this.problemHistory = this.problemHistory.slice(-100);
         }
-        
+
         await this.saveProblemHistory();
     }
 

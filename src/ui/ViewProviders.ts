@@ -14,7 +14,7 @@ export class DevikaTaskProvider implements vscode.TreeDataProvider<TaskItem> {
         this._onDidChangeTreeData.fire();
     }
 
-    getTreeItem(element: TaskItem): vscode.TreeItem {
+    getTreeItem(element: TaskItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
         return element;
     }
 
@@ -61,7 +61,7 @@ export class DevikaChatProvider implements vscode.TreeDataProvider<ChatItem> {
         this._onDidChangeTreeData.fire();
     }
 
-    getTreeItem(element: ChatItem): vscode.TreeItem {
+    getTreeItem(element: ChatItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
         return element;
     }
 
@@ -115,7 +115,7 @@ export class DevikaContextProvider implements vscode.TreeDataProvider<ContextIte
         this._onDidChangeTreeData.fire();
     }
 
-    getTreeItem(element: ContextItem): vscode.TreeItem {
+    getTreeItem(element: ContextItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
         return element;
     }
 
@@ -172,43 +172,52 @@ export class DevikaContextProvider implements vscode.TreeDataProvider<ContextIte
 }
 
 class TaskItem extends vscode.TreeItem {
+    public override command?: vscode.Command;
+
     constructor(
-        public readonly label: string,
-        public readonly tooltip: string,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-        public readonly command?: vscode.Command
+        public override readonly label: string,
+        public override readonly tooltip: string,
+        public override readonly collapsibleState: vscode.TreeItemCollapsibleState,
+        command?: vscode.Command
     ) {
         super(label, collapsibleState);
         this.tooltip = tooltip;
         this.description = '';
         this.iconPath = new vscode.ThemeIcon('checklist');
+        this.command = command;
     }
 }
 
 class ChatItem extends vscode.TreeItem {
+    public override command?: vscode.Command;
+
     constructor(
-        public readonly label: string,
-        public readonly tooltip: string,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-        public readonly command?: vscode.Command
+        public override readonly label: string,
+        public override readonly tooltip: string,
+        public override readonly collapsibleState: vscode.TreeItemCollapsibleState,
+        command?: vscode.Command
     ) {
         super(label, collapsibleState);
         this.tooltip = tooltip;
         this.description = '';
         this.iconPath = new vscode.ThemeIcon('comment-discussion');
+        this.command = command;
     }
 }
 
 class ContextItem extends vscode.TreeItem {
+    public override command?: vscode.Command;
+
     constructor(
-        public readonly label: string,
-        public readonly tooltip: string,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-        public readonly command?: vscode.Command
+        public override readonly label: string,
+        public override readonly tooltip: string,
+        public override readonly collapsibleState: vscode.TreeItemCollapsibleState,
+        command?: vscode.Command
     ) {
         super(label, collapsibleState);
         this.tooltip = tooltip;
         this.description = '';
         this.iconPath = new vscode.ThemeIcon('code');
+        this.command = command;
     }
 }

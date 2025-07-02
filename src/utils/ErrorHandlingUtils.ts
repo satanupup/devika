@@ -62,7 +62,7 @@ export class ErrorHandlingUtils {
                 return { success: true, data: result };
             } catch (error) {
                 lastError = error instanceof Error ? error : new Error(String(error));
-                
+
                 if (attempt < (mergedOptions.retryCount || 0)) {
                     // 等待後重試
                     await this.delay(Math.pow(2, attempt) * 1000); // 指數退避
@@ -111,7 +111,7 @@ export class ErrorHandlingUtils {
             const itemContext = `${context} [${i + 1}/${items.length}]`;
 
             const result = await this.executeWithErrorHandling(
-                () => operation(item, i),
+                () => operation(item!, i),
                 itemContext,
                 { ...options, showToUser: false } // 批量操作不顯示個別錯誤
             );
@@ -152,15 +152,15 @@ export class ErrorHandlingUtils {
         options: ErrorHandlingOptions
     ): OperationResult<never> {
         const errorMessage = `${context}: ${error.message}`;
-        
+
         if (options.logError) {
             console.error(errorMessage, error);
         }
-        
+
         if (options.showToUser) {
             this.showErrorToUser(errorMessage, error, options.recoverable);
         }
-        
+
         return {
             success: false,
             error,
@@ -177,7 +177,7 @@ export class ErrorHandlingUtils {
         recoverable: boolean = false
     ): Promise<void> {
         const actions: string[] = ['查看詳情'];
-        
+
         if (recoverable) {
             actions.unshift('重試');
         }
@@ -200,12 +200,12 @@ export class ErrorHandlingUtils {
         outputChannel.appendLine(`錯誤時間: ${new Date().toISOString()}`);
         outputChannel.appendLine(`錯誤類型: ${error.constructor.name}`);
         outputChannel.appendLine(`錯誤消息: ${error.message}`);
-        
+
         if (error.stack) {
             outputChannel.appendLine(`錯誤堆棧:`);
             outputChannel.appendLine(error.stack);
         }
-        
+
         outputChannel.show();
     }
 
@@ -217,14 +217,14 @@ export class ErrorHandlingUtils {
         result: BatchOperationResult<T>
     ): void {
         const { totalCount, successCount, failureCount } = result;
-        
+
         if (result.success) {
             vscode.window.showInformationMessage(
                 `${context} 完成: ${successCount}/${totalCount} 成功`
             );
         } else {
             const message = `${context} 部分失敗: ${successCount} 成功, ${failureCount} 失敗`;
-            
+
             vscode.window.showWarningMessage(
                 message,
                 '查看錯誤'
@@ -244,11 +244,11 @@ export class ErrorHandlingUtils {
         outputChannel.appendLine(`錯誤報告 - ${new Date().toISOString()}`);
         outputChannel.appendLine(`總錯誤數: ${errors.length}`);
         outputChannel.appendLine('');
-        
+
         errors.forEach((error, index) => {
             outputChannel.appendLine(`${index + 1}. ${error}`);
         });
-        
+
         outputChannel.show();
     }
 
@@ -259,15 +259,15 @@ export class ErrorHandlingUtils {
         if (error instanceof Error) {
             return error;
         }
-        
+
         if (typeof error === 'string') {
             return new Error(error);
         }
-        
+
         if (error && typeof error === 'object' && 'message' in error) {
             return new Error(String(error.message));
         }
-        
+
         return new Error('未知錯誤');
     }
 
@@ -281,11 +281,11 @@ export class ErrorHandlingUtils {
     ): Error {
         const fullMessage = `${context}: ${message}`;
         const error = new Error(fullMessage);
-        
+
         if (originalError) {
             error.stack = `${error.stack}\n原始錯誤: ${originalError.stack}`;
         }
-        
+
         return error;
     }
 

@@ -190,7 +190,7 @@ export class ContextManager {
                     try {
                         const stat = await vscode.workspace.fs.stat(file);
                         folderSize += stat.size;
-                        
+
                         // 獲取語言
                         const doc = await vscode.workspace.openTextDocument(file);
                         languages.add(doc.languageId);
@@ -238,7 +238,7 @@ export class ContextManager {
         const tabGroups = vscode.window.tabGroups;
 
         const openFiles: FileContext[] = [];
-        
+
         // 獲取所有打開的文件
         for (const group of tabGroups.all) {
             for (const tab of group.tabs) {
@@ -253,7 +253,7 @@ export class ContextManager {
 
         let activeFile: FileContext | undefined;
         if (activeEditor) {
-            activeFile = await this.createFileContext(activeEditor.document.uri);
+            activeFile = (await this.createFileContext(activeEditor.document.uri)) || undefined;
         }
 
         return {
@@ -271,7 +271,7 @@ export class ContextManager {
      */
     private async getSelectionContext(): Promise<SelectionContext> {
         const activeEditor = vscode.window.activeTextEditor;
-        
+
         if (!activeEditor) {
             return {
                 hasSelection: false,
@@ -291,15 +291,15 @@ export class ContextManager {
         const document = activeEditor.document;
         const selection = activeEditor.selection;
         const position = selection.active;
-        
+
         const hasSelection = !selection.isEmpty;
         const selectedText = hasSelection ? document.getText(selection) : undefined;
         const lineAtCursor = document.lineAt(position.line).text;
         const wordAtCursor = this.getWordAtPosition(document, position);
-        
+
         // 獲取縮進級別
         const indentLevel = this.getIndentLevel(lineAtCursor);
-        
+
         // 獲取周圍上下文
         const surroundingContext = await this.getSurroundingContext(document, position);
 
@@ -328,7 +328,7 @@ export class ContextManager {
 
             const git = gitExtension.exports.getAPI(1);
             const repo = git.repositories[0];
-            
+
             if (!repo) {
                 return { isRepository: false, hasChanges: false, stagedFiles: 0, modifiedFiles: 0, untrackedFiles: 0, ahead: 0, behind: 0 };
             }
@@ -431,10 +431,26 @@ export class ContextManager {
         const terminals = vscode.window.terminals;
         const activeTerminal = vscode.window.activeTerminal;
 
+        let currentDirectory: string | undefined;
+        let shell: string | undefined;
+
+        if (activeTerminal && activeTerminal.creationOptions) {
+            const options = activeTerminal.creationOptions;
+            if ('cwd' in options || 'shellPath' in options) {
+                const terminalOptions = options as vscode.TerminalOptions;
+                if (terminalOptions.cwd) {
+                    currentDirectory = typeof terminalOptions.cwd === 'string' ? terminalOptions.cwd : terminalOptions.cwd.fsPath;
+                }
+                if (terminalOptions.shellPath) {
+                    shell = terminalOptions.shellPath;
+                }
+            }
+        }
+
         return {
             activeTerminals: terminals.length,
-            currentDirectory: activeTerminal?.creationOptions.cwd?.toString(),
-            shell: activeTerminal?.creationOptions.shellPath || process.env.SHELL || 'cmd',
+            currentDirectory,
+            shell: shell || process.env.SHELL || 'cmd',
             lastCommand: undefined // 無法直接獲取最後執行的命令
         };
     }
@@ -472,7 +488,7 @@ export class ContextManager {
     private async getSurroundingContext(document: vscode.TextDocument, position: vscode.Position): Promise<SurroundingContext> {
         const lineCount = document.lineCount;
         const currentLine = position.line;
-        
+
         // 獲取前後文本
         const beforeRange = new vscode.Range(
             Math.max(0, currentLine - 5),
@@ -569,7 +585,7 @@ export class ContextManager {
      */
     private addToHistory(contextInfo: ContextInfo): void {
         this.contextHistory.unshift(contextInfo);
-        
+
         if (this.contextHistory.length > this.maxHistorySize) {
             this.contextHistory = this.contextHistory.slice(0, this.maxHistorySize);
         }

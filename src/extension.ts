@@ -1190,7 +1190,7 @@ async function initializeAdvancedFeaturesAsync(context: vscode.ExtensionContext)
         {
             name: '原生工具整合系統',
             init: async () => {
-                const { initializeIntegrationSystem } = await import('./integrations');
+                const { initializeIntegrationSystem } = await import('./integrations/system');
                 await initializeIntegrationSystem(context);
             }
         },
