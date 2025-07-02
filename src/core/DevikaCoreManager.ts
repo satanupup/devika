@@ -1,12 +1,13 @@
 import * as vscode from 'vscode';
-import { LLMService } from '../llm/LLMService';
-import { UIManager } from '../ui/UIManager';
+import { IntelligentTaskDispatcher } from '../ai/IntelligentTaskDispatcher';
 import { ConfigManager } from '../config/ConfigManager';
-import { TaskManager } from '../tasks/TaskManager';
-import { GitService } from '../git/GitService';
 import { CodeContextService } from '../context/CodeContextService';
 import { CodeParser } from '../context/CodeParser';
-import { IntelligentTaskDispatcher } from '../ai/IntelligentTaskDispatcher';
+import { GitService } from '../git/GitService';
+import { LLMService } from '../llm/LLMService';
+import { TaskManager } from '../tasks/TaskManager';
+import { UIManager } from '../ui/UIManager';
+import { CommonPatterns } from '../utils/CommonPatterns';
 
 export class DevikaCoreManager {
     private llmService: LLMService;
@@ -69,88 +70,120 @@ export class DevikaCoreManager {
     }
 
     async analyzeCode(
-        selectedText: string, 
-        document: vscode.TextDocument, 
+        selectedText: string,
+        document: vscode.TextDocument,
         selection: vscode.Selection
     ) {
-        try {
-            vscode.window.showInformationMessage('正在分析程式碼...');
+        const result = await CommonPatterns.executeCodeAnalysis(
+            { selectedText, document, selection, contextLines: this.configManager.getMaxContextLines() },
+            async (context) => {
+                // 構建分析提示
+                const prompt = this.buildAnalysisPrompt(selectedText, context);
 
-            // 獲取程式碼上下文
-            const context = await this.codeContextService.getCodeContext(
-                document, 
-                selection, 
-                this.configManager.getMaxContextLines()
-            );
+                // 呼叫 LLM
+                const llmResult = await CommonPatterns.executeLLMCall(
+                    { prompt },
+                    this.llmService,
+                    (response) => response.content,
+                    { retryCount: 2 }
+                );
 
-            // 構建分析提示
-            const prompt = this.buildAnalysisPrompt(selectedText, context);
+                if (!llmResult.success) {
+                    throw new Error(llmResult.error || 'LLM 調用失敗');
+                }
 
-            // 呼叫 LLM
-            const analysisResponse = await this.llmService.generateCompletion(prompt);
-            const analysis = analysisResponse.content;
+                const analysis = llmResult.data!;
 
-            // 解析回應並建立任務
-            const tasks = this.parseAnalysisResponse(analysis, document.uri, selection);
+                // 解析回應並建立任務
+                const tasks = this.parseAnalysisResponse(analysis, document.uri, selection);
 
-            // 新增任務到管理器
-            for (const task of tasks) {
-                await this.taskManager.addTask(task);
+                // 批量創建任務
+                const taskResult = await CommonPatterns.executeTaskCreation(
+                    tasks,
+                    this.taskManager,
+                    { successMessage: '分析任務已創建' }
+                );
+
+                if (!taskResult.success) {
+                    console.warn('部分任務創建失敗:', taskResult.error);
+                }
+
+                // 顯示結果
+                await this.uiManager.showAnalysisResult(analysis, taskResult.data || []);
+
+                return { analysis, tasks: taskResult.data || [] };
+            },
+            {
+                progressMessage: '正在分析程式碼...',
+                successMessage: '程式碼分析完成',
+                errorMessage: '程式碼分析失敗'
             }
+        );
 
-            // 顯示結果
-            await this.uiManager.showAnalysisResult(analysis, tasks);
-
-        } catch (error) {
-            vscode.window.showErrorMessage(`程式碼分析失敗: ${error}`);
+        if (!result.success) {
+            vscode.window.showErrorMessage(`程式碼分析失敗: ${result.error}`);
         }
     }
 
     async refactorCode(
-        selectedText: string, 
-        document: vscode.TextDocument, 
+        selectedText: string,
+        document: vscode.TextDocument,
         selection: vscode.Selection
     ) {
-        try {
-            vscode.window.showInformationMessage('正在重構程式碼...');
+        const result = await CommonPatterns.executeCodeAnalysis(
+            { selectedText, document, selection, contextLines: this.configManager.getMaxContextLines() },
+            async (context) => {
+                // 構建重構提示
+                const prompt = this.buildRefactorPrompt(selectedText, context);
 
-            // 獲取程式碼上下文
-            const context = await this.codeContextService.getCodeContext(
-                document, 
-                selection, 
-                this.configManager.getMaxContextLines()
-            );
+                // 呼叫 LLM
+                const llmResult = await CommonPatterns.executeLLMCall(
+                    { prompt },
+                    this.llmService,
+                    (response) => response.content,
+                    { retryCount: 2 }
+                );
 
-            // 構建重構提示
-            const prompt = this.buildRefactorPrompt(selectedText, context);
+                if (!llmResult.success) {
+                    throw new Error(llmResult.error || 'LLM 調用失敗');
+                }
 
-            // 呼叫 LLM
-            const refactorResponse = await this.llmService.generateCompletion(prompt);
-            const refactorSuggestion = refactorResponse.content;
+                const refactorSuggestion = llmResult.data!;
 
-            // 解析回應
-            const refactorTasks = this.parseRefactorResponse(refactorSuggestion, document.uri, selection);
+                // 解析回應
+                const refactorTasks = this.parseRefactorResponse(refactorSuggestion, document.uri, selection);
 
-            // 新增任務
-            for (const task of refactorTasks) {
-                await this.taskManager.addTask(task);
+                // 批量創建任務
+                const taskResult = await CommonPatterns.executeTaskCreation(
+                    refactorTasks,
+                    this.taskManager,
+                    { successMessage: '重構任務已創建' }
+                );
+
+                // 顯示結果並詢問是否應用
+                const shouldApply = await this.uiManager.showRefactorResult(refactorSuggestion, taskResult.data || []);
+
+                if (shouldApply) {
+                    await this.applyRefactoring(taskResult.data || [], document, selection);
+                }
+
+                return { refactorSuggestion, tasks: taskResult.data || [], applied: shouldApply };
+            },
+            {
+                progressMessage: '正在重構程式碼...',
+                successMessage: '程式碼重構完成',
+                errorMessage: '程式碼重構失敗'
             }
+        );
 
-            // 顯示結果並詢問是否應用
-            const shouldApply = await this.uiManager.showRefactorResult(refactorSuggestion, refactorTasks);
-            
-            if (shouldApply) {
-                await this.applyRefactoring(refactorTasks, document, selection);
-            }
-
-        } catch (error) {
-            vscode.window.showErrorMessage(`程式碼重構失敗: ${error}`);
+        if (!result.success) {
+            vscode.window.showErrorMessage(`程式碼重構失敗: ${result.error}`);
         }
     }
 
     async generateTests(
-        selectedText: string, 
-        document: vscode.TextDocument, 
+        selectedText: string,
+        document: vscode.TextDocument,
         selection: vscode.Selection
     ) {
         try {
@@ -158,8 +191,8 @@ export class DevikaCoreManager {
 
             // 獲取程式碼上下文
             const context = await this.codeContextService.getCodeContext(
-                document, 
-                selection, 
+                document,
+                selection,
                 this.configManager.getMaxContextLines()
             );
 
@@ -238,7 +271,7 @@ export class DevikaCoreManager {
 
     async scanTodosInDocument(document: vscode.TextDocument) {
         const todos = await this.codeParser.extractTodos(document);
-        
+
         for (const todo of todos) {
             const task = {
                 id: `todo-${Date.now()}-${Math.random()}`,
@@ -249,7 +282,7 @@ export class DevikaCoreManager {
                 type: 'todo' as const,
                 createdAt: new Date()
             };
-            
+
             await this.taskManager.addTask(task);
         }
     }
@@ -376,7 +409,7 @@ ${changes.join('\n\n')}
     private async applyRefactoring(tasks: any[], document: vscode.TextDocument, selection: vscode.Selection) {
         // 應用重構變更
         const edit = new vscode.WorkspaceEdit();
-        
+
         for (const task of tasks) {
             if (task.refactorCode) {
                 edit.replace(document.uri, selection, task.refactorCode);

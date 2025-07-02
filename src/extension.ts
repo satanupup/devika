@@ -4,126 +4,100 @@ import { DevikaCoreManager } from './core/DevikaCoreManager';
 import { GitService } from './git/GitService';
 import { LLMService } from './llm/LLMService';
 import { MultimodalCommands } from './multimodal/MultimodalCommands';
+import { MemoryManager } from './performance/MemoryManager';
+import { performanceMonitor } from './performance/PerformanceMonitor';
+import { PERFORMANCE_TARGETS, startupProfiler } from './performance/StartupProfiler';
 import { PluginManager } from './plugins/PluginManager';
 import { DevikaChatProvider, DevikaContextProvider, DevikaTaskProvider } from './ui/ViewProviders';
 
 let devikaCoreManager: DevikaCoreManager;
 let pluginManager: PluginManager;
 let taskProvider: DevikaTaskProvider;
+let memoryManager: MemoryManager;
 let chatProvider: DevikaChatProvider;
 let contextProvider: DevikaContextProvider;
 let llmStatusBarItem: vscode.StatusBarItem;
 let multimodalCommands: MultimodalCommands;
 
 export async function activate(context: vscode.ExtensionContext) {
+    // 🚀 開始性能監控
+    startupProfiler.startProfiling();
     console.log('Devika AI 助理正在啟動...');
 
     try {
-        // 初始化插件管理器
-        pluginManager = new PluginManager(context);
+        // 🚀 階段 1: 立即啟動核心功能 (同步)
+        console.log('📋 階段 1: 初始化核心組件...');
 
-        // 初始化核心管理器
-        devikaCoreManager = new DevikaCoreManager(context);
-
-        // 等待核心管理器初始化完成
-        await devikaCoreManager.waitForInitialization();
-
-        // 設定 context 變數，用於控制 UI 顯示
+        // 設定 context 變數，立即啟用 UI
         vscode.commands.executeCommand('setContext', 'devika.activated', true);
 
-        // 註冊所有指令
+        // 註冊所有指令 (必須同步完成)
         registerCommands(context);
 
-        // 初始化服務
-        initializeServices(context);
-
-        // 註冊視圖提供者
-        registerViewProviders(context);
-
-        // 創建狀態欄項目
+        // 創建狀態欄項目 (輕量級)
         createStatusBarItem(context);
 
-        // 啟動自動功能
-        await startAutomaticFeatures();
+        // 註冊視圖提供者 (輕量級)
+        registerViewProviders(context);
 
-        // 初始化持續學習機制
-        try {
-            // 動態導入學習模組
-            const { initializeLearningSystem } = await import('./learning');
-            await initializeLearningSystem(context);
-            console.log('持續學習機制已啟動');
-        } catch (error) {
-            console.warn('持續學習機制啟動失敗:', error);
-            // 學習機制失敗不應該阻止擴展啟動
-        }
+        console.log('✅ 階段 1 完成 - 基本功能已可用');
 
-        // 初始化對話記憶系統
-        try {
-            // 動態導入記憶模組
-            const { initializeConversationMemorySystem } = await import('./memory');
-            await initializeConversationMemorySystem(context);
-            console.log('對話記憶系統已啟動');
-        } catch (error) {
-            console.warn('對話記憶系統啟動失敗:', error);
-            // 記憶系統失敗不應該阻止擴展啟動
-        }
+        // 🚀 階段 2: 異步初始化重型組件
+        console.log('📋 階段 2: 異步初始化重型組件...');
 
-        // 初始化個性化建議系統
-        try {
-            // 動態導入個性化模組
-            const { initializePersonalizationSystem } = await import('./personalization');
-            await initializePersonalizationSystem(context);
-            console.log('個性化建議系統已啟動');
-        } catch (error) {
-            console.warn('個性化建議系統啟動失敗:', error);
-            // 個性化系統失敗不應該阻止擴展啟動
-        }
+        // 異步初始化核心管理器
+        const coreInitPromise = initializeCoreManager(context);
 
-        // 初始化原生工具整合系統
-        try {
-            // 動態導入整合模組
-            const { initializeIntegrationSystem } = await import('./integrations');
-            await initializeIntegrationSystem(context);
-            console.log('原生工具整合系統已啟動');
-        } catch (error) {
-            console.warn('原生工具整合系統啟動失敗:', error);
-            // 整合系統失敗不應該阻止擴展啟動
-        }
+        // 異步初始化插件管理器
+        const pluginInitPromise = initializePluginManager(context);
 
-        // 初始化下一步編輯導航系統
-        try {
-            // 動態導入編輯導航模組
-            const { initializeEditNavigationSystem } = await import('./navigation');
-            await initializeEditNavigationSystem(context);
-            console.log('下一步編輯導航系統已啟動');
-        } catch (error) {
-            console.warn('下一步編輯導航系統啟動失敗:', error);
-            // 編輯導航系統失敗不應該阻止擴展啟動
-        }
+        // 異步初始化服務
+        const servicesInitPromise = initializeServicesAsync(context);
 
-        // 初始化智能代碼完成系統
-        try {
-            // 動態導入代碼完成模組
-            const { initializeCodeCompletionSystem } = await import('./completion');
-            await initializeCodeCompletionSystem(context);
-            console.log('智能代碼完成系統已啟動');
-        } catch (error) {
-            console.warn('智能代碼完成系統啟動失敗:', error);
-            // 代碼完成系統失敗不應該阻止擴展啟動
-        }
+        // 🚀 階段 3: 並行等待核心組件完成
+        const [coreManager] = await Promise.all([
+            coreInitPromise,
+            pluginInitPromise,
+            servicesInitPromise
+        ]);
 
-        console.log('Devika AI 助理已成功啟動！');
+        devikaCoreManager = coreManager;
+        startupProfiler.markCoreReady();
+        console.log('✅ 階段 2 完成 - 核心組件已就緒');
 
-        // 顯示智能歡迎消息
+        // 🚀 階段 4: 後台異步初始化高級功能 (不阻塞啟動)
+        console.log('📋 階段 3: 後台初始化高級功能...');
+
+        // 立即顯示啟動完成消息
+        console.log('🎉 Devika AI 助理核心功能已啟動！');
+
+        // 後台異步初始化高級功能 (不等待完成)
+        initializeAdvancedFeaturesAsync(context).then(() => {
+            console.log('✅ 所有高級功能已就緒');
+
+            // 顯示完全就緒通知
+            vscode.window.showInformationMessage(
+                '🧠 Devika AI 助理已完全就緒！所有功能現已可用。',
+                '開始對話',
+                '查看狀態'
+            ).then(choice => {
+                if (choice === '開始對話') {
+                    vscode.commands.executeCommand('devika.start');
+                } else if (choice === '查看狀態') {
+                    vscode.commands.executeCommand('devika.showProjectStatus');
+                }
+            });
+        }).catch(error => {
+            console.warn('部分高級功能初始化失敗:', error);
+        });
+
+        // 顯示快速啟動完成消息
         vscode.window.showInformationMessage(
-            '🧠 Devika AI 助理已啟動！我正在理解您的項目...',
-            '開始對話',
-            '查看狀態'
+            '⚡ Devika AI 助理已快速啟動！正在後台加載高級功能...',
+            '立即開始'
         ).then(choice => {
-            if (choice === '開始對話') {
+            if (choice === '立即開始') {
                 vscode.commands.executeCommand('devika.start');
-            } else if (choice === '查看狀態') {
-                vscode.commands.executeCommand('devika.showProjectStatus');
             }
         });
 
@@ -317,19 +291,19 @@ function registerCommands(context: vscode.ExtensionContext) {
                 const results = await llmService.validateApiKeys();
 
                 const messages = [];
-                if (results.openai) {
+                if (results['openai']) {
                     messages.push('✅ OpenAI API 連接正常');
                 } else if (configManager.getOpenAIApiKey()) {
                     messages.push('❌ OpenAI API 連接失敗');
                 }
 
-                if (results.claude) {
+                if (results['claude']) {
                     messages.push('✅ Claude API 連接正常');
                 } else if (configManager.getClaudeApiKey()) {
                     messages.push('❌ Claude API 連接失敗');
                 }
 
-                if (results.gemini) {
+                if (results['gemini']) {
                     messages.push('✅ Gemini API 連接正常');
                 } else if (configManager.getGeminiApiKey()) {
                     messages.push('❌ Gemini API 連接失敗');
@@ -499,7 +473,7 @@ function registerCommands(context: vscode.ExtensionContext) {
 
                 const status = {
                     indexed: true, // 假設已索引
-                    workspaceName: workspaceFolders[0].name,
+                    workspaceName: workspaceFolders[0]?.name || 'Unknown',
                     fileCount: (await vscode.workspace.findFiles('**/*')).length,
                     lastIndexed: new Date().toLocaleString()
                 };
@@ -516,6 +490,94 @@ function registerCommands(context: vscode.ExtensionContext) {
             } catch (error) {
                 console.error('顯示項目狀態失敗:', error);
                 vscode.window.showErrorMessage(`顯示項目狀態失敗: ${error}`);
+            }
+        }),
+
+        // 顯示記憶體使用狀況
+        vscode.commands.registerCommand('devika.showMemoryStatus', async () => {
+            try {
+                if (!memoryManager) {
+                    vscode.window.showWarningMessage('記憶體管理器未初始化');
+                    return;
+                }
+
+                const memoryStats = memoryManager.getMemoryStats();
+                const cacheStats = memoryManager.getCacheStats();
+
+                const memoryReport = `📊 記憶體使用報告\n\n` +
+                    `• 堆記憶體: ${Math.round(memoryStats.used / 1024 / 1024)}MB / ${Math.round(memoryStats.total / 1024 / 1024)}MB\n` +
+                    `• 使用率: ${Math.round(memoryStats.percentage * 100)}%\n` +
+                    `• 快取項目: ${cacheStats.itemCount} 個\n` +
+                    `• 快取大小: ${Math.round(cacheStats.totalSize / 1024 / 1024)}MB\n` +
+                    `• 命中率: ${Math.round(cacheStats.hitRate * 100)}%\n\n` +
+                    `💡 如果記憶體使用過高，可以執行 "清理記憶體快取" 命令`;
+
+                vscode.window.showInformationMessage(memoryReport, '清理快取', '關閉').then(choice => {
+                    if (choice === '清理快取') {
+                        vscode.commands.executeCommand('devika.clearMemoryCache');
+                    }
+                });
+
+            } catch (error) {
+                vscode.window.showErrorMessage(`顯示記憶體狀態失敗: ${error}`);
+            }
+        }),
+
+        // 清理記憶體快取
+        vscode.commands.registerCommand('devika.clearMemoryCache', async () => {
+            try {
+                if (!memoryManager) {
+                    vscode.window.showWarningMessage('記憶體管理器未初始化');
+                    return;
+                }
+
+                const beforeStats = memoryManager.getCacheStats();
+                memoryManager.clear();
+                memoryManager.forceGarbageCollection();
+
+                vscode.window.showInformationMessage(
+                    `🧹 記憶體快取已清理！釋放了 ${beforeStats.itemCount} 個項目，約 ${Math.round(beforeStats.totalSize / 1024 / 1024)}MB`
+                );
+
+            } catch (error) {
+                vscode.window.showErrorMessage(`清理記憶體快取失敗: ${error}`);
+            }
+        }),
+
+        // 顯示性能報告
+        vscode.commands.registerCommand('devika.showPerformanceReport', async () => {
+            try {
+                const report = performanceMonitor.generatePerformanceReport();
+
+                // 創建 Webview 顯示詳細報告
+                const panel = vscode.window.createWebviewPanel(
+                    'devikaPerformanceReport',
+                    '📊 Devika 性能報告',
+                    vscode.ViewColumn.One,
+                    { enableScripts: true }
+                );
+
+                panel.webview.html = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <style>
+                            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; }
+                            pre { background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; }
+                            .metric { margin: 10px 0; padding: 10px; border-left: 3px solid #007acc; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="metric">
+                            <pre>${report}</pre>
+                        </div>
+                    </body>
+                    </html>
+                `;
+
+            } catch (error) {
+                vscode.window.showErrorMessage(`顯示性能報告失敗: ${error}`);
             }
         }),
 
@@ -690,32 +752,7 @@ function registerCommands(context: vscode.ExtensionContext) {
     commands.forEach(command => context.subscriptions.push(command));
 }
 
-function initializeServices(context: vscode.ExtensionContext) {
-    // 監聽檔案儲存事件，自動掃描 TODO
-    const onSaveListener = vscode.workspace.onDidSaveTextDocument(async (document) => {
-        const config = ConfigManager.getInstance();
-        if (config.getAutoScanTodos()) {
-            await devikaCoreManager.scanTodosInDocument(document);
-        }
-    });
-
-    // 監聽檔案變更事件，更新程式碼索引
-    const onChangeListener = vscode.workspace.onDidChangeTextDocument(async (event) => {
-        const config = ConfigManager.getInstance();
-        if (config.getEnableCodeIndexing()) {
-            await devikaCoreManager.updateCodeIndex(event.document);
-        }
-    });
-
-    // 初始化多模態功能
-    const config = vscode.workspace.getConfiguration('devika');
-    if (config.get('enableMultimodal', true)) {
-        multimodalCommands = MultimodalCommands.getInstance();
-        console.log('多模態功能已啟用');
-    }
-
-    context.subscriptions.push(onSaveListener, onChangeListener);
-}
+// 舊的 initializeServices 函數已移至 initializeServicesAsync
 
 async function showApiKeySetupDialog(): Promise<void> {
     const configManager = ConfigManager.getInstance();
@@ -885,34 +922,62 @@ function updateStatusBarItem(): void {
 async function startAutomaticFeatures(): Promise<void> {
     try {
         if (!devikaCoreManager) {
+            console.warn('核心管理器未就緒，跳過自動功能啟動');
             return;
         }
 
-        // 1. 自動索引工作區
+        console.log('🔄 啟動自動功能...');
+
+        // 1. 異步索引工作區 (不阻塞用戶操作)
         const workspaceFolders = vscode.workspace.workspaceFolders;
         if (workspaceFolders && workspaceFolders.length > 0) {
-            vscode.window.showInformationMessage('🔍 Devika 正在建立項目索引...');
-
-            // 索引所有工作區
-            for (const folder of workspaceFolders) {
-                await devikaCoreManager.getCodeContextService().indexWorkspace(folder);
-            }
-
-            // 自動掃描 TODO
-            if (ConfigManager.getInstance().getAutoScanTodos()) {
-                await devikaCoreManager.scanTodos();
-            }
-
-            vscode.window.showInformationMessage('✅ 項目索引建立完成！');
+            // 後台異步索引，不等待完成
+            indexWorkspaceAsync(workspaceFolders).then(() => {
+                console.log('✅ 工作區索引完成');
+                vscode.window.showInformationMessage('📚 項目索引已完成，AI 助理現在更了解您的代碼！');
+            }).catch(error => {
+                console.warn('工作區索引失敗:', error);
+            });
         }
 
-        // 2. 設置文件監聽器 (已在 registerFileListeners 中設置)
+        // 2. 異步掃描 TODO (不阻塞)
+        if (ConfigManager.getInstance().getAutoScanTodos()) {
+            scanTodosAsync().then(() => {
+                console.log('✅ TODO 掃描完成');
+            }).catch(error => {
+                console.warn('TODO 掃描失敗:', error);
+            });
+        }
 
-        console.log('自動功能已啟動：索引、TODO 掃描、文件監聽');
+        console.log('✅ 自動功能已啟動 (後台運行)');
 
     } catch (error) {
         console.error('啟動自動功能失敗:', error);
-        vscode.window.showWarningMessage(`部分自動功能啟動失敗: ${error}`);
+        // 不顯示錯誤消息給用戶，避免干擾
+    }
+}
+
+async function indexWorkspaceAsync(workspaceFolders: readonly vscode.WorkspaceFolder[]): Promise<void> {
+    console.log('🔍 開始後台索引工作區...');
+
+    for (const folder of workspaceFolders) {
+        try {
+            await devikaCoreManager.getCodeContextService().indexWorkspace(folder);
+            console.log(`✅ 已索引工作區: ${folder.name}`);
+        } catch (error) {
+            console.warn(`索引工作區失敗 ${folder.name}:`, error);
+        }
+    }
+}
+
+async function scanTodosAsync(): Promise<void> {
+    console.log('📝 開始後台掃描 TODO...');
+
+    try {
+        await devikaCoreManager.scanTodos();
+        console.log('✅ TODO 掃描完成');
+    } catch (error) {
+        console.warn('TODO 掃描失敗:', error);
     }
 }
 
@@ -1024,4 +1089,162 @@ function generateFileHistoryHtml(history: any[], filePath: string): string {
     </body>
     </html>
     `;
+}
+
+// 🚀 優化的異步初始化函數
+
+async function initializeCoreManager(context: vscode.ExtensionContext): Promise<DevikaCoreManager> {
+    console.log('🔧 初始化核心管理器...');
+    const coreManager = new DevikaCoreManager(context);
+    await coreManager.waitForInitialization();
+    console.log('✅ 核心管理器已就緒');
+    return coreManager;
+}
+
+async function initializePluginManager(context: vscode.ExtensionContext): Promise<void> {
+    console.log('🔌 初始化插件管理器...');
+    pluginManager = new PluginManager(context);
+    console.log('✅ 插件管理器已就緒');
+}
+
+async function initializeServicesAsync(context: vscode.ExtensionContext): Promise<void> {
+    console.log('⚙️ 初始化基礎服務...');
+
+    // 初始化記憶體管理器
+    memoryManager = MemoryManager.getInstance({
+        maxSize: 50 * 1024 * 1024, // 50MB 快取限制
+        maxItems: 5000,
+        defaultTTL: 20 * 60 * 1000, // 20 分鐘 TTL
+        cleanupInterval: 3 * 60 * 1000, // 3 分鐘清理間隔
+        evictionPolicy: 'LRU'
+    });
+    console.log('🧠 記憶體管理器已初始化');
+
+    // 啟動性能監控
+    performanceMonitor.startMonitoring(30000); // 每 30 秒收集一次指標
+    console.log('📊 性能監控已啟動');
+
+    // 監聽檔案儲存事件，自動掃描 TODO
+    const onSaveListener = vscode.workspace.onDidSaveTextDocument(async (document) => {
+        if (devikaCoreManager) {
+            const config = ConfigManager.getInstance();
+            if (config.getAutoScanTodos()) {
+                await devikaCoreManager.scanTodosInDocument(document);
+            }
+        }
+    });
+
+    // 監聽檔案變更事件，更新程式碼索引
+    const onChangeListener = vscode.workspace.onDidChangeTextDocument(async (event) => {
+        if (devikaCoreManager) {
+            const config = ConfigManager.getInstance();
+            if (config.getEnableCodeIndexing()) {
+                await devikaCoreManager.updateCodeIndex(event.document);
+            }
+        }
+    });
+
+    // 初始化多模態功能
+    const config = vscode.workspace.getConfiguration('devika');
+    if (config.get('enableMultimodal', true)) {
+        multimodalCommands = MultimodalCommands.getInstance();
+        console.log('📷 多模態功能已啟用');
+    }
+
+    // 設定記憶體監控
+    context.subscriptions.push(
+        onSaveListener,
+        onChangeListener,
+        { dispose: () => memoryManager.dispose() }
+    );
+
+    startupProfiler.markServicesReady();
+    console.log('✅ 基礎服務已就緒');
+}
+
+async function initializeAdvancedFeaturesAsync(context: vscode.ExtensionContext): Promise<void> {
+    console.log('🚀 開始初始化高級功能...');
+
+    const features = [
+        {
+            name: '持續學習機制',
+            init: async () => {
+                const { initializeLearningSystem } = await import('./learning');
+                await initializeLearningSystem(context);
+            }
+        },
+        {
+            name: '對話記憶系統',
+            init: async () => {
+                const { initializeConversationMemorySystem } = await import('./memory');
+                await initializeConversationMemorySystem(context);
+            }
+        },
+        {
+            name: '個性化建議系統',
+            init: async () => {
+                const { initializePersonalizationSystem } = await import('./personalization');
+                await initializePersonalizationSystem(context);
+            }
+        },
+        {
+            name: '原生工具整合系統',
+            init: async () => {
+                const { initializeIntegrationSystem } = await import('./integrations');
+                await initializeIntegrationSystem(context);
+            }
+        },
+        {
+            name: '編輯導航系統',
+            init: async () => {
+                const { initializeEditNavigationSystem } = await import('./navigation');
+                await initializeEditNavigationSystem(context);
+            }
+        },
+        {
+            name: '智能代碼完成系統',
+            init: async () => {
+                const { initializeCodeCompletionSystem } = await import('./completion');
+                await initializeCodeCompletionSystem(context);
+            }
+        }
+    ];
+
+    // 並行初始化所有高級功能
+    const results = await Promise.allSettled(
+        features.map(async (feature) => {
+            try {
+                await feature.init();
+                console.log(`✅ ${feature.name}已啟動`);
+                return { name: feature.name, success: true };
+            } catch (error) {
+                console.warn(`⚠️ ${feature.name}啟動失敗:`, error);
+                return { name: feature.name, success: false, error };
+            }
+        })
+    );
+
+    // 統計結果
+    const successful = results.filter(r => r.status === 'fulfilled' && r.value.success).length;
+    const failed = results.length - successful;
+
+    console.log(`🎯 高級功能初始化完成: ${successful}/${results.length} 成功`);
+
+    if (failed > 0) {
+        console.warn(`⚠️ ${failed} 個高級功能初始化失敗，但不影響核心功能使用`);
+    }
+
+    // 標記高級功能就緒
+    startupProfiler.markAdvancedFeaturesReady();
+
+    // 啟動自動功能 (如果核心管理器已就緒)
+    if (devikaCoreManager) {
+        await startAutomaticFeatures();
+    }
+
+    // 標記完全就緒並生成性能報告
+    startupProfiler.markFullyReady();
+
+    // 與性能目標比較
+    startupProfiler.compareWithTarget(PERFORMANCE_TARGETS);
 }

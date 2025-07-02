@@ -147,18 +147,18 @@ export class ErrorHandler {
      */
     public async handleError(error: Error | DevikaError, showToUser: boolean = true): Promise<void> {
         const devikaError = this.normalizeError(error);
-        
+
         // 記錄錯誤
         this.logError(devikaError);
-        
+
         // 添加到歷史記錄
         this.addToHistory(devikaError);
-        
+
         // 顯示給用戶
         if (showToUser) {
             await this.showErrorToUser(devikaError);
         }
-        
+
         // 嘗試自動恢復
         if (devikaError.recoverable) {
             await this.attemptRecovery(devikaError);
@@ -242,10 +242,10 @@ export class ErrorHandler {
      */
     private logError(error: DevikaError): void {
         const logMessage = this.formatLogMessage(error);
-        
+
         // 輸出到 VS Code 輸出面板
         this.outputChannel.appendLine(logMessage);
-        
+
         // 根據嚴重程度決定是否在控制台輸出
         if (error.severity === ErrorSeverity.HIGH || error.severity === ErrorSeverity.CRITICAL) {
             console.error(logMessage);
@@ -260,7 +260,7 @@ export class ErrorHandler {
     private formatLogMessage(error: DevikaError): string {
         const timestamp = error.timestamp.toISOString();
         const context = error.context ? JSON.stringify(error.context) : '';
-        
+
         return `[${timestamp}] [${error.severity}] [${error.type}] ${error.code}: ${error.message}
 Stack: ${error.stack}
 Context: ${context}
@@ -273,7 +273,7 @@ Recoverable: ${error.recoverable}
      */
     private addToHistory(error: DevikaError): void {
         this.errorHistory.unshift(error);
-        
+
         // 限制歷史記錄大小
         if (this.errorHistory.length > this.maxHistorySize) {
             this.errorHistory = this.errorHistory.slice(0, this.maxHistorySize);
@@ -286,10 +286,10 @@ Recoverable: ${error.recoverable}
     private async showErrorToUser(error: DevikaError): Promise<void> {
         const userMessage = error.toUserMessage();
         const actions = error.getRecoveryActions();
-        
+
         let showDetailsAction = '顯示詳細信息';
         let retryAction = '重試';
-        
+
         const selectedAction = await this.showErrorMessage(error.severity, userMessage, [
             showDetailsAction,
             retryAction,
@@ -405,12 +405,12 @@ Recoverable: ${error.recoverable}
      */
     public getErrorStatistics(): Record<string, number> {
         const stats: Record<string, number> = {};
-        
+
         for (const error of this.errorHistory) {
             const key = `${error.type}_${error.severity}`;
             stats[key] = (stats[key] || 0) + 1;
         }
-        
+
         return stats;
     }
 
