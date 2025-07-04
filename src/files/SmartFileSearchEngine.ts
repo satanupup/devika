@@ -248,7 +248,7 @@ export class SmartFileSearchEngine {
                 query
             );
 
-            if (!symbols) return [];
+            if (!symbols) {return [];}
 
             // 按符號類型過濾
             let filteredSymbols = symbols;

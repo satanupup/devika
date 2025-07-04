@@ -521,7 +521,7 @@ export class IntegrationEngine {
   }
 
   private setupSyncTimer(connection: IntegrationConnection): void {
-    if (!connection.config.syncInterval) return;
+    if (!connection.config.syncInterval) {return;}
 
     const timer = setInterval(
       async () => {

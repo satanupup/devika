@@ -53,9 +53,9 @@ export class UsageAnalytics {
     }
 
     async recordPluginExecution(
-        pluginId: string, 
-        success: boolean, 
-        duration: number, 
+        pluginId: string,
+        success: boolean,
+        duration: number,
         errorMessage?: string
     ): Promise<void> {
         await this.recordEvent({
@@ -106,26 +106,26 @@ export class UsageAnalytics {
     getPluginStats(pluginId: string): PluginStats {
         const pluginEvents = this.events.filter(e => e.pluginId === pluginId);
         const executions = pluginEvents.filter(e => e.eventType === 'plugin_execution');
-        
+
         const totalExecutions = executions.length;
         const successfulExecutions = executions.filter(e => e.success).length;
         const failedExecutions = totalExecutions - successfulExecutions;
-        
+
         const durations = executions.filter(e => e.duration).map(e => e.duration!);
-        const averageDuration = durations.length > 0 
-            ? durations.reduce((a, b) => a + b, 0) / durations.length 
+        const averageDuration = durations.length > 0
+            ? durations.reduce((a, b) => a + b, 0) / durations.length
             : 0;
 
-        const lastUsed = executions.length > 0 
-            ? executions[executions.length - 1].timestamp 
+        const lastUsed = executions.length > 0
+            ? executions[executions.length - 1].timestamp
             : '';
 
         // Get feedback
         const feedbackKey = `feedback_${pluginId}`;
         const feedback = this.context.globalState.get<any[]>(feedbackKey, []);
         const ratings = feedback.map(f => f.rating).filter(r => r !== undefined);
-        const userRating = ratings.length > 0 
-            ? ratings.reduce((a, b) => a + b, 0) / ratings.length 
+        const userRating = ratings.length > 0
+            ? ratings.reduce((a, b) => a + b, 0) / ratings.length
             : undefined;
 
         return {
@@ -144,7 +144,7 @@ export class UsageAnalytics {
         const pluginIds = [...new Set(this.events
             .filter(e => e.pluginId)
             .map(e => e.pluginId!))];
-        
+
         return pluginIds.map(id => this.getPluginStats(id));
     }
 
@@ -168,13 +168,13 @@ export class UsageAnalytics {
         // Calculate average session duration (time between first and last event in a session)
         const sessions = this.groupEventsBySessions();
         const sessionDurations = sessions.map(session => {
-            if (session.length < 2) return 0;
+            if (session.length < 2) {return 0;}
             const start = new Date(session[0].timestamp).getTime();
             const end = new Date(session[session.length - 1].timestamp).getTime();
             return end - start;
         });
-        const averageSessionDuration = sessionDurations.length > 0 
-            ? sessionDurations.reduce((a, b) => a + b, 0) / sessionDurations.length 
+        const averageSessionDuration = sessionDurations.length > 0
+            ? sessionDurations.reduce((a, b) => a + b, 0) / sessionDurations.length
             : 0;
 
         // Find most used plugin
@@ -184,8 +184,8 @@ export class UsageAnalytics {
                 pluginUsage.set(e.pluginId, (pluginUsage.get(e.pluginId) || 0) + 1);
             }
         });
-        const mostUsedPlugin = pluginUsage.size > 0 
-            ? [...pluginUsage.entries()].sort((a, b) => b[1] - a[1])[0][0] 
+        const mostUsedPlugin = pluginUsage.size > 0
+            ? [...pluginUsage.entries()].sort((a, b) => b[1] - a[1])[0][0]
             : null;
 
         return {
@@ -205,12 +205,12 @@ export class UsageAnalytics {
 
         for (const event of this.events) {
             const eventTime = new Date(event.timestamp).getTime();
-            
+
             if (currentSession.length === 0) {
                 currentSession.push(event);
             } else {
                 const lastEventTime = new Date(currentSession[currentSession.length - 1].timestamp).getTime();
-                
+
                 if (eventTime - lastEventTime > sessionTimeout) {
                     // Start new session
                     sessions.push(currentSession);
@@ -379,7 +379,7 @@ export class UsageAnalytics {
         if (result === '确定') {
             this.events = [];
             await this.context.globalState.update('usageEvents', []);
-            
+
             // Clear feedback data
             const keys = this.context.globalState.keys();
             for (const key of keys) {

@@ -83,7 +83,7 @@ export class Logger {
             if (!fs.existsSync(logDir)) {
                 fs.mkdirSync(logDir, { recursive: true });
             }
-            
+
             // 清理舊日誌文件
             this.cleanupOldLogs();
         } catch (error) {
@@ -214,7 +214,7 @@ export class Logger {
      */
     private addToMemory(entry: LogEntry): void {
         this.logEntries.unshift(entry);
-        
+
         // 限制內存中的日誌條目數量
         if (this.logEntries.length > this.maxMemoryEntries) {
             this.logEntries = this.logEntries.slice(0, this.maxMemoryEntries);
@@ -226,7 +226,7 @@ export class Logger {
      */
     private logToConsole(entry: LogEntry): void {
         const message = this.formatMessage(entry);
-        
+
         switch (entry.level) {
             case LogLevel.DEBUG:
                 console.debug(message);
@@ -259,9 +259,9 @@ export class Logger {
         try {
             const logFile = this.getCurrentLogFile();
             const message = this.formatMessage(entry, true) + '\n';
-            
+
             fs.appendFileSync(logFile, message, 'utf8');
-            
+
             // 檢查文件大小，如果超過限制則輪轉
             const stats = fs.statSync(logFile);
             if (stats.size > this.config.maxFileSize) {
@@ -289,7 +289,7 @@ export class Logger {
             const currentFile = this.getCurrentLogFile();
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
             const rotatedFile = currentFile.replace('.log', `-${timestamp}.log`);
-            
+
             fs.renameSync(currentFile, rotatedFile);
             this.cleanupOldLogs();
         } catch (error) {
@@ -304,24 +304,24 @@ export class Logger {
         const timestamp = entry.timestamp.toISOString();
         const level = LogLevel[entry.level].padEnd(5);
         const category = entry.category.padEnd(15);
-        
+
         let message = `[${timestamp}] [${level}] [${category}] ${entry.message}`;
-        
+
         if (includeData && entry.data) {
             try {
-                const dataStr = typeof entry.data === 'string' 
-                    ? entry.data 
+                const dataStr = typeof entry.data === 'string'
+                    ? entry.data
                     : JSON.stringify(entry.data, null, 2);
                 message += `\nData: ${dataStr}`;
             } catch (error) {
                 message += `\nData: [Unable to serialize]`;
             }
         }
-        
+
         if (entry.stack) {
             message += `\nStack: ${entry.stack}`;
         }
-        
+
         return message;
     }
 
@@ -330,19 +330,19 @@ export class Logger {
      */
     public getLogEntries(level?: LogLevel, category?: string, limit?: number): LogEntry[] {
         let entries = [...this.logEntries];
-        
+
         if (level !== undefined) {
             entries = entries.filter(entry => entry.level >= level);
         }
-        
+
         if (category) {
             entries = entries.filter(entry => entry.category === category);
         }
-        
+
         if (limit) {
             entries = entries.slice(0, limit);
         }
-        
+
         return entries;
     }
 
@@ -358,15 +358,15 @@ export class Logger {
      */
     public getLogStatistics(): Record<string, number> {
         const stats: Record<string, number> = {};
-        
+
         for (const entry of this.logEntries) {
             const levelKey = LogLevel[entry.level];
             const categoryKey = entry.category;
-            
+
             stats[levelKey] = (stats[levelKey] || 0) + 1;
             stats[`${categoryKey}_${levelKey}`] = (stats[`${categoryKey}_${levelKey}`] || 0) + 1;
         }
-        
+
         return stats;
     }
 
@@ -402,7 +402,7 @@ export class Logger {
     }): Promise<void> {
         try {
             let entries = this.getLogEntries(options?.level, options?.category);
-            
+
             if (options?.startDate || options?.endDate) {
                 entries = entries.filter(entry => {
                     if (options.startDate && entry.timestamp < options.startDate) {
@@ -414,11 +414,11 @@ export class Logger {
                     return true;
                 });
             }
-            
+
             const content = entries
                 .map(entry => this.formatMessage(entry, true))
                 .join('\n');
-            
+
             fs.writeFileSync(filePath, content, 'utf8');
         } catch (error) {
             throw new Error(`Failed to export logs: ${error}`);

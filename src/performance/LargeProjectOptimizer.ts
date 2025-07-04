@@ -196,7 +196,7 @@ export class LargeProjectOptimizer {
 
         for (const filePath of allFiles) {
             const existingEntry = this.index.files.get(filePath);
-            
+
             if (!existingEntry) {
                 needsIndexing.push(filePath);
                 continue;
@@ -206,7 +206,7 @@ export class LargeProjectOptimizer {
             try {
                 const stat = require('fs').statSync(filePath);
                 const lastModified = stat.mtime.toISOString();
-                
+
                 if (lastModified !== existingEntry.lastModified) {
                     needsIndexing.push(filePath);
                 }
@@ -221,7 +221,7 @@ export class LargeProjectOptimizer {
 
     private async processFileChunk(files: string[]): Promise<void> {
         const promises = files.map(filePath => this.indexFile(filePath));
-        
+
         // Process with concurrency limit
         for (let i = 0; i < promises.length; i += this.maxConcurrentFiles) {
             const chunk = promises.slice(i, i + this.maxConcurrentFiles);
@@ -304,7 +304,7 @@ export class LargeProjectOptimizer {
                 uri
             );
 
-            if (!symbols) return [];
+            if (!symbols) {return [];}
 
             return this.convertDocumentSymbols(symbols);
         } catch (error) {
@@ -377,7 +377,7 @@ export class LargeProjectOptimizer {
         if (typeof global !== 'undefined' && global.gc) {
             global.gc();
         }
-        
+
         // Clear some caches if memory is still high
         if (this.getMemoryUsage() > this.maxMemoryUsage * 0.8) {
             // Keep only essential index data
@@ -417,7 +417,7 @@ export class LargeProjectOptimizer {
     }
 
     private formatBytes(bytes: number): string {
-        if (bytes === 0) return '0 Bytes';
+        if (bytes === 0) {return '0 Bytes';}
         const k = 1024;
         const sizes = ['Bytes', 'KB', 'MB', 'GB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));

@@ -25,7 +25,7 @@ export class FileExclusionService {
 
     private async loadGitignoreRules(): Promise<void> {
         const workspaceFolders = vscode.workspace.workspaceFolders;
-        if (!workspaceFolders) return;
+        if (!workspaceFolders) {return;}
 
         for (const folder of workspaceFolders) {
             const gitignorePath = path.join(folder.uri.fsPath, '.gitignore');
@@ -43,7 +43,7 @@ export class FileExclusionService {
 
     private async loadAiexcludeRules(): Promise<void> {
         const workspaceFolders = vscode.workspace.workspaceFolders;
-        if (!workspaceFolders) return;
+        if (!workspaceFolders) {return;}
 
         for (const folder of workspaceFolders) {
             const aiexcludePath = path.join(folder.uri.fsPath, '.aiexclude');
@@ -65,7 +65,7 @@ export class FileExclusionService {
 
         for (const line of lines) {
             const trimmed = line.trim();
-            
+
             // Skip empty lines and comments
             if (!trimmed || trimmed.startsWith('#')) {
                 continue;
@@ -83,7 +83,7 @@ export class FileExclusionService {
 
     private setupFileWatchers(): void {
         const workspaceFolders = vscode.workspace.workspaceFolders;
-        if (!workspaceFolders) return;
+        if (!workspaceFolders) {return;}
 
         // Watch .gitignore files
         this.gitignoreWatcher = vscode.workspace.createFileSystemWatcher('**/.gitignore');
@@ -112,7 +112,7 @@ export class FileExclusionService {
 
     public isFileExcluded(filePath: string): boolean {
         const workspaceFolders = vscode.workspace.workspaceFolders;
-        if (!workspaceFolders) return false;
+        if (!workspaceFolders) {return false;}
 
         // Convert absolute path to relative path
         let relativePath = filePath;
@@ -128,7 +128,7 @@ export class FileExclusionService {
 
         // Check against all enabled exclusion rules
         for (const rule of this.exclusionRules) {
-            if (!rule.enabled) continue;
+            if (!rule.enabled) {continue;}
 
             if (this.matchesPattern(relativePath, rule.pattern)) {
                 return true;

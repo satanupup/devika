@@ -238,7 +238,7 @@ export class DocumentationQualityChecker {
         // 檢查斷鏈（簡化實作）
         const brokenLinks: string[] = [];
         for (const link of internalLinks) {
-            if (link.startsWith('#')) continue; // 跳過錨點連結
+            if (link.startsWith('#')) {continue;} // 跳過錨點連結
 
             try {
                 const linkPath = path.resolve(path.dirname(''), link);
@@ -294,9 +294,9 @@ export class DocumentationQualityChecker {
         const avgWordsPerSentence = words / sentences.length;
 
         // 基於平均句子長度的簡單評分
-        if (avgWordsPerSentence <= 15) return 90;
-        if (avgWordsPerSentence <= 20) return 80;
-        if (avgWordsPerSentence <= 25) return 70;
+        if (avgWordsPerSentence <= 15) {return 90;}
+        if (avgWordsPerSentence <= 20) {return 80;}
+        if (avgWordsPerSentence <= 25) {return 70;}
         return 60;
     }
 
@@ -316,9 +316,9 @@ export class DocumentationQualityChecker {
         const headingAnalysis = this.analyzeHeadingStructure(content);
         let score = 100;
 
-        if (!headingAnalysis.hasH1) score -= 20;
-        if (!headingAnalysis.structureValid) score -= 15;
-        if (headingAnalysis.missingLevels.length > 0) score -= 10;
+        if (!headingAnalysis.hasH1) {score -= 20;}
+        if (!headingAnalysis.structureValid) {score -= 15;}
+        if (headingAnalysis.missingLevels.length > 0) {score -= 10;}
 
         return Math.max(0, score);
     }
@@ -338,9 +338,9 @@ export class DocumentationQualityChecker {
         let score = 100;
         const headingAnalysis = this.analyzeHeadingStructure(content);
 
-        if (!headingAnalysis.hasH1) score -= 25;
-        if (headingAnalysis.headingCount.h1 > 1) score -= 15;
-        if (this.countWords(content) < 300) score -= 20;
+        if (!headingAnalysis.hasH1) {score -= 25;}
+        if (headingAnalysis.headingCount.h1 > 1) {score -= 15;}
+        if (this.countWords(content) < 300) {score -= 20;}
 
         return Math.max(0, score);
     }
@@ -357,7 +357,7 @@ export class DocumentationQualityChecker {
             seo: 0.2
         };
 
-        let baseScore =
+        const baseScore =
             metrics.readabilityScore * weights.readability +
             metrics.completenessScore * weights.completeness +
             metrics.structureScore * weights.structure +

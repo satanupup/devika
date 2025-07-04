@@ -221,10 +221,10 @@ export class VSCodeUtils {
    */
   static getSelectedText(): string | undefined {
     const editor = this.getActiveEditor();
-    if (!editor) return undefined;
+    if (!editor) {return undefined;}
 
     const selection = editor.selection;
-    if (selection.isEmpty) return undefined;
+    if (selection.isEmpty) {return undefined;}
 
     return editor.document.getText(selection);
   }
@@ -234,7 +234,7 @@ export class VSCodeUtils {
    */
   static async insertText(text: string): Promise<boolean> {
     const editor = this.getActiveEditor();
-    if (!editor) return false;
+    if (!editor) {return false;}
 
     const result = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
@@ -255,7 +255,7 @@ export class VSCodeUtils {
    */
   static async replaceSelectedText(newText: string): Promise<boolean> {
     const editor = this.getActiveEditor();
-    if (!editor) return false;
+    if (!editor) {return false;}
 
     const result = await ErrorHandlingUtils.executeWithErrorHandling(
       async () => {

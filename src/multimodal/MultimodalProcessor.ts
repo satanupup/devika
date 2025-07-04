@@ -242,7 +242,7 @@ export class MultimodalProcessor {
 
                 // 緩存結果
                 this.mediaCache.set(id, mediaContent);
-                
+
                 return mediaContent;
             },
             `處理媒體文件 ${uri.fsPath}`,
@@ -264,7 +264,7 @@ export class MultimodalProcessor {
 
                 const uri = vscode.Uri.file(screenshotPath);
                 const mediaContent = await this.processMedia(uri);
-                
+
                 if (mediaContent) {
                     mediaContent.type = MediaType.SCREENSHOT;
                     mediaContent.metadata.source = 'screen_capture';
@@ -381,7 +381,7 @@ export class MultimodalProcessor {
      */
     private detectMediaType(uri: vscode.Uri): MediaType | null {
         const ext = path.extname(uri.fsPath).toLowerCase();
-        
+
         if (this.supportedImageFormats.has(ext)) {
             return MediaType.IMAGE;
         }
@@ -436,7 +436,7 @@ export class MultimodalProcessor {
     private async processImage(mediaContent: MediaContent): Promise<void> {
         // 生成縮圖
         mediaContent.thumbnail = await this.generateThumbnail(mediaContent.uri);
-        
+
         // 分析圖像
         mediaContent.analysisResult = await this.analyzeImage(mediaContent);
     }

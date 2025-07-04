@@ -113,7 +113,7 @@ export class IntegrationCommandProvider {
           placeHolder: '選擇要添加的整合類型'
         });
 
-        if (!selectedType) return;
+        if (!selectedType) {return;}
 
         await this.configureIntegration(selectedType.value);
       },
@@ -151,7 +151,7 @@ export class IntegrationCommandProvider {
       placeHolder: 'ghp_xxxxxxxxxxxxxxxxxxxx'
     });
 
-    if (!token) return;
+    if (!token) {return;}
 
     const config: IntegrationConfig = {
       type: IntegrationType.GITHUB,
@@ -178,14 +178,14 @@ export class IntegrationCommandProvider {
       placeHolder: 'your-organization'
     });
 
-    if (!organization) return;
+    if (!organization) {return;}
 
     const username = await vscode.window.showInputBox({
       prompt: '輸入 Jira 用戶名',
       placeHolder: 'your-email@example.com'
     });
 
-    if (!username) return;
+    if (!username) {return;}
 
     const apiKey = await vscode.window.showInputBox({
       prompt: '輸入 Jira API Token',
@@ -193,7 +193,7 @@ export class IntegrationCommandProvider {
       placeHolder: 'your-api-token'
     });
 
-    if (!apiKey) return;
+    if (!apiKey) {return;}
 
     const config: IntegrationConfig = {
       type: IntegrationType.JIRA,
@@ -222,14 +222,14 @@ export class IntegrationCommandProvider {
       placeHolder: 'your-organization'
     });
 
-    if (!organization) return;
+    if (!organization) {return;}
 
     const username = await vscode.window.showInputBox({
       prompt: '輸入 Confluence 用戶名',
       placeHolder: 'your-email@example.com'
     });
 
-    if (!username) return;
+    if (!username) {return;}
 
     const apiKey = await vscode.window.showInputBox({
       prompt: '輸入 Confluence API Token',
@@ -237,7 +237,7 @@ export class IntegrationCommandProvider {
       placeHolder: 'your-api-token'
     });
 
-    if (!apiKey) return;
+    if (!apiKey) {return;}
 
     const config: IntegrationConfig = {
       type: IntegrationType.CONFLUENCE,
@@ -280,7 +280,7 @@ export class IntegrationCommandProvider {
             placeHolder: '選擇要移除的整合'
           });
 
-          if (!selected) return;
+          if (!selected) {return;}
           connectionId = selected.connectionId;
         }
 
@@ -328,7 +328,7 @@ export class IntegrationCommandProvider {
             placeHolder: '選擇要測試的整合'
           });
 
-          if (!selected) return;
+          if (!selected) {return;}
           connectionId = selected.connectionId;
         }
 
@@ -338,7 +338,7 @@ export class IntegrationCommandProvider {
           cancellable: false
         }, async (progress) => {
           const result = await this.integrationManager.testIntegration(connectionId!);
-          
+
           if (result.success && result.data) {
             vscode.window.showInformationMessage('整合連接測試成功');
           } else {
@@ -363,11 +363,11 @@ export class IntegrationCommandProvider {
           cancellable: false
         }, async (progress) => {
           const result = await this.integrationManager.syncAllIntegrations();
-          
+
           if (result.success && result.data) {
             const successCount = result.data.filter((r: any) => r.success).length;
             const totalCount = result.data.length;
-            
+
             vscode.window.showInformationMessage(
               `同步完成: ${successCount}/${totalCount} 個整合同步成功`
             );
@@ -427,7 +427,7 @@ export class IntegrationCommandProvider {
       async () => {
         // 嘗試從當前工作區獲取倉庫信息
         const repoInfo = await GitHubIntegration.getCurrentWorkspaceRepository();
-        
+
         if (!repoInfo) {
           vscode.window.showWarningMessage('無法檢測到當前工作區的 GitHub 倉庫');
           return;
@@ -466,7 +466,7 @@ export class IntegrationCommandProvider {
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const repoInfo = await GitHubIntegration.getCurrentWorkspaceRepository();
-        
+
         if (!repoInfo) {
           vscode.window.showWarningMessage('無法檢測到當前工作區的 GitHub 倉庫');
           return;
@@ -477,7 +477,7 @@ export class IntegrationCommandProvider {
           placeHolder: 'Issue 標題'
         });
 
-        if (!title) return;
+        if (!title) {return;}
 
         const body = await vscode.window.showInputBox({
           prompt: '輸入 Issue 描述（可選）',

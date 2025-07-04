@@ -63,16 +63,16 @@ export class SnippetManager {
   getLanguageSnippets(language: string, prefix?: string): SnippetDefinition[] {
     const languageSnippets = this.snippets.get(language) || [];
     const userLanguageSnippets = this.userSnippets.get(language) || [];
-    
+
     const allSnippets = [...languageSnippets, ...userLanguageSnippets];
-    
+
     if (prefix) {
-      return allSnippets.filter(snippet => 
+      return allSnippets.filter(snippet =>
         snippet.prefix.toLowerCase().startsWith(prefix.toLowerCase()) ||
         snippet.name.toLowerCase().includes(prefix.toLowerCase())
       );
     }
-    
+
     return allSnippets;
   }
 
@@ -82,13 +82,13 @@ export class SnippetManager {
   getFrameworkSnippets(framework: string, language: string, prefix?: string): SnippetDefinition[] {
     const frameworkKey = `${language}-${framework}`;
     const frameworkSnippets = this.snippets.get(frameworkKey) || [];
-    
+
     if (prefix) {
-      return frameworkSnippets.filter(snippet => 
+      return frameworkSnippets.filter(snippet =>
         snippet.prefix.toLowerCase().startsWith(prefix.toLowerCase())
       );
     }
-    
+
     return frameworkSnippets;
   }
 
@@ -130,18 +130,18 @@ export class SnippetManager {
     return results.sort((a, b) => {
       const aUsage = this.snippetUsage.get(a.id) || 0;
       const bUsage = this.snippetUsage.get(b.id) || 0;
-      
+
       if (aUsage !== bUsage) {
         return bUsage - aUsage;
       }
-      
+
       // 按前綴匹配度排序
       const aExactMatch = a.prefix.toLowerCase() === queryLower;
       const bExactMatch = b.prefix.toLowerCase() === queryLower;
-      
-      if (aExactMatch && !bExactMatch) return -1;
-      if (!aExactMatch && bExactMatch) return 1;
-      
+
+      if (aExactMatch && !bExactMatch) {return -1;}
+      if (!aExactMatch && bExactMatch) {return 1;}
+
       return a.name.localeCompare(b.name);
     });
   }
@@ -280,16 +280,16 @@ export class SnippetManager {
   private loadBuiltinSnippets(): void {
     // JavaScript/TypeScript 代碼片段
     this.loadJavaScriptSnippets();
-    
+
     // Python 代碼片段
     this.loadPythonSnippets();
-    
+
     // React 代碼片段
     this.loadReactSnippets();
-    
+
     // Vue 代碼片段
     this.loadVueSnippets();
-    
+
     // Node.js 代碼片段
     this.loadNodeSnippets();
   }
@@ -504,7 +504,7 @@ export class SnippetManager {
     try {
       const config = vscode.workspace.getConfiguration('devika.completion.snippets');
       const userSnippetsData = config.get('user', {});
-      
+
       // 解析用戶代碼片段數據
       for (const [language, snippets] of Object.entries(userSnippetsData as Record<string, any[]>)) {
         const parsedSnippets = snippets.map(snippet => ({

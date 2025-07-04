@@ -123,13 +123,13 @@ export class AutoDocumentationUpdater {
      */
     async start(): Promise<void> {
         console.log('啟動自動文檔更新系統');
-        
+
         // 掃描現有文檔
         await this.scanDocumentationFiles();
-        
+
         // 開始處理更新隊列
         this.processUpdateQueue();
-        
+
         console.log('自動文檔更新系統已啟動');
     }
 
@@ -138,12 +138,12 @@ export class AutoDocumentationUpdater {
      */
     stop(): void {
         console.log('停止自動文檔更新系統');
-        
+
         if (this.fileWatcher) {
             this.fileWatcher.dispose();
             this.fileWatcher = undefined;
         }
-        
+
         this.isProcessing = false;
     }
 
@@ -152,17 +152,17 @@ export class AutoDocumentationUpdater {
      */
     async triggerUpdate(files?: string[]): Promise<UpdateResult> {
         console.log('手動觸發文檔更新', files);
-        
+
         try {
             const changes = await this.analyzeChanges(files);
             const applicableRules = this.findApplicableRules(changes, 'manual');
-            
+
             const results: UpdateResult[] = [];
             for (const rule of applicableRules) {
                 const result = await this.executeRule(rule, changes);
                 results.push(result);
             }
-            
+
             return this.mergeResults(results);
         } catch (error) {
             return {
@@ -203,7 +203,7 @@ export class AutoDocumentationUpdater {
      */
     private setupFileWatcher(): void {
         const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-        if (!workspaceFolder) return;
+        if (!workspaceFolder) {return;}
 
         this.fileWatcher = vscode.workspace.createFileSystemWatcher(
             new vscode.RelativePattern(workspaceFolder, '**/*'),
@@ -222,7 +222,7 @@ export class AutoDocumentationUpdater {
      */
     private async handleFileChange(uri: vscode.Uri, changeType: 'create' | 'modify' | 'delete'): Promise<void> {
         const filePath = uri.fsPath;
-        
+
         // 檢查是否應該忽略此文件
         if (this.shouldIgnoreFile(filePath)) {
             return;
@@ -232,10 +232,10 @@ export class AutoDocumentationUpdater {
 
         // 分析變更
         const changes = await this.analyzeChanges([filePath]);
-        
+
         // 查找適用的規則
         const applicableRules = this.findApplicableRules(changes, 'file_change');
-        
+
         // 添加到更新隊列
         for (const rule of applicableRules) {
             this.addToUpdateQueue({
@@ -257,7 +257,7 @@ export class AutoDocumentationUpdater {
         }
 
         const changedFiles: ChangedFile[] = [];
-        let summary: ChangeSummary = {
+        const summary: ChangeSummary = {
             totalFiles: 0,
             newFiles: 0,
             modifiedFiles: 0,
@@ -299,10 +299,10 @@ export class AutoDocumentationUpdater {
         try {
             const content = await fs.promises.readFile(filePath, 'utf8');
             const language = this.getFileLanguage(filePath);
-            
+
             // 簡化的代碼分析
             const changes = this.parseCodeChanges(content, language);
-            
+
             if (changes.length === 0) {
                 return null;
             }
@@ -328,7 +328,7 @@ export class AutoDocumentationUpdater {
 
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i].trim();
-            
+
             // 檢測函數定義
             if (this.isFunctionDefinition(line, language)) {
                 const functionName = this.extractFunctionName(line, language);
@@ -368,8 +368,8 @@ export class AutoDocumentationUpdater {
         const applicableRules: DocumentationUpdateRule[] = [];
 
         for (const rule of this.rules.values()) {
-            if (!rule.enabled) continue;
-            if (rule.trigger.type !== triggerType) continue;
+            if (!rule.enabled) {continue;}
+            if (rule.trigger.type !== triggerType) {continue;}
 
             if (this.isRuleApplicable(rule, changes)) {
                 applicableRules.push(rule);
@@ -392,7 +392,7 @@ export class AutoDocumentationUpdater {
                     this.matchPattern(file.path, pattern)
                 )
             );
-            if (!hasMatchingFile) return false;
+            if (!hasMatchingFile) {return false;}
         }
 
         // 檢查變更類型
@@ -400,7 +400,7 @@ export class AutoDocumentationUpdater {
             const hasMatchingChangeType = changes.files.some(file =>
                 condition.changeTypes!.includes(file.type)
             );
-            if (!hasMatchingChangeType) return false;
+            if (!hasMatchingChangeType) {return false;}
         }
 
         // 檢查最小變更數量
@@ -600,22 +600,22 @@ export class AutoDocumentationUpdater {
     }
 
     private calculateFileImpact(changes: CodeChange[]): 'low' | 'medium' | 'high' {
-        if (changes.length > 10) return 'high';
-        if (changes.length > 3) return 'medium';
+        if (changes.length > 10) {return 'high';}
+        if (changes.length > 3) {return 'medium';}
         return 'low';
     }
 
     private updateSummary(summary: ChangeSummary, file: ChangedFile): void {
         summary.totalFiles++;
-        if (file.type === 'create') summary.newFiles++;
-        if (file.type === 'modify') summary.modifiedFiles++;
-        if (file.type === 'delete') summary.deletedFiles++;
+        if (file.type === 'create') {summary.newFiles++;}
+        if (file.type === 'modify') {summary.modifiedFiles++;}
+        if (file.type === 'delete') {summary.deletedFiles++;}
 
         for (const change of file.changes) {
-            if (change.type === 'function' && change.action === 'added') summary.newFunctions++;
-            if (change.type === 'function' && change.action === 'modified') summary.modifiedFunctions++;
-            if (change.type === 'class' && change.action === 'added') summary.newClasses++;
-            if (change.type === 'class' && change.action === 'modified') summary.modifiedClasses++;
+            if (change.type === 'function' && change.action === 'added') {summary.newFunctions++;}
+            if (change.type === 'function' && change.action === 'modified') {summary.modifiedFunctions++;}
+            if (change.type === 'class' && change.action === 'added') {summary.newClasses++;}
+            if (change.type === 'class' && change.action === 'modified') {summary.modifiedClasses++;}
         }
     }
 
@@ -653,7 +653,7 @@ export class AutoDocumentationUpdater {
     }
 
     private async processUpdateQueue(): Promise<void> {
-        if (this.isProcessing) return;
+        if (this.isProcessing) {return;}
         this.isProcessing = true;
 
         while (this.updateQueue.length > 0) {

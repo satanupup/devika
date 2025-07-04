@@ -82,7 +82,7 @@ export class MultiProjectAnalyzer {
             if (type === vscode.FileType.Directory && !this.isIgnoredDirectory(name)) {
                 const dirPath = path.join(this.workspaceRoot, name);
                 const project = await this.analyzeDirectory(dirPath, name);
-                
+
                 if (project.type !== ProjectType.UNKNOWN || project.sourceFiles > 5) {
                     projects.push(project);
                 }
@@ -109,7 +109,7 @@ export class MultiProjectAnalyzer {
         try {
             const entries = await vscode.workspace.fs.readDirectory(vscode.Uri.file(dirPath));
             const files = entries.filter(([_, type]) => type === vscode.FileType.File).map(([name]) => name);
-            
+
             // 分析項目類型和特徵
             await this.analyzeProjectType(project, files, dirPath);
             await this.analyzeLanguages(project, dirPath);
@@ -125,19 +125,19 @@ export class MultiProjectAnalyzer {
 
     private async analyzeProjectType(project: ProjectInfo, files: string[], dirPath: string): Promise<void> {
         // Android 項目檢測
-        if (files.includes('build.gradle') || files.includes('build.gradle.kts') || 
+        if (files.includes('build.gradle') || files.includes('build.gradle.kts') ||
             files.includes('AndroidManifest.xml') || files.includes('gradle.properties')) {
             project.type = ProjectType.ANDROID_APP;
             project.buildFiles.push(...files.filter(f => f.includes('gradle') || f.includes('manifest')));
         }
-        
+
         // iOS 項目檢測
-        else if (files.some(f => f.endsWith('.xcodeproj')) || files.includes('Podfile') || 
+        else if (files.some(f => f.endsWith('.xcodeproj')) || files.includes('Podfile') ||
                  files.includes('Package.swift')) {
             project.type = ProjectType.IOS_APP;
             project.buildFiles.push(...files.filter(f => f.includes('Podfile') || f.includes('Package.swift')));
         }
-        
+
         // Web 項目檢測
         else if (files.includes('package.json')) {
             const packagePath = path.join(dirPath, 'package.json');
@@ -145,8 +145,8 @@ export class MultiProjectAnalyzer {
                 const packageContent = await fs.promises.readFile(packagePath, 'utf8');
                 const packageJson = JSON.parse(packageContent);
                 project.packageInfo = packageJson;
-                
-                if (packageJson.dependencies?.react || packageJson.dependencies?.vue || 
+
+                if (packageJson.dependencies?.react || packageJson.dependencies?.vue ||
                     packageJson.dependencies?.angular) {
                     project.type = ProjectType.WEB_APP;
                 } else if (packageJson.dependencies?.express || packageJson.dependencies?.fastify) {
@@ -154,37 +154,37 @@ export class MultiProjectAnalyzer {
                 } else {
                     project.type = ProjectType.LIBRARY;
                 }
-                
+
                 project.description = packageJson.description || '';
                 project.dependencies = Object.keys(packageJson.dependencies || {});
             } catch (error) {
                 console.error('讀取 package.json 失敗:', error);
             }
         }
-        
+
         // Python 項目檢測
-        else if (files.includes('requirements.txt') || files.includes('setup.py') || 
+        else if (files.includes('requirements.txt') || files.includes('setup.py') ||
                  files.includes('pyproject.toml') || files.includes('Pipfile')) {
             project.type = this.detectPythonProjectType(files);
-            project.buildFiles.push(...files.filter(f => 
+            project.buildFiles.push(...files.filter(f =>
                 ['requirements.txt', 'setup.py', 'pyproject.toml', 'Pipfile'].includes(f)));
         }
-        
+
         // Java 項目檢測
         else if (files.includes('pom.xml') || files.includes('build.gradle')) {
             project.type = ProjectType.BACKEND_API;
             project.buildFiles.push(...files.filter(f => f.includes('pom.xml') || f.includes('gradle')));
         }
-        
+
         // 文檔項目檢測
-        else if (files.some(f => f.toLowerCase().includes('readme')) || 
+        else if (files.some(f => f.toLowerCase().includes('readme')) ||
                  files.some(f => f.endsWith('.md')) && files.length < 10) {
             project.type = ProjectType.DOCUMENTATION;
         }
 
         // 配置文件檢測
-        project.configFiles = files.filter(f => 
-            f.endsWith('.json') || f.endsWith('.yml') || f.endsWith('.yaml') || 
+        project.configFiles = files.filter(f =>
+            f.endsWith('.json') || f.endsWith('.yml') || f.endsWith('.yaml') ||
             f.endsWith('.toml') || f.endsWith('.ini') || f.endsWith('.conf')
         );
     }
@@ -219,11 +219,11 @@ export class MultiProjectAnalyzer {
         const languageCount: { [key: string]: number } = {};
 
         const scanForLanguages = async (currentPath: string, depth: number = 0): Promise<void> => {
-            if (depth > 3) return; // 限制掃描深度
+            if (depth > 3) {return;} // 限制掃描深度
 
             try {
                 const entries = await vscode.workspace.fs.readDirectory(vscode.Uri.file(currentPath));
-                
+
                 for (const [name, type] of entries) {
                     if (type === vscode.FileType.File) {
                         const ext = path.extname(name);
@@ -250,17 +250,17 @@ export class MultiProjectAnalyzer {
 
     private async countFiles(project: ProjectInfo, dirPath: string): Promise<void> {
         const countFiles = async (currentPath: string, depth: number = 0): Promise<void> => {
-            if (depth > 3) return;
+            if (depth > 3) {return;}
 
             try {
                 const entries = await vscode.workspace.fs.readDirectory(vscode.Uri.file(currentPath));
-                
+
                 for (const [name, type] of entries) {
                     if (type === vscode.FileType.File) {
                         const ext = path.extname(name);
                         const isSourceFile = ['.ts', '.js', '.py', '.java', '.kt', '.swift', '.cpp', '.c'].includes(ext);
                         const isTestFile = name.includes('test') || name.includes('spec') || currentPath.includes('test');
-                        
+
                         if (isSourceFile) {
                             if (isTestFile) {
                                 project.testFiles++;
@@ -288,7 +288,7 @@ export class MultiProjectAnalyzer {
                 const readmePath = path.join(dirPath, readmeFile);
                 const content = await fs.promises.readFile(readmePath, 'utf8');
                 project.readmeContent = content.substring(0, 500); // 只取前500字符
-                
+
                 // 從 README 中提取描述
                 if (!project.description) {
                     const lines = content.split('\n');
@@ -309,11 +309,11 @@ export class MultiProjectAnalyzer {
     private async findSharedFiles(): Promise<string[]> {
         const sharedFiles: string[] = [];
         const rootFiles = await vscode.workspace.fs.readDirectory(vscode.Uri.file(this.workspaceRoot));
-        
+
         for (const [name, type] of rootFiles) {
             if (type === vscode.FileType.File) {
-                const isSharedFile = name.toLowerCase().includes('readme') || 
-                                   name.includes('LICENSE') || 
+                const isSharedFile = name.toLowerCase().includes('readme') ||
+                                   name.includes('LICENSE') ||
                                    name.includes('.gitignore') ||
                                    name.includes('docker') ||
                                    name.includes('makefile');
@@ -322,7 +322,7 @@ export class MultiProjectAnalyzer {
                 }
             }
         }
-        
+
         return sharedFiles;
     }
 
@@ -340,7 +340,7 @@ export class MultiProjectAnalyzer {
         });
 
         let summary = `檢測到 ${projects.length} 個項目：\n`;
-        
+
         Object.entries(typeCount).forEach(([type, count]) => {
             summary += `• ${count} 個 ${type}\n`;
         });

@@ -16,7 +16,7 @@ export class CodeAnalysisUtils {
 
         for (const line of lines) {
             const trimmed = line.trim();
-            
+
             // 跳過註釋和空行
             if (this.isCommentOrEmpty(trimmed)) {
                 continue;
@@ -45,7 +45,7 @@ export class CodeAnalysisUtils {
 
         for (const line of lines) {
             const trimmed = line.trim();
-            
+
             if (this.isCommentOrEmpty(trimmed)) {
                 continue;
             }
@@ -76,13 +76,13 @@ export class CodeAnalysisUtils {
     static findDuplicatedLines(lines: string[]): number {
         const lineMap = new Map<string, number>();
         let duplicated = 0;
-        
+
         for (const line of lines) {
             const normalized = this.normalizeLine(line);
             if (normalized) {
                 const count = lineMap.get(normalized) || 0;
                 lineMap.set(normalized, count + 1);
-                
+
                 if (count === 1) {
                     duplicated += 2; // 第一次發現重複
                 } else if (count > 1) {
@@ -90,7 +90,7 @@ export class CodeAnalysisUtils {
                 }
             }
         }
-        
+
         return duplicated;
     }
 
@@ -171,10 +171,10 @@ export class CodeAnalysisUtils {
         }
 
         const trimmed = line.trim();
-        
+
         // 單行註釋
-        if (trimmed.startsWith('//') || 
-            trimmed.startsWith('#') || 
+        if (trimmed.startsWith('//') ||
+            trimmed.startsWith('#') ||
             trimmed.startsWith('*') ||
             trimmed.startsWith('/*')) {
             return true;
@@ -188,7 +188,7 @@ export class CodeAnalysisUtils {
      */
     static normalizeLine(line: string): string | null {
         const trimmed = line.trim();
-        
+
         // 跳過空行和註釋
         if (this.isCommentOrEmpty(trimmed)) {
             return null;
@@ -222,7 +222,7 @@ export class CodeAnalysisUtils {
 
             if (inFunction) {
                 currentFunctionLength++;
-                
+
                 // 計算大括號
                 const openBraces = (line.match(/{/g) || []).length;
                 const closeBraces = (line.match(/}/g) || []).length;
@@ -256,7 +256,7 @@ export class CodeAnalysisUtils {
         for (const line of lines) {
             const openBraces = (line.match(/{/g) || []).length;
             const closeBraces = (line.match(/}/g) || []).length;
-            
+
             currentDepth += openBraces - closeBraces;
             maxDepth = Math.max(maxDepth, currentDepth);
         }
@@ -281,7 +281,7 @@ export class CodeAnalysisUtils {
             if (numberMatches) {
                 for (const match of numberMatches) {
                     const num = parseFloat(match);
-                    
+
                     // 排除常見的非魔術數字
                     if (!this.isCommonNumber(num)) {
                         magicNumbers.push(num);
@@ -323,7 +323,7 @@ export class CodeAnalysisUtils {
     static extractIdentifiers(content: string): string[] {
         const identifierPattern = /\b[a-zA-Z_$][a-zA-Z0-9_$]*\b/g;
         const matches = content.match(identifierPattern) || [];
-        
+
         // 過濾關鍵字
         const keywords = new Set([
             'if', 'else', 'for', 'while', 'function', 'class', 'const', 'let', 'var',

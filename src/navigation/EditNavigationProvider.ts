@@ -119,7 +119,7 @@ export class EditNavigationProvider implements vscode.TreeDataProvider<EditNavig
           placeHolder: '例如: 實現用戶登錄功能'
         });
 
-        if (!title) return;
+        if (!title) {return;}
 
         const description = await vscode.window.showInputBox({
           prompt: '輸入編輯計劃描述（可選）',
@@ -131,7 +131,7 @@ export class EditNavigationProvider implements vscode.TreeDataProvider<EditNavig
           placeHolder: '例如: 創建一個安全的用戶認證系統'
         });
 
-        if (!userGoal) return;
+        if (!userGoal) {return;}
 
         // 選擇任務類型
         const taskTypeItems = [
@@ -146,7 +146,7 @@ export class EditNavigationProvider implements vscode.TreeDataProvider<EditNavig
           placeHolder: '選擇編輯任務類型'
         });
 
-        if (!selectedTaskType) return;
+        if (!selectedTaskType) {return;}
 
         // 檢測當前上下文
         const activeEditor = vscode.window.activeTextEditor;
@@ -288,10 +288,10 @@ export class EditNavigationProvider implements vscode.TreeDataProvider<EditNavig
    */
   async showStepDetails(stepId: string): Promise<void> {
     const activePlan = this.navigationEngine.getActivePlan();
-    if (!activePlan) return;
+    if (!activePlan) {return;}
 
     const step = activePlan.steps.find(s => s.id === stepId);
-    if (!step) return;
+    if (!step) {return;}
 
     const panel = vscode.window.createWebviewPanel(
       'editStepDetails',

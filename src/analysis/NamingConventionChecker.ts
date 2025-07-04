@@ -89,19 +89,19 @@ export class NamingConventionChecker {
 
             // 檢查變數聲明
             issues.push(...this.checkVariableDeclarations(line, lineNumber, rules));
-            
+
             // 檢查函數聲明
             issues.push(...this.checkFunctionDeclarations(line, lineNumber, rules));
-            
+
             // 檢查類別聲明
             issues.push(...this.checkClassDeclarations(line, lineNumber, rules));
-            
+
             // 檢查介面聲明
             issues.push(...this.checkInterfaceDeclarations(line, lineNumber, rules));
-            
+
             // 檢查枚舉聲明
             issues.push(...this.checkEnumDeclarations(line, lineNumber, rules));
-            
+
             // 檢查常數聲明
             issues.push(...this.checkConstantDeclarations(line, lineNumber, rules));
         }
@@ -121,7 +121,7 @@ export class NamingConventionChecker {
      */
     private checkVariableDeclarations(line: string, lineNumber: number, rules: NamingRules): NamingIssue[] {
         const issues: NamingIssue[] = [];
-        
+
         // TypeScript/JavaScript 變數聲明模式
         const patterns = [
             /(?:let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/g,
@@ -133,7 +133,7 @@ export class NamingConventionChecker {
             while ((match = pattern.exec(line)) !== null) {
                 const variableName = match[1];
                 const column = match.index + match[0].indexOf(variableName);
-                
+
                 if (!this.followsConvention(variableName, rules.variables)) {
                     issues.push({
                         type: 'variable',
@@ -157,7 +157,7 @@ export class NamingConventionChecker {
      */
     private checkFunctionDeclarations(line: string, lineNumber: number, rules: NamingRules): NamingIssue[] {
         const issues: NamingIssue[] = [];
-        
+
         // 函數聲明模式
         const patterns = [
             /function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/g,
@@ -170,12 +170,12 @@ export class NamingConventionChecker {
             while ((match = pattern.exec(line)) !== null) {
                 const functionName = match[1];
                 const column = match.index + match[0].indexOf(functionName);
-                
+
                 // 跳過一些常見的非函數名稱
                 if (this.isLikelyNotFunction(functionName, line)) {
                     continue;
                 }
-                
+
                 if (!this.followsConvention(functionName, rules.functions)) {
                     issues.push({
                         type: 'function',
@@ -200,12 +200,12 @@ export class NamingConventionChecker {
     private checkClassDeclarations(line: string, lineNumber: number, rules: NamingRules): NamingIssue[] {
         const issues: NamingIssue[] = [];
         const pattern = /class\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/g;
-        
+
         let match;
         while ((match = pattern.exec(line)) !== null) {
             const className = match[1];
             const column = match.index + match[0].indexOf(className);
-            
+
             if (!this.followsConvention(className, rules.classes)) {
                 issues.push({
                     type: 'class',
@@ -229,12 +229,12 @@ export class NamingConventionChecker {
     private checkInterfaceDeclarations(line: string, lineNumber: number, rules: NamingRules): NamingIssue[] {
         const issues: NamingIssue[] = [];
         const pattern = /interface\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/g;
-        
+
         let match;
         while ((match = pattern.exec(line)) !== null) {
             const interfaceName = match[1];
             const column = match.index + match[0].indexOf(interfaceName);
-            
+
             if (!this.followsConvention(interfaceName, rules.interfaces)) {
                 issues.push({
                     type: 'interface',
@@ -258,12 +258,12 @@ export class NamingConventionChecker {
     private checkEnumDeclarations(line: string, lineNumber: number, rules: NamingRules): NamingIssue[] {
         const issues: NamingIssue[] = [];
         const pattern = /enum\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/g;
-        
+
         let match;
         while ((match = pattern.exec(line)) !== null) {
             const enumName = match[1];
             const column = match.index + match[0].indexOf(enumName);
-            
+
             if (!this.followsConvention(enumName, rules.enums)) {
                 issues.push({
                     type: 'enum',
@@ -287,12 +287,12 @@ export class NamingConventionChecker {
     private checkConstantDeclarations(line: string, lineNumber: number, rules: NamingRules): NamingIssue[] {
         const issues: NamingIssue[] = [];
         const pattern = /const\s+([A-Z_][A-Z0-9_]*)\s*=/g;
-        
+
         let match;
         while ((match = pattern.exec(line)) !== null) {
             const constantName = match[1];
             const column = match.index + match[0].indexOf(constantName);
-            
+
             if (!this.followsConvention(constantName, rules.constants)) {
                 issues.push({
                     type: 'constant',
@@ -358,7 +358,7 @@ export class NamingConventionChecker {
     private convertToConvention(name: string, convention: NamingConvention): string {
         // 先將名稱分解為單詞
         const words = this.splitIntoWords(name);
-        
+
         switch (convention) {
             case NamingConvention.CAMEL_CASE:
                 return words[0].toLowerCase() + words.slice(1).map(w => this.capitalize(w)).join('');

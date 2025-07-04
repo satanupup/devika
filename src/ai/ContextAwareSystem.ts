@@ -108,7 +108,7 @@ export class ContextAwareSystem {
     ): Promise<string> {
         const id = this.generateContextId();
         const size = content.length;
-        
+
         // 檢查是否需要清理空間
         if (this.currentContextSize + size > this.maxContextSize) {
             await this.cleanupContext(size);
@@ -142,7 +142,7 @@ export class ContextAwareSystem {
                 }
 
                 const analysis = await this.codeEngine.analyzeFile(uri);
-                
+
                 return this.addContext(ContextType.FILE, content, {
                     uri,
                     language: this.getLanguageFromUri(uri),
@@ -165,7 +165,7 @@ export class ContextAwareSystem {
         content: string
     ): Promise<string> {
         const symbols = await this.getSymbolsInRange(uri, range);
-        
+
         return this.addContext(ContextType.SELECTION, content, {
             uri,
             range,
@@ -180,7 +180,7 @@ export class ContextAwareSystem {
      */
     async addSymbolContext(symbol: CodeSymbol): Promise<string> {
         const content = await this.getSymbolContent(symbol);
-        
+
         return this.addContext(ContextType.SYMBOL, content, {
             uri: symbol.uri,
             range: symbol.range,
@@ -199,7 +199,7 @@ export class ContextAwareSystem {
         intent?: string
     ): Promise<string> {
         const content = `User: ${userMessage}\nAssistant: ${assistantResponse}`;
-        
+
         return this.addContext(ContextType.CONVERSATION, content, {
             userIntent: intent,
             priority: 'high'
@@ -211,12 +211,12 @@ export class ContextAwareSystem {
      */
     async queryContext(query: ContextQuery): Promise<ContextItem[]> {
         const items = Array.from(this.contextItems.values());
-        
+
         let filteredItems = items;
 
         // 按類型過濾
         if (query.types && query.types.length > 0) {
-            filteredItems = filteredItems.filter(item => 
+            filteredItems = filteredItems.filter(item =>
                 query.types!.includes(item.type)
             );
         }
@@ -259,7 +259,7 @@ export class ContextAwareSystem {
      */
     getContextSummary(): ContextSummary {
         const items = Array.from(this.contextItems.values());
-        
+
         const typeDistribution: Record<ContextType, number> = {
             [ContextType.FILE]: 0,
             [ContextType.SYMBOL]: 0,
@@ -282,7 +282,7 @@ export class ContextAwareSystem {
         items.forEach(item => {
             typeDistribution[item.type]++;
             totalSize += item.size;
-            
+
             if (item.relevanceScore >= 0.7) {
                 relevanceDistribution.high++;
             } else if (item.relevanceScore >= 0.4) {
@@ -332,7 +332,7 @@ export class ContextAwareSystem {
         maxTokens: number = 150000 // 約 200K 字符
     ): Promise<ContextItem[]> {
         const allItems = Array.from(this.contextItems.values());
-        
+
         // 計算每個項目與查詢的相關性
         const scoredItems = await Promise.all(
             allItems.map(async item => ({
@@ -365,24 +365,24 @@ export class ContextAwareSystem {
      */
     private async cleanupContext(requiredSpace: number): Promise<void> {
         const items = Array.from(this.contextItems.values());
-        
+
         // 按優先級和時間排序（優先級低且時間久的先清理）
         items.sort((a, b) => {
             const priorityOrder = { low: 1, medium: 2, high: 3, critical: 4 };
             const aPriority = priorityOrder[a.metadata.priority || 'medium'];
             const bPriority = priorityOrder[b.metadata.priority || 'medium'];
-            
+
             if (aPriority !== bPriority) {
                 return aPriority - bPriority;
             }
-            
+
             return a.timestamp.getTime() - b.timestamp.getTime();
         });
 
         let freedSpace = 0;
         for (const item of items) {
-            if (freedSpace >= requiredSpace) break;
-            
+            if (freedSpace >= requiredSpace) {break;}
+
             this.contextItems.delete(item.id);
             this.currentContextSize -= item.size;
             freedSpace += item.size;
@@ -435,7 +435,7 @@ export class ContextAwareSystem {
         // 文本匹配
         const queryLower = query.toLowerCase();
         const contentLower = item.content.toLowerCase();
-        
+
         if (contentLower.includes(queryLower)) {
             score += 0.3;
         }
@@ -468,7 +468,7 @@ export class ContextAwareSystem {
      */
     private matchesQuery(item: ContextItem, query: string): boolean {
         const queryLower = query.toLowerCase();
-        
+
         // 檢查內容
         if (item.content.toLowerCase().includes(queryLower)) {
             return true;
@@ -479,7 +479,7 @@ export class ContextAwareSystem {
             const symbolMatch = item.metadata.symbols.some(symbol =>
                 symbol.name.toLowerCase().includes(queryLower)
             );
-            if (symbolMatch) return true;
+            if (symbolMatch) {return true;}
         }
 
         // 檢查標籤
@@ -487,7 +487,7 @@ export class ContextAwareSystem {
             const tagMatch = item.metadata.tags.some(tag =>
                 tag.toLowerCase().includes(queryLower)
             );
-            if (tagMatch) return true;
+            if (tagMatch) {return true;}
         }
 
         return false;
@@ -553,12 +553,12 @@ export class ContextAwareSystem {
 
     private async getSymbolContent(symbol: CodeSymbol): Promise<string> {
         const content = await FileOperationUtils.readFile(symbol.uri);
-        if (!content) return '';
-        
+        if (!content) {return '';}
+
         const lines = content.split('\n');
         const startLine = symbol.range.start.line;
         const endLine = symbol.range.end.line;
-        
+
         return lines.slice(startLine, endLine + 1).join('\n');
     }
 

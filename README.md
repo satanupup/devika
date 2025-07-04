@@ -27,8 +27,9 @@
 
 ![VS Code Extension Screenshot](https://via.placeholder.com/800x400/1e1e1e/ffffff?text=Devika+VS+Code+Extension)
 
-> [!NOTE]
-> 🚀 **v1.0.0 企業級優化版本** - 經過全面性能優化的 Devika AI VS Code Extension，具備智能記憶體管理、API 快取、錯誤自動恢復、實時性能監控等企業級功能。啟動時間 < 2 秒，記憶體使用優化 60%，API 調用成本降低 50%。
+> [!NOTE] 🚀 **v1.0.0 企業級優化版本** - 經過全面性能優化的 Devika AI VS Code
+> Extension，具備智能記憶體管理、API 快取、錯誤自動恢復、實時性能監控等企業級功能。啟動時間 <
+> 2 秒，記憶體使用優化 60%，API 調用成本降低 50%。
 
 ## 目錄
 
@@ -55,7 +56,8 @@
 
 ## 關於專案
 
-Devika VS Code Extension 是一個深度整合進 VS Code 的 AI 開發助理，專為提升開發效率而設計。它不僅能執行指令，更能主動理解專案的程式碼結構與 Git 脈絡，提供智能的開發建議和自動化任務管理。
+Devika VS Code Extension 是一個深度整合進 VS
+Code 的 AI 開發助理，專為提升開發效率而設計。它不僅能執行指令，更能主動理解專案的程式碼結構與 Git 脈絡，提供智能的開發建議和自動化任務管理。
 
 ### 🎯 專案目標
 
@@ -73,12 +75,13 @@ Devika VS Code Extension 是一個深度整合進 VS Code 的 AI 開發助理，
 - **🔄 智能學習**: 基於程式碼變更和使用者回饋持續改進
 - **⚡ 無縫整合**: 深度整合 VS Code，提供原生的開發體驗
 
-> [!TIP]
-> 這個 Extension 是基於原始 Devika 專案的核心理念，專門為 VS Code 環境優化設計，提供更直接、更高效的開發助理體驗。
+> [!TIP] 這個 Extension 是基於原始 Devika 專案的核心理念，專門為 VS
+> Code 環境優化設計，提供更直接、更高效的開發助理體驗。
 
 ## 核心功能
 
 ### 🚀 **v1.0.0 企業級優化功能** ⭐ NEW
+
 - **智能記憶體管理**: 自動快取清理，防止記憶體洩漏，支援大型專案 (50MB 智能快取)
 - **API 調用優化**: 請求去重、智能快取、批量處理，降低 50% API 成本
 - **啟動性能優化**: 懶加載機制，啟動時間 < 2 秒 (相比之前提升 60%)
@@ -89,42 +92,49 @@ Devika VS Code Extension 是一個深度整合進 VS Code 的 AI 開發助理，
 - **代碼重複消除**: 統一設計模式，共用工具函數，提高可維護性
 
 ### 🤖 AI 模型支援
+
 - **Claude 3** (Sonnet/Opus) - 建議使用，程式碼理解能力最佳
 - **GPT-4** / **GPT-3.5 Turbo** - OpenAI 模型，廣泛支援
 - **Gemini Pro** - Google 模型，多模態能力強
 - **一鍵切換**: 在設定中輕鬆切換不同 AI 模型
 
 ### 🧠 智能程式碼分析
+
 - **語法樹解析**: 使用 Tree-sitter 精準理解程式碼結構
 - **符號索引**: 自動建立函式、類別、變數的索引
 - **上下文提取**: 智能提取相關程式碼片段，減少 Token 消耗
 - **複雜度分析**: 計算圈複雜度和認知複雜度
 
 ### 📋 任務代理系統
+
 - **自動任務生成**: 將 AI 建議轉換為可追蹤的任務
 - **任務狀態管理**: 待處理、進行中、已完成、已取消
 - **優先級排序**: 低、中、高、緊急四個優先級
 - **任務分組**: 將相關任務組織成群組
 
 ### � 深度 Git 整合
+
 - **智能 Commit 訊息**: 基於變更內容自動生成描述性訊息
 - **變更總結**: 分析 Git diff 並提供變更摘要
 - **分支管理**: 檢視和切換分支
 - **歷史追蹤**: 查看檔案和專案的變更歷史
 
 ### � 程式碼重構與優化
+
 - **重構建議**: AI 分析程式碼並提供改進建議
 - **一鍵應用**: 直接將重構建議應用到程式碼
 - **測試生成**: 為選取的程式碼自動生成單元測試
 - **程式碼品質檢查**: 識別潛在問題和改進機會
 
 ### 📝 TODO 與任務管理
+
 - **自動掃描**: 掃描專案中的 TODO、FIXME、HACK 註解
 - **任務轉換**: 將註解自動轉換為可管理的任務項
 - **檔案關聯**: 任務與特定檔案和行數關聯
 - **進度追蹤**: 視覺化任務完成進度
 
 ### 🎨 現代化 UI
+
 - **Webview 面板**: 原生 VS Code 整合的使用者介面
 - **即時更新**: 任務狀態和進度的即時反饋
 - **右鍵選單**: 快速存取常用功能
@@ -159,44 +169,49 @@ src/
 ### 🔧 技術堆疊
 
 #### VS Code Extension 框架
+
 - **TypeScript**: 主要開發語言，提供型別安全
 - **VS Code API**: 深度整合編輯器功能
 - **Webview API**: 自訂使用者介面
 
 #### 程式碼分析
+
 - **Tree-sitter**: 高效能語法樹解析 (計劃中)
 - **多語言支援**: TypeScript、JavaScript、Java、C++、Go、Rust 等 (計劃中)
 
 #### AI 整合
+
 - **多 LLM 支援**: Claude 3、GPT-4、Gemini Pro
 - **Axios**: HTTP 客戶端，處理 API 請求
 - **Token 管理**: 智能 Token 計算和成本控制
 
 #### Git 整合
+
 - **simple-git**: 強大的 Git 操作函式庫
 - **差異分析**: 智能變更檢測和總結
 
 #### 資料持久化
+
 - **VS Code State API**: 工作區和全域狀態管理
 - **JSON 序列化**: 任務和配置資料儲存
 
 ## 開發狀態
 
-> [!IMPORTANT]
-> 🎉 **項目已完成！** Devika VS Code Extension 已成功完成所有開發目標，現已進入生產就緒狀態。
+> [!IMPORTANT] 🎉 **項目已完成！** Devika VS Code
+> Extension 已成功完成所有開發目標，現已進入生產就緒狀態。
 
 ### ✅ **完成狀態**
 
-| 功能模組 | 狀態 | 完成度 | 說明 |
-|---------|------|--------|------|
-| 🏗️ **基礎架構** | ✅ 已完成 | 100% | TypeScript 配置、模塊化架構、錯誤處理 |
-| 🤖 **LLM 整合** | ✅ 已完成 | 100% | OpenAI、Claude、Gemini 三大提供商支持 |
-| 🧠 **程式碼分析** | ✅ 已完成 | 100% | Tree-sitter 整合、語義分析、質量評估 |
-| 📋 **任務管理** | ✅ 已完成 | 100% | 完整的任務引擎、狀態管理、模板系統 |
-| 🔗 **Git 整合** | ✅ 已完成 | 100% | 智能提交、變更分析、分支管理 |
-| 🎨 **使用者介面** | ✅ 已完成 | 100% | 現代化 UI、Webview 面板、視圖提供者 |
-| 🤖 **代理模式** | ✅ 已完成 | 100% | 交互式審查、多文件編輯、檢查點系統 |
-| 📊 **分析系統** | ✅ 已完成 | 100% | 項目分析、使用統計、反饋收集 |
+| 功能模組          | 狀態      | 完成度 | 說明                                  |
+| ----------------- | --------- | ------ | ------------------------------------- |
+| 🏗️ **基礎架構**   | ✅ 已完成 | 100%   | TypeScript 配置、模塊化架構、錯誤處理 |
+| 🤖 **LLM 整合**   | ✅ 已完成 | 100%   | OpenAI、Claude、Gemini 三大提供商支持 |
+| 🧠 **程式碼分析** | ✅ 已完成 | 100%   | Tree-sitter 整合、語義分析、質量評估  |
+| 📋 **任務管理**   | ✅ 已完成 | 100%   | 完整的任務引擎、狀態管理、模板系統    |
+| 🔗 **Git 整合**   | ✅ 已完成 | 100%   | 智能提交、變更分析、分支管理          |
+| 🎨 **使用者介面** | ✅ 已完成 | 100%   | 現代化 UI、Webview 面板、視圖提供者   |
+| 🤖 **代理模式**   | ✅ 已完成 | 100%   | 交互式審查、多文件編輯、檢查點系統    |
+| 📊 **分析系統**   | ✅ 已完成 | 100%   | 項目分析、使用統計、反饋收集          |
 
 ### 🏆 **Sprint 完成狀態**
 
@@ -213,6 +228,7 @@ src/
 ### 🎯 **項目成就**
 
 #### ✅ **已完成的主要功能**
+
 - [x] **完整的 AI 助理系統**: 支持 OpenAI、Claude、Gemini
 - [x] **智能代碼分析**: Tree-sitter 語法分析、語義理解
 - [x] **代理模式**: 交互式任務審查、多文件編輯
@@ -223,23 +239,25 @@ src/
 - [x] **配置管理**: 高級配置系統和模板
 
 #### 🏆 **超越原計劃的功能**
+
 - [x] **檢查點系統**: 完整的狀態快照和回滾
 - [x] **多文件並發編輯**: 智能衝突檢測
 - [x] **使用統計分析**: 詳細的使用數據收集
 - [x] **反饋收集系統**: 完整的用戶反饋機制
 - [x] **性能優化**: 大型項目支持和啟動優化
 
-
 ## 快速開始
 
 ### 系統需求
 
 #### 必要條件
+
 - **VS Code**: 1.74.0 或更高版本
 - **Node.js**: 18.0 或更高版本 (用於開發)
 - **Git**: 用於版本控制功能
 
 #### AI 模型 API 金鑰 (至少需要一個)
+
 - **Claude API**: [Anthropic Console](https://console.anthropic.com/)
 - **OpenAI API**: [OpenAI Platform](https://platform.openai.com/api-keys)
 - **Gemini API**: [Google AI Studio](https://makersuite.google.com/app/apikey)
@@ -256,22 +274,26 @@ src/
 #### 方法二：從原始碼安裝
 
 1. **複製儲存庫**
+
    ```bash
    git clone https://github.com/satanupup/devika.git
    cd devika
    ```
 
 2. **安裝依賴項**
+
    ```bash
    npm install
    ```
 
 3. **編譯擴充功能**
+
    ```bash
    npm run compile
    ```
 
 4. **在 VS Code 中開啟專案**
+
    ```bash
    code .
    ```
@@ -280,7 +302,8 @@ src/
 
 #### 方法三：安裝 VSIX 套件
 
-1. **下載最新的 VSIX 檔案** 從 [Releases 頁面](https://github.com/satanupup/devika/releases)
+1. **下載最新的 VSIX 檔案** 從
+   [Releases 頁面](https://github.com/satanupup/devika/releases)
 2. **在 VS Code 中安裝**:
    ```bash
    code --install-extension devika-vscode-0.1.0.vsix
@@ -303,35 +326,42 @@ src/
 如果安裝後在 VS Code 中看不到 Devika 圖標或功能，請嘗試以下步驟：
 
 #### 1. 檢查擴展狀態
+
 - 按 `Ctrl+Shift+X` 打開擴展面板
 - 搜索 "Devika"
 - 確保擴展已啟用（沒有 "啟用" 按鈕）
 
 #### 2. 手動激活擴展
+
 - 按 `Ctrl+Shift+P` 打開命令面板
 - 輸入 "Devika: 啟動 AI 助理"
 - 執行命令
 
 #### 3. 重新載入窗口
+
 - 按 `Ctrl+Shift+P`
 - 輸入 "Developer: Reload Window"
 - 執行命令
 
 #### 4. 檢查輸出面板
+
 - 按 `Ctrl+Shift+U` 打開輸出面板
 - 在下拉菜單中選擇 "Devika"
 - 查看是否有錯誤信息
 
 #### 5. 完全重啟 VS Code
+
 - 關閉所有 VS Code 窗口
 - 重新打開 VS Code
 - 等待幾秒鐘讓擴展完全加載
 
 #### 6. 檢查 VS Code 版本
+
 - 確保您的 VS Code 版本是 1.74.0 或更高
 - 如果版本過舊，請更新 VS Code
 
 #### 7. 查看活動欄
+
 - Devika 圖標 🤖 應該出現在左側活動欄中
 - 如果沒有看到，嘗試右鍵點擊活動欄並檢查是否被隱藏
 
@@ -400,37 +430,41 @@ src/
 #### 📝 使用範例
 
 **程式碼分析範例**:
+
 ```typescript
 // 選取這個函式
 function calculateTotal(items: Item[]): number {
-    let total = 0;
-    for (let i = 0; i < items.length; i++) {
-        total += items[i].price * items[i].quantity;
-    }
-    return total;
+  let total = 0;
+  for (let i = 0; i < items.length; i++) {
+    total += items[i].price * items[i].quantity;
+  }
+  return total;
 }
 ```
+
 → AI 會分析並建議使用 `reduce` 方法來簡化程式碼
 
 **重構建議範例**:
+
 ```typescript
 // AI 建議的重構版本
 function calculateTotal(items: Item[]): number {
-    return items.reduce((total, item) => total + (item.price * item.quantity), 0);
+  return items.reduce((total, item) => total + item.price * item.quantity, 0);
 }
 ```
 
 **測試生成範例**:
+
 ```typescript
 // AI 生成的測試
 describe('calculateTotal', () => {
-    it('should calculate total correctly', () => {
-        const items = [
-            { price: 10, quantity: 2 },
-            { price: 5, quantity: 3 }
-        ];
-        expect(calculateTotal(items)).toBe(35);
-    });
+  it('should calculate total correctly', () => {
+    const items = [
+      { price: 10, quantity: 2 },
+      { price: 5, quantity: 3 }
+    ];
+    expect(calculateTotal(items)).toBe(35);
+  });
 });
 ```
 
@@ -443,21 +477,25 @@ describe('calculateTotal', () => {
 
 ## 配置設定
 
-Devika VS Code Extension 使用 VS Code 的內建設定系統，所有配置都整合在 VS Code 設定中。
+Devika VS Code Extension 使用 VS Code 的內建設定系統，所有配置都整合在 VS
+Code 設定中。
 
 ### 🔧 設定方式
 
 #### 方法一：設定 UI (建議)
+
 1. 開啟 VS Code 設定 (`Ctrl+,` 或 `Cmd+,`)
 2. 搜尋 "Devika"
 3. 配置各項設定
 
 #### 方法二：指令面板
+
 1. 開啟指令面板 (`Ctrl+Shift+P`)
 2. 執行 `Devika: 設定 API 金鑰`
 3. 選擇要設定的提供商並輸入金鑰
 
 #### 方法三：settings.json
+
 ```json
 {
   "devika.openaiApiKey": "your-openai-api-key",
@@ -473,22 +511,27 @@ Devika VS Code Extension 使用 VS Code 的內建設定系統，所有配置都�
 ### ⚙️ 主要設定項目
 
 #### AI 模型設定
+
 - **`devika.preferredModel`**: 偏好的 AI 模型
-  - 選項: `gpt-4`, `gpt-3.5-turbo`, `claude-3-opus`, `claude-3-sonnet`, `gemini-pro`
+  - 選項: `gpt-4`, `gpt-3.5-turbo`, `claude-3-opus`, `claude-3-sonnet`,
+    `gemini-pro`
   - 預設: `claude-3-sonnet`
 
 #### API 金鑰
+
 - **`devika.openaiApiKey`**: OpenAI API 金鑰
 - **`devika.claudeApiKey`**: Claude API 金鑰
 - **`devika.geminiApiKey`**: Gemini API 金鑰
 
 #### 功能開關
+
 - **`devika.autoScanTodos`**: 自動掃描 TODO 註解
   - 預設: `true`
 - **`devika.enableCodeIndexing`**: 啟用程式碼索引
   - 預設: `true`
 
 #### 效能設定
+
 - **`devika.maxContextLines`**: 傳送給 AI 的最大程式碼行數
   - 範圍: 10-1000
   - 預設: 100
@@ -496,11 +539,13 @@ Devika VS Code Extension 使用 VS Code 的內建設定系統，所有配置都�
 ### 🔐 API 金鑰管理
 
 #### 取得 API 金鑰
+
 1. **Claude API**: [Anthropic Console](https://console.anthropic.com/)
 2. **OpenAI API**: [OpenAI Platform](https://platform.openai.com/api-keys)
 3. **Gemini API**: [Google AI Studio](https://makersuite.google.com/app/apikey)
 
 #### 安全最佳實務
+
 - API 金鑰儲存在 VS Code 的安全儲存中
 - 不會同步到其他裝置
 - 定期檢查和輪換金鑰
@@ -509,6 +554,7 @@ Devika VS Code Extension 使用 VS Code 的內建設定系統，所有配置都�
 ### 🔍 設定驗證
 
 擴充功能會自動驗證您的配置：
+
 - 檢查是否至少設定一個 API 金鑰
 - 驗證偏好模型是否有對應的金鑰
 - 檢查數值設定是否在有效範圍內
@@ -569,19 +615,20 @@ devika/
 
 ### 🔄 架構優勢
 
-| 優勢 | 說明 |
-|------|------|
+| 優勢            | 說明                                  |
+| --------------- | ------------------------------------- |
 | **🔌 平台無關** | `devika-core` 可用於任何 IDE 或編輯器 |
-| **🧪 易於測試** | 核心邏輯可獨立測試，不依賴 VS Code |
-| **🚀 快速擴展** | 新平台只需實作介面適配器 |
-| **🛠️ 維護性高** | 核心邏輯與 UI 邏輯分離 |
-| **📦 模組化** | 清楚的依賴關係和職責分離 |
+| **🧪 易於測試** | 核心邏輯可獨立測試，不依賴 VS Code    |
+| **🚀 快速擴展** | 新平台只需實作介面適配器              |
+| **🛠️ 維護性高** | 核心邏輯與 UI 邏輯分離                |
+| **📦 模組化**   | 清楚的依賴關係和職責分離              |
 
 ## 開發指南
 
 ### 開發環境設定
 
 #### 必要工具
+
 - **Node.js**: 18.0 或更高版本
 - **npm**: 8.0 或更高版本
 - **VS Code**: 1.74.0 或更高版本
@@ -590,27 +637,32 @@ devika/
 #### 設定步驟
 
 1. **複製儲存庫**
+
    ```bash
    git clone https://github.com/satanupup/devika.git
    cd devika
    ```
 
 2. **安裝依賴項**
+
    ```bash
    npm install
    ```
 
 3. **編譯 TypeScript**
+
    ```bash
    npm run compile
    ```
 
 4. **啟動開發模式**
+
    ```bash
    npm run watch
    ```
 
 5. **在 VS Code 中開啟專案**
+
    ```bash
    code .
    ```
@@ -623,6 +675,7 @@ devika/
 ### 建置和測試
 
 #### 編譯專案
+
 ```bash
 # 一次性編譯
 npm run compile
@@ -632,6 +685,7 @@ npm run watch
 ```
 
 #### 執行測試
+
 ```bash
 # 執行所有測試
 npm test
@@ -641,6 +695,7 @@ npm run lint
 ```
 
 #### 打包擴充功能
+
 ```bash
 # 安裝 vsce (如果尚未安裝)
 npm install -g @vscode/vsce
@@ -652,7 +707,9 @@ npm run package
 ### 發布流程
 
 #### 準備發布
+
 1. **更新版本號**
+
    ```bash
    npm version patch  # 或 minor, major
    ```
@@ -666,6 +723,7 @@ npm run package
    - 驗證所有功能正常運作
 
 #### 發布到 Marketplace
+
 ```bash
 # 登入 Visual Studio Marketplace
 vsce login <publisher-name>
@@ -677,13 +735,16 @@ vsce publish
 ### 程式碼風格
 
 #### TypeScript 規範
+
 - 使用 4 空格縮排
 - 使用 PascalCase 命名類別
 - 使用 camelCase 命名變數和函式
 - 使用 UPPER_CASE 命名常數
 
 #### ESLint 規則
+
 專案使用 ESLint 確保程式碼品質：
+
 ```bash
 # 檢查程式碼風格
 npm run lint
@@ -695,12 +756,14 @@ npm run lint -- --fix
 ### 除錯技巧
 
 #### VS Code 除錯
+
 1. 在程式碼中設定中斷點
 2. 按 `F5` 啟動除錯
 3. 在新視窗中觸發功能
 4. 檢查變數和呼叫堆疊
 
 #### 日誌記錄
+
 ```typescript
 // 使用 console.log 進行除錯
 console.log('Debug info:', data);
@@ -711,6 +774,7 @@ outputChannel.appendLine('Log message');
 ```
 
 #### 常見問題
+
 - **擴充功能未載入**: 檢查 package.json 中的 activationEvents
 - **指令未註冊**: 確認 contributes.commands 配置正確
 - **Webview 無法顯示**: 檢查 CSP 設定和資源路徑
@@ -720,12 +784,14 @@ outputChannel.appendLine('Log message');
 本專案採用**個體戶友善的敏捷開發方法**，分為 7 個 Sprint 週期，總計 120-160 小時的開發時間。
 
 ### � **項目完成狀態**
+
 - **總體完成度**: 🟢 **100%**
 - **所有 7 個 Sprint**: ✅ **已完成**
 - **67 個計劃任務**: ✅ **全部完成**
 - **開發時間**: 實際完成 120-160 小時的工作量
 
 ### ✅ **已完成的 Sprint**
+
 - **Sprint 1**: 建立基礎架構 (MVP) - ✅ **已完成**
 - **Sprint 2**: 第一個 Augment 插件 + UX 優化 - ✅ **已完成**
 - **Sprint 3**: 代理模式核心功能 - ✅ **已完成**
@@ -735,13 +801,15 @@ outputChannel.appendLine('Log message');
 - **Sprint 7**: 優化與發布 - ✅ **已完成**
 
 ### 📊 **項目成果**
+
 - **代碼規模**: 15,000+ 行高質量 TypeScript 代碼
 - **功能模塊**: 8 個主要模塊，80+ 源文件
 - **支持語言**: 8+ 種編程語言的語法分析
 - **LLM 集成**: 3 個主要 AI 提供商支持
 - **擴展包**: 6.64 MB 生產就緒的 VSIX 文件
 
-詳細的開發歷程和技術架構請參閱 **[DEVELOPMENT_GUIDE.md](DEVELOPMENT_GUIDE.md)** 和 **[PROJECT_COMPLETION_SUMMARY.md](PROJECT_COMPLETION_SUMMARY.md)**。
+詳細的開發歷程和技術架構請參閱 **[DEVELOPMENT_GUIDE.md](DEVELOPMENT_GUIDE.md)**
+和 **[PROJECT_COMPLETION_SUMMARY.md](PROJECT_COMPLETION_SUMMARY.md)**。
 
 ### 📋 專案文件
 
@@ -754,17 +822,20 @@ outputChannel.appendLine('Log message');
 ### 設定開發環境
 
 1. **Fork 並複製儲存庫**
+
    ```bash
    git clone https://github.com/yourusername/devika.git
    cd devika
    ```
 
 2. **安裝依賴項**
+
    ```bash
    npm install
    ```
 
 3. **編譯 TypeScript**
+
    ```bash
    npm run compile
    ```
@@ -825,10 +896,10 @@ import * as assert from 'assert';
 import { ConfigManager } from '../../config/ConfigManager';
 
 suite('ConfigManager Test Suite', () => {
-    test('should load configuration', () => {
-        const config = ConfigManager.getInstance();
-        assert.ok(config);
-    });
+  test('should load configuration', () => {
+    const config = ConfigManager.getInstance();
+    assert.ok(config);
+  });
 });
 ```
 
@@ -837,11 +908,13 @@ suite('ConfigManager Test Suite', () => {
 ### VS Code Marketplace 發布
 
 1. **建置擴充功能**
+
    ```bash
    npm run compile
    ```
 
 2. **打包 VSIX 檔案**
+
    ```bash
    npm install -g vsce
    vsce package
@@ -855,6 +928,7 @@ suite('ConfigManager Test Suite', () => {
 ### 本地安裝
 
 1. **從 VSIX 安裝**
+
    ```bash
    code --install-extension devika-vscode-0.1.0.vsix
    ```
@@ -894,6 +968,7 @@ suite('ConfigManager Test Suite', () => {
 #### 安裝問題
 
 **問題**: `npm install` 失敗
+
 ```bash
 # 解決方案: 清除快取並重新安裝
 npm cache clean --force
@@ -902,6 +977,7 @@ npm install
 ```
 
 **問題**: TypeScript 編譯錯誤
+
 ```bash
 # 解決方案: 檢查 TypeScript 版本
 npm install -g typescript
@@ -912,16 +988,19 @@ npm run compile
 #### 執行時問題
 
 **問題**: "找不到模型" 錯誤
+
 - 檢查設定中的 API 金鑰
 - 驗證模型在您的地區是否可用
 - 嘗試不同的模型
 
 **問題**: 擴充功能無法載入
+
 - 檢查 VS Code 版本 (需要 1.74.0 或更高)
 - 重新載入 VS Code 視窗 (`Ctrl+Shift+P` > "Reload Window")
 - 檢查擴充功能是否已啟用
 
 **問題**: AI 功能無法使用
+
 - 檢查 API 金鑰設定
 - 驗證網路連線
 - 嘗試不同的 AI 模型
@@ -929,11 +1008,13 @@ npm run compile
 #### 效能問題
 
 **問題**: AI 回應時間緩慢
+
 - 檢查網路連線
 - 嘗試不同的 AI 模型
 - 減少分析的程式碼量
 
 **問題**: VS Code 效能問題
+
 - 重新載入 VS Code 視窗
 - 檢查其他擴充功能衝突
 - 更新到最新版本的 VS Code
@@ -958,7 +1039,8 @@ npm run compile
 1. **檢查輸出面板**: VS Code 中的 "Devika" 頻道
 2. **啟用除錯模式**: 參閱上述除錯說明
 3. **GitHub Issues**: [回報問題](https://github.com/satanupup/devika/issues)
-4. **社群討論**: [GitHub Discussions](https://github.com/satanupup/devika/discussions)
+4. **社群討論**:
+   [GitHub Discussions](https://github.com/satanupup/devika/discussions)
 
 ## 貢獻指南
 
@@ -976,6 +1058,7 @@ npm run compile
 ### 貢獻指南
 
 #### Pull Request 格式
+
 - **標題**: 使用前綴如 `Feature:`、`Fix:`、`Docs:`、`Refactor:`、`Improve:`
 - **描述**: 提供關於您變更的清楚詳細資訊
 - **測試**: 確保所有測試通過並在需要時新增新測試
@@ -1035,26 +1118,30 @@ npm run compile
   - CI/CD 管道整合
   - 雲端部署選項
 
-
-
 ## 功能詳解
 
 ### 🧠 智能程式碼分析
+
 Devika 使用先進的語法樹分析技術，能夠：
+
 - 理解程式碼結構和語義
 - 識別潛在的效能問題
 - 提供具體的改進建議
 - 計算程式碼複雜度指標
 
 ### � 任務代理系統
+
 自動將 AI 建議轉換為可管理的任務：
+
 - 任務狀態追蹤（待處理、進行中、已完成）
 - 優先級管理（低、中、高、緊急）
 - 檔案和行數關聯
 - 任務分組和批次操作
 
 ### 🔗 Git 深度整合
+
 智能分析 Git 變更並提供協助：
+
 - 基於 diff 內容生成描述性 commit 訊息
 - 分析變更影響範圍
 - 提供變更總結和建議
@@ -1063,6 +1150,7 @@ Devika 使用先進的語法樹分析技術，能夠：
 ## 🚀 性能優化特性 (v1.0.0)
 
 ### 📊 實時性能監控
+
 Devika 現在內建企業級性能監控系統：
 
 ```bash
@@ -1077,22 +1165,25 @@ Ctrl+Shift+P → "Devika: 清理記憶體快取"
 ```
 
 **性能指標包括：**
+
 - 🧠 記憶體使用率和快取命中率
 - ⚡ CPU 使用率和系統負載
 - 🌐 API 調用統計和成本分析
 - 📈 響應時間趨勢分析
 
 ### 🎯 優化成果
+
 經過全面優化，Devika v1.0.0 實現了顯著的性能提升：
 
-| 指標 | 優化前 | 優化後 | 改善幅度 |
-|------|--------|--------|----------|
-| 啟動時間 | ~5 秒 | <2 秒 | **60% ⬇️** |
+| 指標       | 優化前 | 優化後   | 改善幅度     |
+| ---------- | ------ | -------- | ------------ |
+| 啟動時間   | ~5 秒  | <2 秒    | **60% ⬇️**   |
 | 記憶體使用 | 不受控 | 智能管理 | **穩定運行** |
-| API 成本 | 基準 | 智能快取 | **50% ⬇️** |
-| 錯誤恢復 | 手動 | 自動修復 | **智能化** |
+| API 成本   | 基準   | 智能快取 | **50% ⬇️**   |
+| 錯誤恢復   | 手動   | 自動修復 | **智能化**   |
 
 ### 🛡️ 穩定性保證
+
 - **智能錯誤恢復**: 自動診斷和修復 API、文件系統、配置問題
 - **類型安全**: 嚴格 TypeScript 配置，消除運行時錯誤
 - **記憶體保護**: 防止記憶體洩漏，支援長時間運行
@@ -1103,32 +1194,38 @@ Ctrl+Shift+P → "Devika: 清理記憶體快取"
 ### 常見問題
 
 #### 擴充功能無法啟動
+
 - 檢查 VS Code 版本是否 ≥ 1.74.0
 - 確認 Node.js 版本是否 ≥ 18.0
 - 重新載入 VS Code 視窗
 
 #### API 金鑰無效
+
 - 驗證金鑰格式是否正確
 - 檢查金鑰是否有足夠的配額
 - 確認選擇的模型與金鑰匹配
 
 #### 程式碼分析失敗
+
 - 確認選取的程式碼語法正確
 - 檢查檔案是否已儲存
 - 嘗試重新啟動擴充功能
 
 #### 任務無法建立
+
 - 檢查工作區是否已開啟
 - 確認有寫入權限
 - 清除擴充功能快取
 
 #### 性能問題 (v1.0.0 新增)
+
 - **記憶體使用過高**: 使用 `Devika: 清理記憶體快取` 命令
 - **啟動緩慢**: 檢查是否有大量文件，考慮調整掃描範圍
 - **API 調用過多**: 查看性能報告，檢查快取命中率
 - **響應緩慢**: 使用 `Devika: 顯示性能報告` 診斷瓶頸
 
 ### 取得幫助
+
 1. 查看 [GitHub Issues](https://github.com/satanupup/devika/issues)
 2. 檢查 VS Code 開發者工具的控制台
 3. 啟用除錯模式並查看日誌
@@ -1158,7 +1255,8 @@ Ctrl+Shift+P → "Devika: 清理記憶體快取"
 
 參考 [開發指南](#開發指南) 設定開發環境，然後：
 
-1. 選擇一個 [Good First Issue](https://github.com/satanupup/devika/labels/good%20first%20issue)
+1. 選擇一個
+   [Good First Issue](https://github.com/satanupup/devika/labels/good%20first%20issue)
 2. 在 Issue 中留言表示您要處理
 3. 按照開發指南進行開發
 4. 提交 Pull Request 並等待審核
@@ -1168,6 +1266,7 @@ Ctrl+Shift+P → "Devika: 清理記憶體快取"
 本專案採用 [MIT 授權條款](LICENSE)。
 
 ### 第三方授權
+
 - **VS Code API**: MIT License
 - **Tree-sitter**: MIT License
 - **simple-git**: MIT License
@@ -1202,9 +1301,11 @@ Ctrl+Shift+P → "Devika: 清理記憶體快取"
 
 **🚀 準備好革命性地改變您的編程體驗了嗎？**
 
-[快速開始](#快速開始) • [GitHub Issues](https://github.com/satanupup/devika/issues) • [貢獻專案](#貢獻指南)
+[快速開始](#快速開始) •
+[GitHub Issues](https://github.com/satanupup/devika/issues) •
+[貢獻專案](#貢獻指南)
 
-*與 Devika VS Code Extension 一起提升開發效率！👩‍💻*
+_與 Devika VS Code Extension 一起提升開發效率！👩‍💻_
 
 **⭐ 如果這個專案對您有幫助，請給我們一個 Star！**
 

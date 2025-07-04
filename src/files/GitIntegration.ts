@@ -61,7 +61,7 @@ export class GitIntegration {
     private async initializeGitExtension(): Promise<void> {
         try {
             this.gitExtension = vscode.extensions.getExtension('vscode.git');
-            
+
             if (this.gitExtension) {
                 if (!this.gitExtension.isActive) {
                     await this.gitExtension.activate();
@@ -89,7 +89,7 @@ export class GitIntegration {
             return this.git.repositories[0];
         }
 
-        const repo = this.git.repositories.find((r: any) => 
+        const repo = this.git.repositories.find((r: any) =>
             workspaceFolder.uri.fsPath.startsWith(r.rootUri.fsPath)
         );
 
@@ -157,7 +157,7 @@ export class GitIntegration {
 
         try {
             const relativePath = path.relative(repo.rootUri.fsPath, uri.fsPath);
-            
+
             // 使用 Git 命令獲取文件歷史
             const log = await repo.log({
                 maxEntries: maxCount,
@@ -190,10 +190,10 @@ export class GitIntegration {
 
         try {
             const relativePath = path.relative(repo.rootUri.fsPath, uri.fsPath);
-            
+
             // 獲取差異
             const diff = await repo.diffWithHEAD(relativePath);
-            
+
             if (!diff) {
                 return null;
             }
@@ -354,7 +354,7 @@ export class GitIntegration {
 
         try {
             const state = repo.state;
-            
+
             return {
                 branch: state.HEAD?.name || 'detached',
                 ahead: state.HEAD?.ahead || 0,

@@ -228,7 +228,7 @@ export class CompilationAndDeploymentSystem {
 
             // 按順序執行階段
             const sortedStages = pipeline.stages.sort((a, b) => a.order - b.order);
-            
+
             for (const stage of sortedStages) {
                 // 檢查依賴
                 if (!this.checkStageDependencies(stage, execution)) {
@@ -272,7 +272,7 @@ export class CompilationAndDeploymentSystem {
             execution.status = 'failure';
             execution.endTime = new Date();
             execution.duration = execution.endTime!.getTime() - execution.startTime.getTime();
-            
+
             this.addBuildLog(execution, 'error', `構建失敗: ${error}`);
             await this.sendNotifications(pipeline, 'failure', execution);
         } finally {
@@ -285,10 +285,10 @@ export class CompilationAndDeploymentSystem {
      */
     private async executeStage(pipeline: BuildPipeline, stage: BuildStage, execution: BuildExecution): Promise<void> {
         const stageExecution = execution.stages.find(s => s.stageId === stage.id);
-        if (!stageExecution) return;
+        if (!stageExecution) {return;}
 
         this.addBuildLog(execution, 'info', `開始執行階段: ${stage.name}`);
-        
+
         stageExecution.status = 'running';
         stageExecution.startTime = new Date();
 
@@ -306,7 +306,7 @@ export class CompilationAndDeploymentSystem {
             // 執行命令
             for (const command of stage.commands) {
                 const result = await this.terminalSystem.executeCommand(sessionId, command);
-                
+
                 stageExecution.output += result.output + '\n';
                 if (result.error) {
                     stageExecution.error += result.error + '\n';
@@ -328,7 +328,7 @@ export class CompilationAndDeploymentSystem {
             stageExecution.status = 'failure';
             stageExecution.error += String(error);
             this.addBuildLog(execution, 'error', `階段 ${stage.name} 執行失敗: ${error}`);
-            
+
             if (!stage.continueOnFailure) {
                 throw error;
             }
@@ -364,12 +364,12 @@ export class CompilationAndDeploymentSystem {
 
         } catch (error) {
             vscode.window.showErrorMessage(`部署到 ${target.name} 失敗: ${error}`);
-            
+
             // 自動回滾
             if (target.rollback?.enabled && target.rollback.strategy === 'automatic') {
                 await this.performRollback(target);
             }
-            
+
             throw error;
         }
     }
@@ -518,8 +518,8 @@ export class CompilationAndDeploymentSystem {
     }
 
     private checkStageDependencies(stage: BuildStage, execution: BuildExecution): boolean {
-        if (stage.dependencies.length === 0) return true;
-        
+        if (stage.dependencies.length === 0) {return true;}
+
         return stage.dependencies.every(depId => {
             const depStage = execution.stages.find(s => s.stageId === depId);
             return depStage?.status === 'success';
@@ -599,7 +599,7 @@ export class CompilationAndDeploymentSystem {
 
     private loadConfigurations(): void {
         const configs = this.context.globalState.get<any>('buildConfigurations', {});
-        
+
         if (configs.pipelines) {
             for (const pipeline of configs.pipelines) {
                 this.pipelines.set(pipeline.id, {
@@ -609,7 +609,7 @@ export class CompilationAndDeploymentSystem {
                 });
             }
         }
-        
+
         if (configs.deploymentTargets) {
             for (const target of configs.deploymentTargets) {
                 this.deploymentTargets.set(target.id, target);
@@ -622,7 +622,7 @@ export class CompilationAndDeploymentSystem {
             pipelines: Array.from(this.pipelines.values()),
             deploymentTargets: Array.from(this.deploymentTargets.values())
         };
-        
+
         await this.context.globalState.update('buildConfigurations', configs);
     }
 
@@ -650,7 +650,7 @@ export class CompilationAndDeploymentSystem {
             execution.status = 'cancelled';
             execution.endTime = new Date();
             execution.duration = execution.endTime.getTime() - execution.startTime.getTime();
-            
+
             this.activeBuilds.delete(executionId);
             this.addBuildLog(execution, 'info', '構建已取消');
         }

@@ -59,7 +59,7 @@ export class AdvancedFileSystemService {
         if (parallel) {
             // 並行執行操作
             const chunks = this.chunkArray(operations, maxConcurrency);
-            
+
             for (let i = 0; i < chunks.length; i++) {
                 const chunk = chunks[i];
                 const promises = chunk.map(async (operation) => {
@@ -67,7 +67,7 @@ export class AdvancedFileSystemService {
                         await this.executeOperation(operation);
                         completed.push(operation);
                         this.addToHistory(operation);
-                        
+
                         if (progressCallback) {
                             progressCallback(
                                 (completed.length + failed.length) / operations.length * 100,
@@ -148,11 +148,11 @@ export class AdvancedFileSystemService {
         try {
             // 確保目錄存在
             await this.ensureDirectoryExists(path.dirname(uri.fsPath));
-            
-            const data = typeof content === 'string' 
-                ? Buffer.from(content, 'utf8') 
+
+            const data = typeof content === 'string'
+                ? Buffer.from(content, 'utf8')
                 : content;
-            
+
             await this.fs.writeFile(uri, data);
         } catch (error) {
             throw new Error(`Failed to create file ${uri.fsPath}: ${error}`);
@@ -176,10 +176,10 @@ export class AdvancedFileSystemService {
      */
     async writeFile(uri: vscode.Uri, content: string | Uint8Array): Promise<void> {
         try {
-            const data = typeof content === 'string' 
-                ? Buffer.from(content, 'utf8') 
+            const data = typeof content === 'string'
+                ? Buffer.from(content, 'utf8')
                 : content;
-            
+
             await this.fs.writeFile(uri, data);
         } catch (error) {
             throw new Error(`Failed to write file ${uri.fsPath}: ${error}`);
@@ -255,24 +255,24 @@ export class AdvancedFileSystemService {
     private async collectStats(uri: vscode.Uri, stats: FileSystemStats): Promise<void> {
         try {
             const entries = await this.fs.readDirectory(uri);
-            
+
             for (const [name, type] of entries) {
                 const childUri = vscode.Uri.joinPath(uri, name);
-                
+
                 if (type === vscode.FileType.Directory) {
                     stats.totalDirectories++;
                     await this.collectStats(childUri, stats);
                 } else if (type === vscode.FileType.File) {
                     stats.totalFiles++;
-                    
+
                     try {
                         const fileStat = await this.fs.stat(childUri);
                         stats.totalSize += fileStat.size;
-                        
+
                         if (fileStat.mtime > stats.lastModified.getTime()) {
                             stats.lastModified = new Date(fileStat.mtime);
                         }
-                        
+
                         const ext = path.extname(name).toLowerCase();
                         stats.fileTypes.set(ext, (stats.fileTypes.get(ext) || 0) + 1);
                     } catch (error) {
@@ -292,11 +292,11 @@ export class AdvancedFileSystemService {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         const fileName = path.basename(uri.fsPath);
         const backupFileName = `${fileName}.backup.${timestamp}`;
-        
-        const backupUri = backupDir 
+
+        const backupUri = backupDir
             ? vscode.Uri.joinPath(backupDir, backupFileName)
             : vscode.Uri.file(path.join(path.dirname(uri.fsPath), backupFileName));
-        
+
         await this.copyFile(uri, backupUri);
         return backupUri;
     }
@@ -310,7 +310,7 @@ export class AdvancedFileSystemService {
         }
 
         const lastOperation = this.operationHistory.pop()!;
-        
+
         try {
             // 實現撤銷邏輯
             switch (lastOperation.type) {
@@ -338,7 +338,7 @@ export class AdvancedFileSystemService {
      */
     private addToHistory(operation: FileOperation): void {
         this.operationHistory.push(operation);
-        
+
         // 限制歷史記錄大小
         if (this.operationHistory.length > this.maxHistorySize) {
             this.operationHistory.shift();

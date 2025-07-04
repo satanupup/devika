@@ -24,17 +24,17 @@ export class APICommands {
             vscode.commands.registerCommand('devika.scanVSCodeAPI', () => this.scanVSCodeAPI()),
             vscode.commands.registerCommand('devika.checkAPIUpdates', () => this.checkAPIUpdates()),
             vscode.commands.registerCommand('devika.generateUpdatePlan', () => this.generateUpdatePlan()),
-            
+
             // API 查詢命令
             vscode.commands.registerCommand('devika.searchAPI', () => this.searchAPI()),
             vscode.commands.registerCommand('devika.showAPICoverage', () => this.showAPICoverage()),
             vscode.commands.registerCommand('devika.showAPIDetails', (apiId?: string) => this.showAPIDetails(apiId)),
-            
+
             // 配置命令
             vscode.commands.registerCommand('devika.configureAPIScanning', () => this.configureAPIScanning()),
             vscode.commands.registerCommand('devika.enableAutoScan', () => this.enableAutoScan()),
             vscode.commands.registerCommand('devika.disableAutoScan', () => this.disableAutoScan()),
-            
+
             // 報告命令
             vscode.commands.registerCommand('devika.exportAPIReport', () => this.exportAPIReport()),
             vscode.commands.registerCommand('devika.showUnusedAPIs', () => this.showUnusedAPIs()),
@@ -69,12 +69,12 @@ export class APICommands {
                 cancellable: false
             }, async (progress) => {
                 progress.report({ increment: 0, message: "正在爬取 API 文檔..." });
-                
+
                 const result = await this.apiManager.performFullScan();
-                
+
                 if (result.success) {
                     progress.report({ increment: 100, message: "掃描完成！" });
-                    
+
                     const action = await vscode.window.showInformationMessage(
                         `API 掃描完成！發現 ${result.crawlResult?.totalAPIs} 個 API`,
                         '查看更新計畫',
@@ -101,7 +101,7 @@ export class APICommands {
     async checkAPIUpdates(): Promise<void> {
         try {
             const updates = await this.apiManager.checkForUpdates();
-            
+
             if (updates.hasUpdates) {
                 const message = `發現 API 更新！新增: ${updates.newAPIs}, 更新: ${updates.updatedAPIs}, 已棄用: ${updates.deprecatedAPIs}`;
                 const action = await vscode.window.showInformationMessage(
@@ -114,10 +114,10 @@ export class APICommands {
                     await this.scanVSCodeAPI();
                 }
             } else {
-                const lastScan = updates.lastScanDate 
+                const lastScan = updates.lastScanDate
                     ? `上次掃描: ${updates.lastScanDate.toLocaleString()}`
                     : '尚未進行過掃描';
-                
+
                 vscode.window.showInformationMessage(`沒有發現 API 更新。${lastScan}`);
             }
         } catch (error) {
@@ -155,7 +155,7 @@ export class APICommands {
 
         try {
             const results = await this.apiManager.searchAPIs(query);
-            
+
             if (results.length === 0) {
                 vscode.window.showInformationMessage(`沒有找到匹配 "${query}" 的 API`);
                 return;
@@ -190,7 +190,7 @@ export class APICommands {
     async showAPICoverage(): Promise<void> {
         try {
             const report = await this.apiManager.getAPICoverageReport();
-            
+
             // 創建 Webview 顯示覆蓋率報告
             const panel = vscode.window.createWebviewPanel(
                 'apiCoverage',
@@ -216,7 +216,7 @@ export class APICommands {
 
         try {
             const details = await this.apiManager.getAPIDetails(apiId);
-            
+
             if (!details) {
                 vscode.window.showErrorMessage('找不到指定的 API');
                 return;
@@ -406,7 +406,7 @@ ${api.description}
             <div class="metric">
                 <h3>最常用的 API</h3>
                 <div class="api-list">
-                    ${report.mostUsedAPIs.map((api: any) => 
+                    ${report.mostUsedAPIs.map((api: any) =>
                         `<div class="api-item">${api.namespace}.${api.name} (使用 ${api.usage_count} 次)</div>`
                     ).join('')}
                 </div>
@@ -416,7 +416,7 @@ ${api.description}
             <div class="metric">
                 <h3>⚠️ 使用中的已棄用 API</h3>
                 <div class="api-list">
-                    ${report.deprecatedAPIsInUse.map((api: any) => 
+                    ${report.deprecatedAPIsInUse.map((api: any) =>
                         `<div class="api-item">${api.namespace}.${api.name} (使用 ${api.usage_count} 次)</div>`
                     ).join('')}
                 </div>

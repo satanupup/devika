@@ -112,13 +112,13 @@ export class TypeValidator {
    * 驗證配置對象
    */
   static validateConfig(value: unknown): value is StrictConfig {
-    if (!TypeGuards.isObject(value)) return false;
+    if (!TypeGuards.isObject(value)) {return false;}
 
     // 驗證 apiKeys
-    if (!TypeGuards.hasProperty(value, 'apiKeys') || !TypeGuards.isObject(value.apiKeys)) return false;
+    if (!TypeGuards.hasProperty(value, 'apiKeys') || !TypeGuards.isObject(value.apiKeys)) {return false;}
 
     // 驗證 preferences
-    if (!TypeGuards.hasProperty(value, 'preferences') || !TypeGuards.isObject(value.preferences)) return false;
+    if (!TypeGuards.hasProperty(value, 'preferences') || !TypeGuards.isObject(value.preferences)) {return false;}
 
     const prefs = value.preferences;
     if (
@@ -132,7 +132,7 @@ export class TypeValidator {
     }
 
     // 驗證 performance
-    if (!TypeGuards.hasProperty(value, 'performance') || !TypeGuards.isObject(value.performance)) return false;
+    if (!TypeGuards.hasProperty(value, 'performance') || !TypeGuards.isObject(value.performance)) {return false;}
 
     const perf = value.performance;
     if (
@@ -150,7 +150,7 @@ export class TypeValidator {
    * 驗證任務對象
    */
   static validateTask(value: unknown): value is StrictTask {
-    if (!TypeGuards.isObject(value)) return false;
+    if (!TypeGuards.isObject(value)) {return false;}
 
     return (
       TypeGuards.hasPropertyOfType(value, 'id', TypeGuards.isNonEmptyString) &&
@@ -171,7 +171,7 @@ export class TypeValidator {
    * 驗證代碼分析結果
    */
   static validateCodeAnalysis(value: unknown): value is StrictCodeAnalysis {
-    if (!TypeGuards.isObject(value)) return false;
+    if (!TypeGuards.isObject(value)) {return false;}
 
     return (
       TypeGuards.hasPropertyOfType(value, 'uri', TypeGuards.isVSCodeUri) &&
@@ -193,22 +193,22 @@ export class TypeValidator {
     value: unknown,
     dataValidator?: (data: unknown) => data is T
   ): value is StrictApiResponse<T> {
-    if (!TypeGuards.isObject(value)) return false;
+    if (!TypeGuards.isObject(value)) {return false;}
 
     const hasValidStructure =
       TypeGuards.hasPropertyOfType(value, 'success', TypeGuards.isBoolean) &&
       TypeGuards.hasPropertyOfType(value, 'timestamp', TypeGuards.isDate) &&
       TypeGuards.hasPropertyOfType(value, 'requestId', TypeGuards.isNonEmptyString);
 
-    if (!hasValidStructure) return false;
+    if (!hasValidStructure) {return false;}
 
     // 如果成功，檢查數據
     if (value.success) {
-      if (!TypeGuards.hasProperty(value, 'data')) return false;
-      if (dataValidator && !dataValidator(value.data)) return false;
+      if (!TypeGuards.hasProperty(value, 'data')) {return false;}
+      if (dataValidator && !dataValidator(value.data)) {return false;}
     } else {
       // 如果失敗，檢查錯誤
-      if (!TypeGuards.hasProperty(value, 'error') || !TypeGuards.isObject(value.error)) return false;
+      if (!TypeGuards.hasProperty(value, 'error') || !TypeGuards.isObject(value.error)) {return false;}
 
       const error = value.error;
       if (
@@ -359,7 +359,7 @@ export class TypeSafeConverter {
    * 安全地轉換數組
    */
   static toArray<T>(value: unknown, itemConverter: (item: unknown) => T | null): T[] {
-    if (!TypeGuards.isArray(value)) return [];
+    if (!TypeGuards.isArray(value)) {return [];}
 
     return value.map(itemConverter).filter(TypeGuards.isNotNullish);
   }

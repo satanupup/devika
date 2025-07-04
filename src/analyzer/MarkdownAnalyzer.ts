@@ -53,12 +53,12 @@ export interface MarkdownAnalysis {
 }
 
 export class MarkdownAnalyzer {
-    
+
     async analyzeMarkdownFile(filePath: string): Promise<MarkdownAnalysis> {
         const document = await vscode.workspace.openTextDocument(filePath);
         const content = document.getText();
         const lines = content.split('\n');
-        
+
         const analysis: MarkdownAnalysis = {
             fileName: path.basename(filePath),
             filePath,
@@ -104,7 +104,7 @@ export class MarkdownAnalyzer {
 
     private async parseContent(lines: string[], analysis: MarkdownAnalysis): Promise<void> {
         let currentSection: MarkdownSection | null = null;
-        let sectionStack: MarkdownSection[] = [];
+        const sectionStack: MarkdownSection[] = [];
         let inCodeBlock = false;
         let codeBlockStart = -1;
 
@@ -130,14 +130,14 @@ export class MarkdownAnalyzer {
                 continue;
             }
 
-            if (inCodeBlock) continue;
+            if (inCodeBlock) {continue;}
 
             // 檢測標題
             const headerMatch = line.match(/^(#{1,6})\s+(.+)$/);
             if (headerMatch) {
                 const level = headerMatch[1].length;
                 const title = headerMatch[2];
-                
+
                 // 提取主標題
                 if (level === 1 && !analysis.title) {
                     analysis.title = title;
@@ -269,7 +269,7 @@ export class MarkdownAnalyzer {
             .filter(el => el.type === 'paragraph')
             .map(el => el.content)
             .join(' ');
-        
+
         analysis.statistics.totalWords = content.split(/\s+/).filter(word => word.length > 0).length;
     }
 
@@ -282,7 +282,7 @@ export class MarkdownAnalyzer {
 
         // 檢測是否有目錄章節
         const tocSections = ['目錄', 'table of contents', 'contents', 'toc'];
-        analysis.structure.hasTableOfContents = analysis.structure.sections.some(section => 
+        analysis.structure.hasTableOfContents = analysis.structure.sections.some(section =>
             tocSections.some(toc => section.toLowerCase().includes(toc))
         );
     }
@@ -350,11 +350,11 @@ export class MarkdownAnalyzer {
 
     generateSummary(analysis: MarkdownAnalysis): string {
         let summary = `📄 **${analysis.fileName} 分析報告**\n\n`;
-        
+
         if (analysis.title) {
             summary += `📋 **標題**: ${analysis.title}\n`;
         }
-        
+
         if (analysis.description) {
             summary += `📝 **描述**: ${analysis.description}\n`;
         }

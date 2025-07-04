@@ -176,7 +176,7 @@ export class ChatInterface {
      * 處理 AI 回應
      */
     private async processAIResponse(userInput: string): Promise<void> {
-        if (!this.currentSession) return;
+        if (!this.currentSession) {return;}
 
         const currentMode = this.modeManager.getCurrentMode();
 
@@ -246,7 +246,7 @@ export class ChatInterface {
      * 構建對話歷史
      */
     private buildConversationHistory(): string {
-        if (!this.currentSession) return '';
+        if (!this.currentSession) {return '';}
 
         const recentMessages = this.currentSession.messages.slice(-10); // 最近10條消息
         return recentMessages.map(msg =>
@@ -371,7 +371,7 @@ export class ChatInterface {
      * 設置 Webview 消息處理
      */
     private setupWebviewMessageHandling(): void {
-        if (!this.panel) return;
+        if (!this.panel) {return;}
 
         this.panel.webview.onDidReceiveMessage(async (message) => {
             switch (message.type) {
@@ -468,7 +468,7 @@ export class ChatInterface {
      */
     private async exportSession(sessionId: string): Promise<void> {
         const session = this.sessions.get(sessionId);
-        if (!session) return;
+        if (!session) {return;}
 
         const content = this.generateSessionExport(session);
 

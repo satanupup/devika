@@ -113,7 +113,7 @@ export class IntelligentChatSystem {
             updatedAt: new Date(),
             tags: []
         };
-        
+
         this.sessions.set(this.currentSession.id, this.currentSession);
     }
 
@@ -170,7 +170,7 @@ export class IntelligentChatSystem {
 
         // 生成智能回應
         const response = await this.generateIntelligentResponse(content, userMessage.context!);
-        
+
         // 添加助理回應
         const assistantMessage: ChatMessage = {
             id: this.generateMessageId(),
@@ -202,7 +202,7 @@ export class IntelligentChatSystem {
             async () => {
                 // 分析用戶意圖
                 const intent = this.analyzeUserIntent(userInput);
-                
+
                 // 根據意圖生成回應
                 switch (intent) {
                     case 'code_explanation':
@@ -233,7 +233,7 @@ export class IntelligentChatSystem {
      */
     private analyzeUserIntent(input: string): string {
         const lowerInput = input.toLowerCase();
-        
+
         if (lowerInput.includes('explain') || lowerInput.includes('what does') || lowerInput.includes('how does')) {
             return 'code_explanation';
         }
@@ -252,7 +252,7 @@ export class IntelligentChatSystem {
         if (lowerInput.includes('test') || lowerInput.includes('unit test')) {
             return 'testing';
         }
-        
+
         return 'general';
     }
 
@@ -262,7 +262,7 @@ export class IntelligentChatSystem {
     private async explainCode(input: string, context: ChatContext): Promise<IntelligentResponse> {
         const codeToExplain = context.selectedText || '';
         const currentFile = context.currentFile;
-        
+
         if (!codeToExplain || !currentFile) {
             return {
                 content: '請選擇要解釋的代碼片段。',
@@ -274,7 +274,7 @@ export class IntelligentChatSystem {
 
         const analysis = await this.codeEngine.analyzeFile(currentFile);
         const explanation = this.generateCodeExplanation(codeToExplain, analysis);
-        
+
         return {
             content: explanation,
             confidence: 0.8,
@@ -293,7 +293,7 @@ export class IntelligentChatSystem {
      */
     private async generateCode(input: string, context: ChatContext): Promise<IntelligentResponse> {
         const codeExample = this.createCodeExample(input, context);
-        
+
         return {
             content: `基於您的需求，我為您生成了以下代碼：`,
             confidence: 0.7,
@@ -312,7 +312,7 @@ export class IntelligentChatSystem {
      */
     private async helpDebug(input: string, context: ChatContext): Promise<IntelligentResponse> {
         const currentFile = context.currentFile;
-        
+
         if (!currentFile) {
             return {
                 content: '請打開要調試的文件。',
@@ -324,7 +324,7 @@ export class IntelligentChatSystem {
 
         const analysis = await this.codeEngine.analyzeFile(currentFile);
         const debugSuggestions = this.generateDebugSuggestions(analysis);
-        
+
         return {
             content: debugSuggestions,
             confidence: 0.75,
@@ -342,7 +342,7 @@ export class IntelligentChatSystem {
      */
     private async suggestRefactoring(input: string, context: ChatContext): Promise<IntelligentResponse> {
         const currentFile = context.currentFile;
-        
+
         if (!currentFile) {
             return {
                 content: '請打開要重構的文件。',
@@ -354,7 +354,7 @@ export class IntelligentChatSystem {
 
         const analysis = await this.codeEngine.analyzeFile(currentFile);
         const refactoringSuggestions = this.generateRefactoringSuggestions(analysis);
-        
+
         return {
             content: refactoringSuggestions,
             confidence: 0.8,
@@ -373,7 +373,7 @@ export class IntelligentChatSystem {
     private async generateDocumentation(input: string, context: ChatContext): Promise<IntelligentResponse> {
         const selectedCode = context.selectedText || '';
         const documentation = this.generateCodeDocumentation(selectedCode);
-        
+
         return {
             content: documentation,
             confidence: 0.85,
@@ -392,7 +392,7 @@ export class IntelligentChatSystem {
     private async suggestTests(input: string, context: ChatContext): Promise<IntelligentResponse> {
         const selectedCode = context.selectedText || '';
         const testSuggestions = this.generateTestSuggestions(selectedCode);
-        
+
         return {
             content: testSuggestions,
             confidence: 0.8,
@@ -434,7 +434,7 @@ export class IntelligentChatSystem {
      */
     private getCurrentContext(): ChatContext {
         const activeEditor = vscode.window.activeTextEditor;
-        
+
         return {
             currentFile: activeEditor?.document.uri,
             selectedText: activeEditor?.document.getText(activeEditor.selection),
@@ -477,7 +477,7 @@ export class IntelligentChatSystem {
         if (issues.length === 0) {
             return '代碼看起來沒有明顯的問題。建議檢查：\n• 變量初始化\n• 邊界條件\n• 異常處理';
         }
-        
+
         return `發現 ${issues.length} 個潛在問題：\n` +
                issues.slice(0, 3).map(issue => `• ${issue.message}`).join('\n');
     }

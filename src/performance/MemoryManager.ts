@@ -342,10 +342,10 @@ export class MemoryManager {
     private checkMemoryUsage(): void {
         try {
             const stats = this.getMemoryStats();
-            
+
             if (stats.percentage > this.memoryThreshold) {
                 this.logger.warn('MemoryManager', 'High memory usage detected', stats);
-                
+
                 // 觸發緊急清理
                 this.emergencyCleanup();
             }
@@ -390,7 +390,7 @@ export class MemoryManager {
      */
     public getMemoryStats(): MemoryStats {
         const memUsage = process.memoryUsage();
-        
+
         return {
             used: memUsage.heapUsed,
             total: memUsage.heapTotal,

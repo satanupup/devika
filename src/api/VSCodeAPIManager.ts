@@ -36,7 +36,7 @@ export class VSCodeAPIManager {
         this.crawler = new VSCodeAPICrawler(dbManager);
         this.apiDAO = new APIDAO(dbManager);
         this.planGenerator = new UpdatePlanGenerator(dbManager);
-        
+
         this.config = {
             autoScanInterval: 24, // 預設每24小時掃描一次
             enableAutoUpdate: false,
@@ -53,27 +53,27 @@ export class VSCodeAPIManager {
      */
     async performFullScan(): Promise<ScanResult> {
         const startTime = Date.now();
-        
+
         try {
             vscode.window.showInformationMessage('開始掃描 VS Code API...');
-            
+
             // 執行 API 爬取
             const crawlResult = await this.crawler.crawlVSCodeAPI();
-            
+
             // 保存 API 數據到數據庫
             await this.saveAPIData(crawlResult);
-            
+
             // 生成更新計畫
             const updatePlan = await this.planGenerator.generateUpdatePlan(crawlResult);
-            
+
             // 保存更新計畫到文件
             const updatePlanPath = await this.planGenerator.saveUpdatePlanToFile(
-                updatePlan, 
+                updatePlan,
                 this.config.outputDirectory
             );
-            
+
             const duration = Date.now() - startTime;
-            
+
             const result: ScanResult = {
                 success: true,
                 crawlResult,
@@ -84,16 +84,16 @@ export class VSCodeAPIManager {
 
             // 顯示結果通知
             this.showScanResultNotification(result);
-            
+
             // 觸發事件
             this.onScanCompleteEmitter.fire(result);
-            
+
             return result;
-            
+
         } catch (error) {
             const duration = Date.now() - startTime;
             const errorMessage = error instanceof Error ? error.message : String(error);
-            
+
             const result: ScanResult = {
                 success: false,
                 error: errorMessage,
@@ -102,7 +102,7 @@ export class VSCodeAPIManager {
 
             vscode.window.showErrorMessage(`API 掃描失敗: ${errorMessage}`);
             this.onScanCompleteEmitter.fire(result);
-            
+
             return result;
         }
     }
@@ -136,7 +136,7 @@ export class VSCodeAPIManager {
 
             // 執行快速掃描檢查
             const quickScan = await this.performQuickScan();
-            
+
             return {
                 hasUpdates: quickScan.hasChanges,
                 newAPIs: quickScan.newAPIs,
@@ -144,7 +144,7 @@ export class VSCodeAPIManager {
                 deprecatedAPIs: quickScan.deprecatedAPIs,
                 lastScanDate: new Date(lastCrawl.timestamp)
             };
-            
+
         } catch (error) {
             console.error('檢查更新失敗:', error);
             return {
@@ -171,21 +171,21 @@ export class VSCodeAPIManager {
         const usageStats = await this.apiDAO.getAPIUsageStats();
         const unusedAPIs = await this.apiDAO.getUnusedAPIs();
         const deprecatedInUse = await this.apiDAO.getDeprecatedAPIsInUse();
-        
-        const coveragePercentage = usageStats.totalAPIs > 0 
-            ? (usageStats.usedAPIs / usageStats.totalAPIs) * 100 
+
+        const coveragePercentage = usageStats.totalAPIs > 0
+            ? (usageStats.usedAPIs / usageStats.totalAPIs) * 100
             : 0;
 
         const recommendations: string[] = [];
-        
+
         if (coveragePercentage < 30) {
             recommendations.push('API 覆蓋率較低，建議整合更多核心 VS Code API');
         }
-        
+
         if (deprecatedInUse.length > 0) {
             recommendations.push(`發現 ${deprecatedInUse.length} 個已棄用的 API 仍在使用，建議盡快遷移`);
         }
-        
+
         if (unusedAPIs.length > 50) {
             recommendations.push('有大量未使用的 API，可以考慮整合以提供更豐富的功能');
         }
@@ -214,7 +214,7 @@ export class VSCodeAPIManager {
         url?: string;
     }>> {
         const results = await this.apiDAO.searchEndpoints(query);
-        
+
         return results.map(api => ({
             name: api.name,
             namespace: api.namespace_id,
@@ -264,7 +264,7 @@ export class VSCodeAPIManager {
     private setupAutoScan(): void {
         if (this.config.enableAutoUpdate && this.config.autoScanInterval) {
             const intervalMs = this.config.autoScanInterval * 60 * 60 * 1000; // 轉換為毫秒
-            
+
             this.scanTimer = setInterval(async () => {
                 console.log('執行自動 API 掃描...');
                 await this.performFullScan();
@@ -283,7 +283,7 @@ export class VSCodeAPIManager {
     }> {
         // 這裡實作快速掃描邏輯
         // 可以只檢查主要頁面的變更，而不進行完整爬取
-        
+
         // 暫時返回模擬數據
         return {
             hasChanges: false,
@@ -298,15 +298,15 @@ export class VSCodeAPIManager {
      */
     private async saveAPIData(crawlResult: CrawlResult): Promise<void> {
         console.log('保存 API 數據到數據庫...');
-        
+
         for (const namespace of crawlResult.namespaces) {
             const namespaceId = await this.apiDAO.saveNamespace(namespace);
-            
+
             for (const endpoint of namespace.endpoints) {
                 await this.apiDAO.saveEndpoint(endpoint, namespaceId);
             }
         }
-        
+
         console.log('API 數據保存完成');
     }
 
@@ -321,10 +321,10 @@ export class VSCodeAPIManager {
         if (result.success && result.crawlResult) {
             const { newAPIs, updatedAPIs, deprecatedAPIs } = result.crawlResult;
             const hasImportantChanges = newAPIs.length > 0 || deprecatedAPIs.length > 0;
-            
+
             if (this.config.notificationLevel === 'all' || hasImportantChanges) {
                 const message = `API 掃描完成！新增: ${newAPIs.length}, 更新: ${updatedAPIs.length}, 已棄用: ${deprecatedAPIs.length}`;
-                
+
                 if (result.updatePlanPath) {
                     vscode.window.showInformationMessage(
                         message,
@@ -346,13 +346,13 @@ export class VSCodeAPIManager {
      */
     updateConfig(newConfig: Partial<APIManagerConfig>): void {
         this.config = { ...this.config, ...newConfig };
-        
+
         // 重新設置自動掃描
         if (this.scanTimer) {
             clearInterval(this.scanTimer);
             this.scanTimer = undefined;
         }
-        
+
         this.setupAutoScan();
     }
 
@@ -363,7 +363,7 @@ export class VSCodeAPIManager {
         if (this.scanTimer) {
             clearInterval(this.scanTimer);
         }
-        
+
         this.onScanCompleteEmitter.dispose();
     }
 }

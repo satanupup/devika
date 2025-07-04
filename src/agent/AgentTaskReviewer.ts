@@ -39,7 +39,7 @@ export class AgentTaskReviewer {
 
     async showTaskPlanForReview(plan: TaskPlan): Promise<ReviewResult> {
         this.currentPlan = plan;
-        
+
         return new Promise((resolve) => {
             this.reviewPanel = vscode.window.createWebviewPanel(
                 'agentTaskReview',
@@ -98,7 +98,7 @@ export class AgentTaskReviewer {
     }
 
     private handleStepToggle(stepId: string, approved: boolean): void {
-        if (!this.currentPlan) return;
+        if (!this.currentPlan) {return;}
 
         const step = this.currentPlan.steps.find(s => s.id === stepId);
         if (step) {
@@ -109,7 +109,7 @@ export class AgentTaskReviewer {
     }
 
     private handleStepModify(stepId: string, changes: any): void {
-        if (!this.currentPlan) return;
+        if (!this.currentPlan) {return;}
 
         const step = this.currentPlan.steps.find(s => s.id === stepId);
         if (step) {

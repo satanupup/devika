@@ -259,7 +259,7 @@ export class EnhancedErrorSystem {
 
         // 嘗試自動恢復
         const recovered = await this.attemptRecovery(errorReport);
-        
+
         if (recovered) {
             errorReport.resolved = true;
             this.showRecoverySuccess(devikaError);
@@ -297,7 +297,7 @@ export class EnhancedErrorSystem {
      */
     private inferErrorType(message: string): ErrorType {
         const lowerMessage = message.toLowerCase();
-        
+
         if (lowerMessage.includes('config') || lowerMessage.includes('setting')) {
             return ErrorType.CONFIGURATION;
         }
@@ -319,7 +319,7 @@ export class EnhancedErrorSystem {
         if (lowerMessage.includes('timeout')) {
             return ErrorType.TIMEOUT;
         }
-        
+
         return ErrorType.RUNTIME;
     }
 
@@ -328,7 +328,7 @@ export class EnhancedErrorSystem {
      */
     private inferSeverity(message: string): ErrorSeverity {
         const lowerMessage = message.toLowerCase();
-        
+
         if (lowerMessage.includes('critical') || lowerMessage.includes('fatal')) {
             return ErrorSeverity.CRITICAL;
         }
@@ -338,7 +338,7 @@ export class EnhancedErrorSystem {
         if (lowerMessage.includes('warning') || lowerMessage.includes('warn')) {
             return ErrorSeverity.MEDIUM;
         }
-        
+
         return ErrorSeverity.LOW;
     }
 
@@ -359,20 +359,20 @@ export class EnhancedErrorSystem {
      */
     private logError(errorReport: ErrorReport): void {
         const { error, context, timestamp } = errorReport;
-        
+
         this.outputChannel.appendLine(`[${timestamp.toISOString()}] ${error.severity.toUpperCase()}: ${error.type}`);
         this.outputChannel.appendLine(`消息: ${error.message}`);
         this.outputChannel.appendLine(`組件: ${context.component || 'unknown'}`);
         this.outputChannel.appendLine(`操作: ${context.operation || 'unknown'}`);
-        
+
         if (error.stack) {
             this.outputChannel.appendLine(`堆棧跟蹤:\n${error.stack}`);
         }
-        
+
         if (context.additionalData) {
             this.outputChannel.appendLine(`附加數據: ${JSON.stringify(context.additionalData, null, 2)}`);
         }
-        
+
         this.outputChannel.appendLine('---');
     }
 
@@ -381,7 +381,7 @@ export class EnhancedErrorSystem {
      */
     private async attemptRecovery(errorReport: ErrorReport): Promise<boolean> {
         const { error } = errorReport;
-        
+
         if (!error.recoverable) {
             return false;
         }
@@ -395,7 +395,7 @@ export class EnhancedErrorSystem {
             try {
                 errorReport.recoveryAttempts++;
                 const recovered = await strategy.recover(error);
-                
+
                 if (recovered) {
                     this.outputChannel.appendLine(`自動恢復成功: ${strategy.name}`);
                     return true;
@@ -416,7 +416,7 @@ export class EnhancedErrorSystem {
         errorReport.userNotified = true;
 
         const actions: string[] = ['查看詳情'];
-        
+
         if (error.recoverable) {
             actions.unshift('重試');
         }
@@ -500,7 +500,7 @@ export class EnhancedErrorSystem {
      */
     getErrorStatistics(): Record<string, any> {
         const reports = Array.from(this.errorReports.values());
-        
+
         return {
             totalErrors: reports.length,
             resolvedErrors: reports.filter(r => r.resolved).length,
@@ -526,7 +526,7 @@ export class EnhancedErrorSystem {
      */
     cleanupOldReports(maxAge: number = 24 * 60 * 60 * 1000): void {
         const cutoff = new Date(Date.now() - maxAge);
-        
+
         for (const [id, report] of this.errorReports) {
             if (report.timestamp < cutoff) {
                 this.errorReports.delete(id);

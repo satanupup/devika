@@ -94,7 +94,7 @@ export interface Workflow {
     triggers: string[];
 }
 
-export type PluginCategory = 
+export type PluginCategory =
     | 'documentation'
     | 'code-analysis'
     | 'refactoring'
@@ -103,7 +103,7 @@ export type PluginCategory =
     | 'automation'
     | 'utility';
 
-export type TaskStatus = 
+export type TaskStatus =
     | 'pending'
     | 'running'
     | 'completed'

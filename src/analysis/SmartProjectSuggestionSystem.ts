@@ -467,7 +467,7 @@ export class SmartProjectSuggestionSystem {
      * 應用過濾器
      */
     private applyFilter(suggestions: ProjectSuggestion[], filter?: SuggestionFilter): ProjectSuggestion[] {
-        if (!filter) return suggestions;
+        if (!filter) {return suggestions;}
 
         return suggestions.filter(suggestion => {
             if (filter.categories && !filter.categories.includes(suggestion.category)) {
@@ -494,16 +494,16 @@ export class SmartProjectSuggestionSystem {
      */
     private prioritizeSuggestions(suggestions: ProjectSuggestion[]): ProjectSuggestion[] {
         const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
-        
+
         return suggestions.sort((a, b) => {
             // 首先按優先級排序
             const priorityDiff = priorityOrder[b.priority] - priorityOrder[a.priority];
-            if (priorityDiff !== 0) return priorityDiff;
-            
+            if (priorityDiff !== 0) {return priorityDiff;}
+
             // 然後按影響分數排序
             const impactDiff = b.impact.overallScore - a.impact.overallScore;
-            if (impactDiff !== 0) return impactDiff;
-            
+            if (impactDiff !== 0) {return impactDiff;}
+
             // 最後按信心度排序
             return b.confidence - a.confidence;
         });

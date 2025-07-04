@@ -97,12 +97,12 @@ export class ProjectAnalyzer {
         const scanDirectory = async (dirPath: string): Promise<void> => {
             try {
                 const entries = await vscode.workspace.fs.readDirectory(vscode.Uri.file(dirPath));
-                
+
                 for (const [name, type] of entries) {
                     if (type === vscode.FileType.Directory && !excludePatterns.includes(name)) {
                         const fullPath = path.join(dirPath, name);
                         const relativePath = path.relative(this.workspaceRoot, fullPath);
-                        
+
                         const dirInfo: DirectoryInfo = {
                             path: relativePath,
                             name,
@@ -122,7 +122,7 @@ export class ProjectAnalyzer {
                         }
 
                         directories.push(dirInfo);
-                        
+
                         // Recursively scan subdirectories (limit depth)
                         if (relativePath.split(path.sep).length < 4) {
                             await scanDirectory(fullPath);
@@ -229,7 +229,7 @@ export class ProjectAnalyzer {
         if (lowerName.includes('test') || lowerName.includes('spec') || lowerExt === '.test.js') {
             return 'test';
         }
-        if (lowerName.includes('config') || lowerName.includes('setting') || 
+        if (lowerName.includes('config') || lowerName.includes('setting') ||
             ['.json', '.yaml', '.yml', '.toml', '.ini'].includes(lowerExt)) {
             return 'config';
         }
@@ -247,10 +247,10 @@ export class ProjectAnalyzer {
 
         // Analyze package.json
         await this.analyzePackageJson(dependencies);
-        
+
         // Analyze requirements.txt
         await this.analyzeRequirementsTxt(dependencies);
-        
+
         // Analyze other dependency files
         await this.analyzeOtherDependencyFiles(dependencies);
 
@@ -320,10 +320,10 @@ export class ProjectAnalyzer {
 
         // Analyze naming patterns
         patterns.push(...this.analyzeNamingPatterns(files));
-        
+
         // Analyze architectural patterns
         patterns.push(...await this.analyzeArchitecturalPatterns(files));
-        
+
         // Analyze code structure patterns
         patterns.push(...await this.analyzeStructurePatterns(files));
 
@@ -384,7 +384,7 @@ export class ProjectAnalyzer {
                     files.find(f => f.name.toLowerCase().includes('model'))?.name || ''
                 ].filter(Boolean),
                 confidence: 0.8,
-                files: files.filter(f => 
+                files: files.filter(f =>
                     f.name.toLowerCase().includes('controller') ||
                     f.name.toLowerCase().includes('service') ||
                     f.name.toLowerCase().includes('model')
@@ -455,15 +455,15 @@ export class ProjectAnalyzer {
 
     async generateDependencyGraph(): Promise<string> {
         const structure = await this.analyzeProject();
-        
+
         // Generate a simple text-based dependency graph
         let graph = '# Project Dependency Graph\n\n';
-        
+
         graph += '## Dependencies\n';
         for (const dep of structure.dependencies) {
             graph += `- ${dep.name} (${dep.type}): ${dep.version || 'latest'}\n`;
         }
-        
+
         graph += '\n## File Structure\n';
         for (const dir of structure.directories) {
             graph += `- ${dir.path}/ (${dir.type}, ${dir.fileCount} files)\n`;

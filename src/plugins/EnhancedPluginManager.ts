@@ -172,11 +172,11 @@ export class EnhancedPluginManager {
     private async loadInstalledPlugins(): Promise<void> {
         try {
             const pluginDirs = await fs.promises.readdir(this.pluginDirectory);
-            
+
             for (const dir of pluginDirs) {
                 const pluginPath = path.join(this.pluginDirectory, dir);
                 const stat = await fs.promises.stat(pluginPath);
-                
+
                 if (stat.isDirectory()) {
                     await this.loadPlugin(pluginPath);
                 }
@@ -265,7 +265,7 @@ export class EnhancedPluginManager {
     private async loadPluginCode(plugin: EnhancedPlugin, pluginPath: string): Promise<string | null> {
         try {
             const mainPath = path.join(pluginPath, plugin.main);
-            
+
             // 檢查主文件是否存在
             await fs.promises.access(mainPath);
 
@@ -301,7 +301,7 @@ export class EnhancedPluginManager {
 
             // 調用插件的 activate 函數
             const result = await plugin.instance.activate(pluginAPI);
-            
+
             // 存儲插件實例
             this.pluginInstances.set(pluginId, result);
 
@@ -374,9 +374,9 @@ export class EnhancedPluginManager {
      * 輔助方法
      */
     private validatePluginManifest(manifest: any): string | null {
-        if (!manifest.name) return '插件清單缺少 name 字段';
-        if (!manifest.version) return '插件清單缺少 version 字段';
-        if (!manifest.description) return '插件清單缺少 description 字段';
+        if (!manifest.name) {return '插件清單缺少 name 字段';}
+        if (!manifest.version) {return '插件清單缺少 version 字段';}
+        if (!manifest.description) {return '插件清單缺少 description 字段';}
         return null;
     }
 

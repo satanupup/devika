@@ -112,7 +112,7 @@ export class FileSystemErrorRecoveryStrategy implements RecoveryStrategy {
     }
 
     private async createMissingFile(filePath?: string): Promise<boolean> {
-        if (!filePath) return false;
+        if (!filePath) {return false;}
 
         try {
             const uri = vscode.Uri.file(filePath);

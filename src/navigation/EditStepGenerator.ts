@@ -569,7 +569,7 @@ export class EditStepGenerator {
       };
 
       const priorityDiff = priorityOrder[b.priority] - priorityOrder[a.priority];
-      if (priorityDiff !== 0) return priorityDiff;
+      if (priorityDiff !== 0) {return priorityDiff;}
 
       // 然後按類型排序（創建文件優先）
       const typeOrder: { [key in EditStepType]?: number } = {

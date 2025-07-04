@@ -110,16 +110,16 @@ export class DependencyAnalyzer {
         try {
             // 檢測項目類型
             const projectType = await this.detectProjectType(projectPath);
-            
+
             // 構建依賴圖
             const graph = await this.buildDependencyGraph(projectPath, projectType);
-            
+
             // 計算統計信息
             const statistics = this.calculateStatistics(graph);
-            
+
             // 生成建議
             const recommendations = await this.generateRecommendations(graph);
-            
+
             // 生成安全報告
             const securityReport = this.generateSecurityReport(graph);
 
@@ -157,12 +157,12 @@ export class DependencyAnalyzer {
         // 遞歸構建依賴樹
         for (const dep of rootDependencies) {
             await this.buildDependencyNode(
-                dep, 
-                nodes, 
-                edges, 
-                visited, 
-                visiting, 
-                circularDependencies, 
+                dep,
+                nodes,
+                edges,
+                visited,
+                visiting,
+                circularDependencies,
                 0,
                 projectPath
             );
@@ -262,7 +262,7 @@ export class DependencyAnalyzer {
                 to: nodeId,
                 type: dependency.type
             });
-            
+
             // 更新依賴關係
             const parentNode = nodes.get(parent);
             if (parentNode) {
@@ -273,8 +273,8 @@ export class DependencyAnalyzer {
 
         // 遞歸處理子依賴
         const childDependencies = await this.getChildDependencies(
-            dependency.name, 
-            dependency.version, 
+            dependency.name,
+            dependency.version,
             projectPath
         );
 
@@ -389,7 +389,7 @@ export class DependencyAnalyzer {
      */
     private calculateStatistics(graph: DependencyGraph): DependencyStatistics {
         const nodes = Array.from(graph.nodes.values());
-        
+
         let totalDepth = 0;
         let maxDepth = 0;
         let directCount = 0;
@@ -459,7 +459,7 @@ export class DependencyAnalyzer {
             // 安全漏洞建議
             for (const vuln of node.vulnerabilities) {
                 const priority = vuln.severity === 'critical' || vuln.severity === 'high' ? 'high' : 'medium';
-                
+
                 recommendations.push({
                     type: 'security',
                     priority,
@@ -564,14 +564,14 @@ export class DependencyAnalyzer {
      */
     private async detectProjectType(projectPath: string): Promise<string> {
         const files = await fs.promises.readdir(projectPath);
-        
-        if (files.includes('package.json')) return 'nodejs';
-        if (files.includes('requirements.txt') || files.includes('setup.py')) return 'python';
-        if (files.includes('pom.xml') || files.includes('build.gradle')) return 'java';
-        if (files.some(f => f.endsWith('.csproj'))) return 'csharp';
-        if (files.includes('go.mod')) return 'go';
-        if (files.includes('Cargo.toml')) return 'rust';
-        
+
+        if (files.includes('package.json')) {return 'nodejs';}
+        if (files.includes('requirements.txt') || files.includes('setup.py')) {return 'python';}
+        if (files.includes('pom.xml') || files.includes('build.gradle')) {return 'java';}
+        if (files.some(f => f.endsWith('.csproj'))) {return 'csharp';}
+        if (files.includes('go.mod')) {return 'go';}
+        if (files.includes('Cargo.toml')) {return 'rust';}
+
         return 'unknown';
     }
 

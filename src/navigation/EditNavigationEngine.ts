@@ -425,7 +425,7 @@ export class EditNavigationEngine {
    * 獲取當前步驟
    */
   getCurrentStep(): EditStep | null {
-    if (!this.activePlan) return null;
+    if (!this.activePlan) {return null;}
     return this.activePlan.steps[this.activePlan.currentStepIndex] || null;
   }
 
@@ -552,7 +552,7 @@ export class EditNavigationEngine {
   }
 
   private async modifyFile(step: EditStep): Promise<void> {
-    if (!step.codeChanges) return;
+    if (!step.codeChanges) {return;}
 
     const document = await vscode.workspace.openTextDocument(step.targetFile);
     const edit = new vscode.WorkspaceEdit();
@@ -635,7 +635,7 @@ export class EditNavigationEngine {
   }
 
   private async completePlan(): Promise<void> {
-    if (!this.activePlan) return;
+    if (!this.activePlan) {return;}
 
     this.activePlan.status = 'completed';
     this.activePlan.completedAt = new Date();

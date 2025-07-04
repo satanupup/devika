@@ -121,7 +121,7 @@ export class CodeUnderstandingEngine {
     private async initializeTypeScriptProgram(): Promise<void> {
         try {
             const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-            if (!workspaceRoot) return;
+            if (!workspaceRoot) {return;}
 
             const tsconfigPath = path.join(workspaceRoot, 'tsconfig.json');
             const configFile = ts.readConfigFile(tsconfigPath, ts.sys.readFile);

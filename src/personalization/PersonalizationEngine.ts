@@ -503,16 +503,16 @@ export class PersonalizationEngine {
     // 簡化的項目類型檢測
     try {
       const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
-      if (!workspaceFolder) return undefined;
+      if (!workspaceFolder) {return undefined;}
 
       const packageJsonUri = vscode.Uri.joinPath(workspaceFolder.uri, 'package.json');
       const packageJson = await vscode.workspace.fs.readFile(packageJsonUri);
       const packageData = JSON.parse(packageJson.toString());
 
-      if (packageData.dependencies?.react) return 'react';
-      if (packageData.dependencies?.vue) return 'vue';
-      if (packageData.dependencies?.angular) return 'angular';
-      if (packageData.dependencies?.express) return 'express';
+      if (packageData.dependencies?.react) {return 'react';}
+      if (packageData.dependencies?.vue) {return 'vue';}
+      if (packageData.dependencies?.angular) {return 'angular';}
+      if (packageData.dependencies?.express) {return 'express';}
 
       return 'javascript';
     } catch {

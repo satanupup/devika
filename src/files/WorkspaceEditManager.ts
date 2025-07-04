@@ -464,7 +464,7 @@ export class WorkspaceEditManager {
 
     // 按位置排序（從後往前，避免位置偏移）
     return validOps.sort((a, b) => {
-      if (!a.range || !b.range) return 0;
+      if (!a.range || !b.range) {return 0;}
       return b.range.start.compareTo(a.range.start);
     });
   }

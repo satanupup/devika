@@ -71,7 +71,7 @@ export class MultiFileEditor {
 
             // Extract imports/requires based on language
             const imports = this.extractImports(content, language);
-            
+
             // Resolve import paths to actual file paths
             for (const importPath of imports) {
                 const resolvedPath = await this.resolveImportPath(importPath, filePath);
@@ -83,11 +83,11 @@ export class MultiFileEditor {
             // Find files that depend on this file
             const workspaceFiles = await vscode.workspace.findFiles('**/*.{ts,js,tsx,jsx,py,java,cs}');
             for (const file of workspaceFiles) {
-                if (file.fsPath === filePath) continue;
-                
+                if (file.fsPath === filePath) {continue;}
+
                 const fileContent = await vscode.workspace.fs.readFile(file);
                 const fileText = Buffer.from(fileContent).toString('utf8');
-                
+
                 if (this.fileReferencesTarget(fileText, filePath, file.fsPath)) {
                     dependents.push(file.fsPath);
                 }
@@ -146,7 +146,7 @@ export class MultiFileEditor {
         if (importPath.startsWith('./') || importPath.startsWith('../')) {
             const basePath = path.dirname(fromFile);
             const resolvedPath = path.resolve(basePath, importPath);
-            
+
             // Try different extensions
             const extensions = ['.ts', '.js', '.tsx', '.jsx', '.py', '.java'];
             for (const ext of extensions) {
@@ -167,7 +167,7 @@ export class MultiFileEditor {
     private fileReferencesTarget(content: string, targetPath: string, fromPath: string): boolean {
         const targetName = path.basename(targetPath, path.extname(targetPath));
         const relativePath = path.relative(path.dirname(fromPath), targetPath);
-        
+
         // Check for various reference patterns
         const patterns = [
             new RegExp(`['"\`]${relativePath.replace(/\\/g, '/')}['"\`]`),
@@ -254,7 +254,7 @@ export class MultiFileEditor {
 
         // Detect conflicts first
         result.conflicts = await this.detectConflicts(edits);
-        
+
         if (result.conflicts.length > 0) {
             result.success = false;
             return result;
@@ -291,8 +291,8 @@ export class MultiFileEditor {
         const visiting = new Set<string>();
 
         const visit = (filePath: string) => {
-            if (visiting.has(filePath)) return; // Circular dependency
-            if (visited.has(filePath)) return;
+            if (visiting.has(filePath)) {return;} // Circular dependency
+            if (visited.has(filePath)) {return;}
 
             visiting.add(filePath);
             const dependency = this.dependencyGraph.get(filePath);
@@ -305,7 +305,7 @@ export class MultiFileEditor {
             }
             visiting.delete(filePath);
             visited.add(filePath);
-            
+
             const edit = editMap.get(filePath);
             if (edit) {
                 result.push(edit);
@@ -345,11 +345,11 @@ export class MultiFileEditor {
                     // Apply specific text edits
                     const document = await vscode.workspace.openTextDocument(uri);
                     const workspaceEdit = new vscode.WorkspaceEdit();
-                    
+
                     for (const change of edit.changes) {
                         workspaceEdit.replace(uri, change.range, change.newText);
                     }
-                    
+
                     await vscode.workspace.applyEdit(workspaceEdit);
                 }
                 break;
@@ -362,7 +362,7 @@ export class MultiFileEditor {
                 } catch {
                     // File might not exist
                 }
-                
+
                 await vscode.workspace.fs.delete(uri);
                 break;
         }
@@ -370,7 +370,7 @@ export class MultiFileEditor {
 
     async previewBatchEdits(edits: FileEdit[]): Promise<string> {
         let preview = '# Batch Edit Preview\n\n';
-        
+
         const conflicts = await this.detectConflicts(edits);
         if (conflicts.length > 0) {
             preview += '## ⚠️ Conflicts Detected\n\n';
@@ -381,14 +381,14 @@ export class MultiFileEditor {
         }
 
         preview += '## 📝 Planned Changes\n\n';
-        
+
         const sortedEdits = this.sortEditsByDependencies(edits);
         for (let i = 0; i < sortedEdits.length; i++) {
             const edit = sortedEdits[i];
             preview += `### ${i + 1}. ${edit.type.toUpperCase()}: ${edit.filePath}\n\n`;
-            
+
             if (edit.type === 'create' && edit.content) {
-                preview += '```\n' + edit.content.substring(0, 500) + 
+                preview += '```\n' + edit.content.substring(0, 500) +
                           (edit.content.length > 500 ? '\n... (truncated)' : '') + '\n```\n\n';
             } else if (edit.type === 'modify' && edit.changes) {
                 preview += `${edit.changes.length} change(s):\n`;
@@ -421,7 +421,7 @@ export class MultiFileEditor {
         }
 
         const uri = vscode.Uri.file(edit.filePath);
-        
+
         if (edit.type === 'delete') {
             // Restore deleted file
             await vscode.workspace.fs.writeFile(uri, Buffer.from(edit.backup, 'utf8'));

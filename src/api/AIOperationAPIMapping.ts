@@ -484,7 +484,7 @@ export class AIOperationAPIMapping {
                 try {
                     // 評估安全條件
                     const passed = this.evaluateSecurityCondition(check.condition, context);
-                    
+
                     if (passed) {
                         result.passed = true;
                     } else {

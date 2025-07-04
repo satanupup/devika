@@ -42,10 +42,10 @@ export class StartupOptimizer {
         try {
             // Phase 1: Critical services only (< 500ms)
             await this.initializeCriticalServices();
-            
+
             // Phase 2: Background initialization
             this.initializeBackgroundServices();
-            
+
             // Phase 3: Lazy initialization setup
             this.setupLazyInitialization();
 
@@ -76,7 +76,7 @@ export class StartupOptimizer {
         });
 
         await Promise.all(promises);
-        
+
         this.startupMetrics.serviceInitializationTime = Date.now() - criticalStartTime;
     }
 
@@ -165,7 +165,7 @@ export class StartupOptimizer {
 
     private async initializeService(serviceName: string): Promise<void> {
         const startTime = Date.now();
-        
+
         try {
             // Dynamic import to reduce initial bundle size
             switch (serviceName) {
@@ -216,7 +216,7 @@ export class StartupOptimizer {
 
     private getFromCache(key: string): any {
         const cached = this.startupCache.get(key);
-        if (!cached) return null;
+        if (!cached) {return null;}
 
         // Check if cache is still valid (24 hours)
         const maxAge = 24 * 60 * 60 * 1000;
@@ -374,7 +374,7 @@ export class StartupOptimizer {
     async optimizeForNextStartup(): Promise<void> {
         // Prepare optimizations for next startup
         await this.preloadCriticalResources();
-        
+
         // Warm up service caches
         const servicesToWarm = ['ConfigManager', 'UIManager'];
         for (const service of servicesToWarm) {
@@ -388,7 +388,7 @@ export class StartupOptimizer {
     async onExtensionDeactivate(): Promise<void> {
         // Save final metrics and cache state
         await this.saveStartupCache();
-        
+
         // Prepare for next startup
         await this.optimizeForNextStartup();
     }

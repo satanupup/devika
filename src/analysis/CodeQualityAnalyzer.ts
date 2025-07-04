@@ -815,8 +815,8 @@ ${report.recommendations.map(rec => `- **${rec.title}**: ${rec.description}`).jo
     }
 
     private getScoreColor(score: number): string {
-        if (score >= 80) return '#4CAF50';
-        if (score >= 60) return '#FF9800';
+        if (score >= 80) {return '#4CAF50';}
+        if (score >= 60) {return '#FF9800';}
         return '#F44336';
     }
 }

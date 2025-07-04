@@ -121,7 +121,7 @@ export class ApiOptimizer {
             this.stats.cacheMisses++;
 
             // 去重處理
-            const result = options.skipDeduplication 
+            const result = options.skipDeduplication
                 ? await requestFn()
                 : await this.deduplicator.deduplicate(key, requestFn);
 
@@ -163,7 +163,7 @@ export class ApiOptimizer {
         // 分批處理
         for (let i = 0; i < requests.length; i += maxConcurrency) {
             const batch = requests.slice(i, i + maxConcurrency);
-            
+
             const batchPromises = batch.map(async (req) => {
                 try {
                     return await this.optimizedCall(req.key, req.requestFn, req.options);
@@ -216,7 +216,7 @@ export class ApiOptimizer {
      */
     private getFromCache<T>(key: string): T | null {
         const item = this.cache.get(key);
-        if (!item) return null;
+        if (!item) {return null;}
 
         // 檢查是否過期
         if (Date.now() - item.timestamp > item.ttl) {
@@ -234,7 +234,7 @@ export class ApiOptimizer {
      */
     private setCache<T>(key: string, data: T, ttl: number): void {
         const size = this.estimateSize(data);
-        
+
         // 檢查快取大小限制
         if (this.getCurrentCacheSize() + size > this.maxCacheSize) {
             this.evictLeastUsed();
@@ -315,13 +315,13 @@ export class ApiOptimizer {
      */
     private updateStats(responseTime: number, tokens?: number, cost?: number): void {
         this.responseTimes.push(responseTime);
-        
+
         // 保持最近 100 次的響應時間
         if (this.responseTimes.length > 100) {
             this.responseTimes.shift();
         }
 
-        this.stats.averageResponseTime = 
+        this.stats.averageResponseTime =
             this.responseTimes.reduce((sum, time) => sum + time, 0) / this.responseTimes.length;
 
         if (tokens) {
@@ -349,8 +349,8 @@ export class ApiOptimizer {
         currentCacheSize: number;
         cacheItemCount: number;
     } {
-        const cacheHitRate = this.stats.totalRequests > 0 
-            ? this.stats.cacheHits / this.stats.totalRequests 
+        const cacheHitRate = this.stats.totalRequests > 0
+            ? this.stats.cacheHits / this.stats.totalRequests
             : 0;
 
         return {
@@ -392,7 +392,7 @@ export class ApiOptimizer {
     generateOptimizationReport(): string {
         const stats = this.getStats();
         const costSavings = stats.cacheHitRate * stats.totalCost;
-        
+
         return `
 📊 API 調用優化報告
 ================================

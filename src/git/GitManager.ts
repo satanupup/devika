@@ -127,14 +127,14 @@ export class GitManager {
     private async initializeGitExtension(): Promise<void> {
         try {
             this.gitExtension = vscode.extensions.getExtension('vscode.git');
-            
+
             if (this.gitExtension) {
                 if (!this.gitExtension.isActive) {
                     await this.gitExtension.activate();
                 }
-                
+
                 this.git = this.gitExtension.exports.getAPI(1);
-                
+
                 // 監聽倉庫變更
                 this.git.onDidOpenRepository((repo: any) => {
                     this.addRepository(repo);
@@ -246,15 +246,15 @@ export class GitManager {
                 noVerify: options.noVerify
             });
 
-            return { 
-                success: true, 
-                message: `成功提交: ${options.message}` 
+            return {
+                success: true,
+                message: `成功提交: ${options.message}`
             };
 
         } catch (error) {
-            return { 
-                success: false, 
-                error: `提交失敗: ${error}` 
+            return {
+                success: false,
+                error: `提交失敗: ${error}`
             };
         }
     }
@@ -275,15 +275,15 @@ export class GitManager {
                 await repo.api.setBranchUpstream(options.name, options.upstream);
             }
 
-            return { 
-                success: true, 
-                message: `成功創建分支: ${options.name}` 
+            return {
+                success: true,
+                message: `成功創建分支: ${options.name}`
             };
 
         } catch (error) {
-            return { 
-                success: false, 
-                error: `創建分支失敗: ${error}` 
+            return {
+                success: false,
+                error: `創建分支失敗: ${error}`
             };
         }
     }
@@ -300,15 +300,15 @@ export class GitManager {
         try {
             await repo.api.checkout(branchName);
 
-            return { 
-                success: true, 
-                message: `成功切換到分支: ${branchName}` 
+            return {
+                success: true,
+                message: `成功切換到分支: ${branchName}`
             };
 
         } catch (error) {
-            return { 
-                success: false, 
-                error: `切換分支失敗: ${error}` 
+            return {
+                success: false,
+                error: `切換分支失敗: ${error}`
             };
         }
     }
@@ -325,15 +325,15 @@ export class GitManager {
         try {
             await repo.api.merge(options.branch);
 
-            return { 
-                success: true, 
-                message: `成功合併分支: ${options.branch}` 
+            return {
+                success: true,
+                message: `成功合併分支: ${options.branch}`
             };
 
         } catch (error) {
-            return { 
-                success: false, 
-                error: `合併分支失敗: ${error}` 
+            return {
+                success: false,
+                error: `合併分支失敗: ${error}`
             };
         }
     }
@@ -350,15 +350,15 @@ export class GitManager {
         try {
             await repo.api.add(files);
 
-            return { 
-                success: true, 
-                message: `成功暫存 ${files.length} 個文件` 
+            return {
+                success: true,
+                message: `成功暫存 ${files.length} 個文件`
             };
 
         } catch (error) {
-            return { 
-                success: false, 
-                error: `暫存文件失敗: ${error}` 
+            return {
+                success: false,
+                error: `暫存文件失敗: ${error}`
             };
         }
     }
@@ -375,15 +375,15 @@ export class GitManager {
         try {
             await repo.api.revert(files);
 
-            return { 
-                success: true, 
-                message: `成功取消暫存 ${files.length} 個文件` 
+            return {
+                success: true,
+                message: `成功取消暫存 ${files.length} 個文件`
             };
 
         } catch (error) {
-            return { 
-                success: false, 
-                error: `取消暫存文件失敗: ${error}` 
+            return {
+                success: false,
+                error: `取消暫存文件失敗: ${error}`
             };
         }
     }
@@ -400,15 +400,15 @@ export class GitManager {
         try {
             await repo.api.push(remote, branch, force);
 
-            return { 
-                success: true, 
-                message: '成功推送到遠程倉庫' 
+            return {
+                success: true,
+                message: '成功推送到遠程倉庫'
             };
 
         } catch (error) {
-            return { 
-                success: false, 
-                error: `推送失敗: ${error}` 
+            return {
+                success: false,
+                error: `推送失敗: ${error}`
             };
         }
     }
@@ -425,15 +425,15 @@ export class GitManager {
         try {
             await repo.api.pull(remote, branch);
 
-            return { 
-                success: true, 
-                message: '成功從遠程倉庫拉取' 
+            return {
+                success: true,
+                message: '成功從遠程倉庫拉取'
             };
 
         } catch (error) {
-            return { 
-                success: false, 
-                error: `拉取失敗: ${error}` 
+            return {
+                success: false,
+                error: `拉取失敗: ${error}`
             };
         }
     }

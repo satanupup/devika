@@ -290,7 +290,7 @@ export class SmartREADMEGenerator {
                 if (item.isDirectory() && !this.shouldIgnoreDirectory(item.name)) {
                     const dirPath = path.join(projectPath, item.name);
                     const files = await this.countFiles(dirPath);
-                    
+
                     directories.push({
                         name: item.name,
                         path: item.name,
@@ -463,11 +463,11 @@ export class SmartREADMEGenerator {
     }
 
     private detectProjectType(projectPath: string, packageJson: any): string {
-        if (packageJson.engines?.vscode) return 'vscode-extension';
-        if (packageJson.dependencies?.react) return 'react';
-        if (packageJson.dependencies?.vue) return 'vue';
-        if (packageJson.dependencies?.angular) return 'angular';
-        if (packageJson.dependencies?.express) return 'express';
+        if (packageJson.engines?.vscode) {return 'vscode-extension';}
+        if (packageJson.dependencies?.react) {return 'react';}
+        if (packageJson.dependencies?.vue) {return 'vue';}
+        if (packageJson.dependencies?.angular) {return 'angular';}
+        if (packageJson.dependencies?.express) {return 'express';}
         return 'nodejs';
     }
 
@@ -507,9 +507,9 @@ export class SmartREADMEGenerator {
     private getDirectoryImportance(name: string): 'high' | 'medium' | 'low' {
         const highImportance = ['src', 'lib', 'components'];
         const mediumImportance = ['test', 'tests', 'docs', 'examples'];
-        
-        if (highImportance.includes(name)) return 'high';
-        if (mediumImportance.includes(name)) return 'medium';
+
+        if (highImportance.includes(name)) {return 'high';}
+        if (mediumImportance.includes(name)) {return 'medium';}
         return 'low';
     }
 
@@ -539,23 +539,23 @@ export class SmartREADMEGenerator {
     }
 
     private getFileType(name: string): FileInfo['type'] {
-        if (name.endsWith('.md')) return 'doc';
-        if (name.endsWith('.json') || name.endsWith('.js') || name.endsWith('.ts')) return 'config';
-        if (name.includes('test') || name.includes('spec')) return 'test';
+        if (name.endsWith('.md')) {return 'doc';}
+        if (name.endsWith('.json') || name.endsWith('.js') || name.endsWith('.ts')) {return 'config';}
+        if (name.includes('test') || name.includes('spec')) {return 'test';}
         return 'other';
     }
 
     private detectConventions(directories: DirectoryInfo[], files: FileInfo[]): string[] {
         const conventions: string[] = [];
-        
+
         if (directories.some(d => d.name === 'src')) {
             conventions.push('使用 src/ 目錄存放源代碼');
         }
-        
+
         if (files.some(f => f.name === 'tsconfig.json')) {
             conventions.push('使用 TypeScript 開發');
         }
-        
+
         if (files.some(f => f.name.includes('jest'))) {
             conventions.push('使用 Jest 進行測試');
         }
@@ -596,11 +596,11 @@ export class SmartREADMEGenerator {
     }
 
     private categorizeScript(name: string): ScriptInfo['category'] {
-        if (name.includes('build')) return 'build';
-        if (name.includes('test')) return 'test';
-        if (name.includes('dev') || name.includes('start')) return 'dev';
-        if (name.includes('deploy')) return 'deploy';
-        if (name.includes('lint') || name.includes('format')) return 'lint';
+        if (name.includes('build')) {return 'build';}
+        if (name.includes('test')) {return 'test';}
+        if (name.includes('dev') || name.includes('start')) {return 'dev';}
+        if (name.includes('deploy')) {return 'deploy';}
+        if (name.includes('lint') || name.includes('format')) {return 'lint';}
         return 'other';
     }
 
@@ -633,19 +633,19 @@ export class SmartREADMEGenerator {
     // 其他生成方法的佔位符
     private async analyzeFeatures(projectPath: string, packageJson: any): Promise<FeatureInfo[]> { return []; }
     private async analyzeAPI(projectPath: string): Promise<APIInfo[]> { return []; }
-    private async analyzeTesting(projectPath: string, packageJson: any): Promise<TestingInfo> { 
-        return { framework: 'jest', coverage: 0, commands: [], structure: '', guidelines: [] }; 
+    private async analyzeTesting(projectPath: string, packageJson: any): Promise<TestingInfo> {
+        return { framework: 'jest', coverage: 0, commands: [], structure: '', guidelines: [] };
     }
-    private async generateInstallationInfo(projectPath: string, packageJson: any): Promise<InstallationInfo> { 
-        return { prerequisites: [], steps: [], troubleshooting: [] }; 
+    private async generateInstallationInfo(projectPath: string, packageJson: any): Promise<InstallationInfo> {
+        return { prerequisites: [], steps: [], troubleshooting: [] };
     }
-    private async generateUsageInfo(projectPath: string, packageJson: any): Promise<UsageInfo> { 
-        return { quickStart: { steps: [], code: '' }, examples: [], configuration: [] }; 
+    private async generateUsageInfo(projectPath: string, packageJson: any): Promise<UsageInfo> {
+        return { quickStart: { steps: [], code: '' }, examples: [], configuration: [] };
     }
-    private async generateDeploymentInfo(projectPath: string, packageJson: any): Promise<DeploymentInfo> { 
-        return { platforms: [], requirements: [], steps: [], environments: [] }; 
+    private async generateDeploymentInfo(projectPath: string, packageJson: any): Promise<DeploymentInfo> {
+        return { platforms: [], requirements: [], steps: [], environments: [] };
     }
-    private async generateContributingInfo(projectPath: string): Promise<ContributingInfo> { 
-        return { guidelines: [], codeStyle: '', pullRequestProcess: [], issueTemplate: '', developmentSetup: [] }; 
+    private async generateContributingInfo(projectPath: string): Promise<ContributingInfo> {
+        return { guidelines: [], codeStyle: '', pullRequestProcess: [], issueTemplate: '', developmentSetup: [] };
     }
 }

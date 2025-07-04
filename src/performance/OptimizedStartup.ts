@@ -70,13 +70,13 @@ export class OptimizedStartup {
         const criticalTasks = [
             // 1. 配置管理器 (必須最先初始化)
             () => ConfigManager.getInstance(),
-            
+
             // 2. 註冊基本命令 (用戶可能立即使用)
             () => this.registerEssentialCommands(),
-            
+
             // 3. 設置上下文變量
             () => vscode.commands.executeCommand('setContext', 'devika.activated', true),
-            
+
             // 4. 創建狀態欄 (用戶可見反饋)
             () => this.createMinimalStatusBar()
         ];
@@ -105,7 +105,7 @@ export class OptimizedStartup {
                 ];
 
                 await Promise.allSettled(backgroundTasks);
-                
+
                 this.startupMetrics.backgroundPhaseTime = Date.now() - backgroundStart;
                 this.logger.info('OptimizedStartup', 'Background services initialized');
 
@@ -164,14 +164,14 @@ export class OptimizedStartup {
      */
     private createMinimalStatusBar(): void {
         const statusBarItem = vscode.window.createStatusBarItem(
-            vscode.StatusBarAlignment.Right, 
+            vscode.StatusBarAlignment.Right,
             100
         );
         statusBarItem.text = '$(robot) Devika';
         statusBarItem.tooltip = 'Devika AI 助理';
         statusBarItem.command = 'devika.start';
         statusBarItem.show();
-        
+
         this.context.subscriptions.push(statusBarItem);
     }
 
@@ -179,8 +179,8 @@ export class OptimizedStartup {
      * 添加懶加載任務
      */
     private addLazyInitTask(
-        id: string, 
-        task: () => Promise<void>, 
+        id: string,
+        task: () => Promise<void>,
         priority: 'high' | 'medium' | 'low'
     ): void {
         this.lazyInitQueue.push({
@@ -195,7 +195,7 @@ export class OptimizedStartup {
      * 觸發懶加載任務
      */
     private async triggerLazyInit(taskId?: string): Promise<void> {
-        const tasksToExecute = taskId 
+        const tasksToExecute = taskId
             ? this.lazyInitQueue.filter(t => t.id === taskId && !t.executed)
             : this.lazyInitQueue.filter(t => !t.executed);
 

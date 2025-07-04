@@ -78,7 +78,7 @@ export class MultimodalCommands {
   async takeScreenshot(): Promise<void> {
     try {
       const options = await this.getScreenshotOptions();
-      if (!options) return;
+      if (!options) {return;}
 
       const result = await this.screenshotCapture.captureScreen(options);
 
@@ -141,7 +141,7 @@ export class MultimodalCommands {
         placeHolder: 'https://www.figma.com/file/ABC123/Design 或 ABC123'
       });
 
-      if (!fileKey) return;
+      if (!fileKey) {return;}
 
       const extractedKey = this.extractFigmaFileKey(fileKey);
       if (!extractedKey) {
@@ -196,7 +196,7 @@ export class MultimodalCommands {
   async analyzeImage(uri?: vscode.Uri): Promise<void> {
     try {
       const imageUri = uri || (await this.selectImageFile());
-      if (!imageUri) return;
+      if (!imageUri) {return;}
 
       const mediaContent = await this.processor.processMedia(imageUri);
       if (!mediaContent) {
@@ -217,7 +217,7 @@ export class MultimodalCommands {
   async generateCodeFromImage(uri?: vscode.Uri): Promise<void> {
     try {
       const imageUri = uri || (await this.selectImageFile());
-      if (!imageUri) return;
+      if (!imageUri) {return;}
 
       const mediaContent = await this.processor.processMedia(imageUri);
       if (!mediaContent) {
@@ -244,7 +244,7 @@ export class MultimodalCommands {
   async analyzeDesignSystem(uri?: vscode.Uri): Promise<void> {
     try {
       const imageUri = uri || (await this.selectImageFile());
-      if (!imageUri) return;
+      if (!imageUri) {return;}
 
       const mediaContent = await this.processor.processMedia(imageUri);
       if (!mediaContent) {
@@ -313,7 +313,7 @@ export class MultimodalCommands {
       placeHolder: '選擇圖像格式'
     });
 
-    if (!format) return null;
+    if (!format) {return null;}
 
     const qualityInput = await vscode.window.showInputBox({
       prompt: '圖像品質 (1-100)',
@@ -327,7 +327,7 @@ export class MultimodalCommands {
       }
     });
 
-    if (!qualityInput) return null;
+    if (!qualityInput) {return null;}
 
     return {
       source: CaptureSource.SCREEN,

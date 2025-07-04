@@ -81,14 +81,14 @@ export class SmartCodeAnalyzer {
     ): Promise<SemanticAnalysis> {
         const cacheKey = this.getCacheKey(document, range);
         const cached = this.analysisCache.get(cacheKey);
-        
+
         if (cached && this.isCacheValid(cached, document)) {
             return cached;
         }
 
         const analysis = await this.performDeepAnalysis(document, range);
         this.analysisCache.set(cacheKey, analysis);
-        
+
         return analysis;
     }
 
@@ -135,7 +135,7 @@ export class SmartCodeAnalyzer {
                 for (const symbol of documentSymbols) {
                     const semanticSymbol = await this.convertToSemanticSymbol(symbol, document);
                     symbols.push(semanticSymbol);
-                    
+
                     // Process children recursively
                     if (symbol.children) {
                         for (const child of symbol.children) {
@@ -161,10 +161,10 @@ export class SmartCodeAnalyzer {
         document: vscode.TextDocument
     ): Promise<SemanticSymbol> {
         const location = new vscode.Location(document.uri, symbol.range);
-        
+
         // Find usages
         const usages = await this.findSymbolUsages(document, symbol.name);
-        
+
         return {
             name: symbol.name,
             type: this.mapSymbolKind(symbol.kind),
@@ -200,10 +200,10 @@ export class SmartCodeAnalyzer {
     private determineVisibility(symbol: vscode.DocumentSymbol, document: vscode.TextDocument): SemanticSymbol['visibility'] {
         const line = document.lineAt(symbol.range.start.line);
         const text = line.text;
-        
-        if (text.includes('private')) return 'private';
-        if (text.includes('protected')) return 'protected';
-        if (text.includes('internal')) return 'internal';
+
+        if (text.includes('private')) {return 'private';}
+        if (text.includes('protected')) {return 'protected';}
+        if (text.includes('internal')) {return 'internal';}
         return 'public';
     }
 
@@ -214,8 +214,8 @@ export class SmartCodeAnalyzer {
                 document.uri,
                 new vscode.Position(0, 0)
             );
-            
-            return references?.filter(ref => 
+
+            return references?.filter(ref =>
                 document.getText(ref.range).includes(symbolName)
             ) || [];
         } catch {
@@ -247,7 +247,7 @@ Respond in JSON format with enhanced symbol data.
 
             const result = await this.llmService.generateCompletion(prompt);
             const enhancement = JSON.parse(result.content);
-            
+
             // Apply enhancements
             return symbols.map(symbol => ({
                 ...symbol,
@@ -290,7 +290,7 @@ Return as JSON array of relationships with format:
 
             const result = await this.llmService.generateCompletion(prompt);
             const aiRelationships = JSON.parse(result.content);
-            
+
             relationships.push(...aiRelationships);
 
         } catch (error) {
@@ -326,7 +326,7 @@ Return as JSON array with format:
 
             const result = await this.llmService.generateCompletion(prompt);
             const aiPatterns = JSON.parse(result.content);
-            
+
             patterns.push(...aiPatterns.map((p: any) => ({
                 ...p,
                 locations: [] // Would need more sophisticated location detection
@@ -342,7 +342,7 @@ Return as JSON array with format:
     private async calculateQualityMetrics(content: string, language: string): Promise<QualityMetrics> {
         const lines = content.split('\n');
         const linesOfCode = lines.filter(line => line.trim() && !line.trim().startsWith('//')).length;
-        
+
         // Basic metrics calculation
         const basicMetrics = {
             linesOfCode,
@@ -434,7 +434,7 @@ Return as JSON array of suggestions.
 
             const result = await this.llmService.generateCompletion(prompt);
             const aiSuggestions = JSON.parse(result.content);
-            
+
             suggestions.push(...aiSuggestions.map((s: any, index: number) => ({
                 id: `refactor_${index}`,
                 title: s.title || 'Refactoring Suggestion',
@@ -462,10 +462,10 @@ Return as JSON array of suggestions.
             for (const file of files) {
                 const document = await vscode.workspace.openTextDocument(file);
                 const content = document.getText();
-                
+
                 const regex = new RegExp(`\\b${symbol}\\b`, 'g');
                 let match;
-                
+
                 while ((match = regex.exec(content)) !== null) {
                     const position = document.positionAt(match.index);
                     references.push(new vscode.Location(file, position));
@@ -495,7 +495,7 @@ Return as JSON array of suggestions.
 
     async generateCodeQualityReport(document: vscode.TextDocument): Promise<string> {
         const analysis = await this.analyzeCode(document);
-        
+
         return `
 # Code Quality Report
 

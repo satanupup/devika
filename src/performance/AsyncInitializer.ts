@@ -165,7 +165,7 @@ export class AsyncInitializer {
         });
 
         // 檢查關鍵任務是否失敗
-        const criticalFailures = phaseTasks.filter((task, index) => 
+        const criticalFailures = phaseTasks.filter((task, index) =>
             task.critical && results[index].status === 'rejected'
         );
 
@@ -270,7 +270,7 @@ export class AsyncInitializer {
 
         while (Date.now() - startTime < maxWaitTime) {
             const pendingDependencies = task.dependencies.filter(dep => !this.completedTasks.has(dep));
-            
+
             if (pendingDependencies.length === 0) {
                 return;
             }

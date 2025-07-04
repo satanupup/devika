@@ -295,7 +295,7 @@ Devika 支持多個 AI 提供商，您需要配置相應的 API 密鑰：
     }
 
     private async showTutorialStep(): Promise<void> {
-        if (!this.currentTutorial) return;
+        if (!this.currentTutorial) {return;}
 
         const { tutorial, currentStep } = this.currentTutorial;
         const step = tutorial.steps[currentStep];
@@ -482,14 +482,14 @@ Devika 支持多個 AI 提供商，您需要配置相應的 API 密鑰：
     }
 
     private async nextStep(): Promise<void> {
-        if (!this.currentTutorial) return;
+        if (!this.currentTutorial) {return;}
 
         this.currentTutorial.currentStep++;
         await this.showTutorialStep();
     }
 
     private async previousStep(): Promise<void> {
-        if (!this.currentTutorial) return;
+        if (!this.currentTutorial) {return;}
 
         this.currentTutorial.currentStep = Math.max(0, this.currentTutorial.currentStep - 1);
         await this.showTutorialStep();
@@ -507,7 +507,7 @@ Devika 支持多個 AI 提供商，您需要配置相應的 API 密鑰：
     }
 
     private async completeTutorial(): Promise<void> {
-        if (!this.currentTutorial) return;
+        if (!this.currentTutorial) {return;}
 
         const tutorial = this.currentTutorial.tutorial;
         this.saveProgress(tutorial.id, tutorial.steps.length, true);
@@ -528,7 +528,7 @@ Devika 支持多個 AI 提供商，您需要配置相應的 API 密鑰：
         const items = tutorials.map(tutorial => {
             const progress = this.userProgress.get(tutorial.id);
             const status = progress?.completed ? '✅' : progress ? '🔄' : '⭕';
-            
+
             return {
                 label: `${status} ${tutorial.name}`,
                 description: `${tutorial.difficulty} • ${tutorial.estimatedTime} 分鐘`,
@@ -677,7 +677,7 @@ Devika 支持多個 AI 提供商，您需要配置相應的 API 密鑰：
         ];
 
         const content = shortcuts.map(s => `${s.key}: ${s.description}`).join('\n');
-        
+
         vscode.window.showInformationMessage(
             '快捷鍵指南:\n' + content,
             { modal: true }

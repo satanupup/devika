@@ -579,11 +579,11 @@ ${context}
     private categorizeProblem(diagnostic: vscode.Diagnostic): 'syntax' | 'type' | 'logic' | 'style' | 'security' | 'performance' | 'other' {
         const message = diagnostic.message.toLowerCase();
 
-        if (message.includes('syntax') || message.includes('parse')) return 'syntax';
-        if (message.includes('type') || message.includes('cannot assign')) return 'type';
-        if (message.includes('unused') || message.includes('unreachable')) return 'style';
-        if (message.includes('security') || message.includes('vulnerable')) return 'security';
-        if (message.includes('performance') || message.includes('slow')) return 'performance';
+        if (message.includes('syntax') || message.includes('parse')) {return 'syntax';}
+        if (message.includes('type') || message.includes('cannot assign')) {return 'type';}
+        if (message.includes('unused') || message.includes('unreachable')) {return 'style';}
+        if (message.includes('security') || message.includes('vulnerable')) {return 'security';}
+        if (message.includes('performance') || message.includes('slow')) {return 'performance';}
 
         return 'other';
     }

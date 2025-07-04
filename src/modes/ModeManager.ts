@@ -279,14 +279,14 @@ export class ModeManager {
             placeHolder: '例如：安全審計模式'
         });
 
-        if (!name) return undefined;
+        if (!name) {return undefined;}
 
         const description = await vscode.window.showInputBox({
             prompt: '輸入模式描述',
             placeHolder: '描述這個模式的用途和特點'
         });
 
-        if (!description) return undefined;
+        if (!description) {return undefined;}
 
         // 選擇基礎模式
         const baseModes = Array.from(this.modes.values());
@@ -299,7 +299,7 @@ export class ModeManager {
             { placeHolder: '選擇基礎模式' }
         );
 
-        if (!selectedBase) return undefined;
+        if (!selectedBase) {return undefined;}
 
         // 輸入自定義系統提示
         const systemPrompt = await vscode.window.showInputBox({
@@ -349,7 +349,7 @@ export class ModeManager {
             placeHolder: '選擇要編輯的屬性'
         });
 
-        if (!selected) return;
+        if (!selected) {return;}
 
         switch (selected.value) {
             case 'name':
@@ -357,7 +357,7 @@ export class ModeManager {
                     prompt: '輸入新的模式名稱',
                     value: mode.name
                 });
-                if (newName) mode.name = newName;
+                if (newName) {mode.name = newName;}
                 break;
 
             case 'description':
@@ -365,7 +365,7 @@ export class ModeManager {
                     prompt: '輸入新的模式描述',
                     value: mode.description
                 });
-                if (newDescription) mode.description = newDescription;
+                if (newDescription) {mode.description = newDescription;}
                 break;
 
             case 'systemPrompt':
@@ -373,7 +373,7 @@ export class ModeManager {
                     prompt: '輸入新的系統提示',
                     value: mode.systemPrompt
                 });
-                if (newPrompt) mode.systemPrompt = newPrompt;
+                if (newPrompt) {mode.systemPrompt = newPrompt;}
                 break;
 
             case 'temperature':
@@ -388,7 +388,7 @@ export class ModeManager {
                         return undefined;
                     }
                 });
-                if (newTemp) mode.temperature = parseFloat(newTemp);
+                if (newTemp) {mode.temperature = parseFloat(newTemp);}
                 break;
         }
 
@@ -414,7 +414,7 @@ export class ModeManager {
 
         if (confirm === '確定') {
             this.customModes.delete(modeId);
-            
+
             // 如果刪除的是當前模式，切換到默認模式
             if (this.currentMode.id === modeId) {
                 await this.switchMode('code');
@@ -533,7 +533,7 @@ export class ModeManager {
      */
     private loadCustomModes(): void {
         const customModesData = this.context.globalState.get<CustomMode[]>('customModes', []);
-        
+
         for (const mode of customModesData) {
             // 恢復日期對象
             mode.createdAt = new Date(mode.createdAt);

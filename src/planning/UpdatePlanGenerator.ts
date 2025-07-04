@@ -77,17 +77,17 @@ export class UpdatePlanGenerator {
 
         // 分析新 API
         const newAPIItems = await this.analyzeNewAPIs(crawlResult.newAPIs);
-        
+
         // 分析更新的 API
         const updatedAPIItems = await this.analyzeUpdatedAPIs(crawlResult.updatedAPIs);
-        
+
         // 分析已棄用的 API
         const deprecatedAPIItems = await this.analyzeDeprecatedAPIs(crawlResult.deprecatedAPIs);
 
         // 生成建議
         const recommendations = await this.generateRecommendations(
-            crawlResult, 
-            coverageAnalysis, 
+            crawlResult,
+            coverageAnalysis,
             usageStats
         );
 
@@ -113,7 +113,7 @@ export class UpdatePlanGenerator {
         };
 
         console.log(`更新計畫生成完成！包含 ${newAPIItems.length} 個新 API，${implementationTasks.length} 個實作任務`);
-        
+
         return updatePlan;
     }
 
@@ -247,8 +247,8 @@ export class UpdatePlanGenerator {
             }
         }
 
-        if (score >= 5) return 'high';
-        if (score >= 3) return 'medium';
+        if (score >= 5) {return 'high';}
+        if (score >= 3) {return 'medium';}
         return 'low';
     }
 
@@ -256,14 +256,14 @@ export class UpdatePlanGenerator {
      * 確定 API 影響
      */
     private determineAPIImpact(api: APIEndpoint, changeType: 'new' | 'updated' | 'deprecated'): string {
-        if (changeType === 'deprecated') return 'deprecation';
-        if (changeType === 'new') return 'feature';
-        
+        if (changeType === 'deprecated') {return 'deprecation';}
+        if (changeType === 'new') {return 'feature';}
+
         // 對於更新的 API，檢查是否有破壞性變更
         if (api.signature && api.signature.includes('deprecated')) {
             return 'breaking';
         }
-        
+
         return 'improvement';
     }
 
@@ -514,12 +514,12 @@ export class UpdatePlanGenerator {
      */
     async saveUpdatePlanToFile(updatePlan: UpdatePlan, outputPath?: string): Promise<string> {
         const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-        const defaultPath = workspaceFolder 
+        const defaultPath = workspaceFolder
             ? path.join(workspaceFolder.uri.fsPath, '.devika', 'update-plan.md')
             : path.join(process.cwd(), 'devika-update-plan.md');
-        
+
         const filePath = outputPath || defaultPath;
-        
+
         // 確保目錄存在
         const dir = path.dirname(filePath);
         if (!fs.existsSync(dir)) {

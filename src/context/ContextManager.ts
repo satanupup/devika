@@ -612,8 +612,8 @@ export class ContextManager {
     }
 
     private determineEditorLayout(groupCount: number): 'single' | 'split' | 'grid' {
-        if (groupCount === 1) return 'single';
-        if (groupCount === 2) return 'split';
+        if (groupCount === 1) {return 'single';}
+        if (groupCount === 2) {return 'split';}
         return 'grid';
     }
 

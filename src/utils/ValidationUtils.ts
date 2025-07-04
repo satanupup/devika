@@ -43,7 +43,7 @@ export interface NumberValidationOptions {
  * 提供常用的數據驗證功能
  */
 export class ValidationUtils {
-    
+
     /**
      * 驗證必需值
      */
@@ -66,7 +66,7 @@ export class ValidationUtils {
             throw new Error(`${name} 必須是字符串`);
         }
 
-        let processedValue = options.trim ? value.trim() : value;
+        const processedValue = options.trim ? value.trim() : value;
 
         if (!options.allowEmpty && processedValue.length === 0) {
             throw new Error(`${name} 不能為空`);
@@ -221,7 +221,7 @@ export class ValidationUtils {
     static validateEmail(value: unknown, name: string): string {
         const email = this.validateString(value, name);
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        
+
         if (!emailPattern.test(email)) {
             throw new Error(`${name} 不是有效的電子郵件地址`);
         }
@@ -234,7 +234,7 @@ export class ValidationUtils {
      */
     static validateUrl(value: unknown, name: string): string {
         const url = this.validateString(value, name);
-        
+
         try {
             new URL(url);
             return url;
@@ -248,7 +248,7 @@ export class ValidationUtils {
      */
     static validateFilePath(value: unknown, name: string): string {
         const path = this.validateString(value, name);
-        
+
         // 基本路徑驗證
         const invalidChars = /[<>:"|?*]/;
         if (invalidChars.test(path)) {
@@ -263,7 +263,7 @@ export class ValidationUtils {
      */
     static validateJson<T = any>(value: unknown, name: string): T {
         const jsonString = this.validateString(value, name);
-        
+
         try {
             return JSON.parse(jsonString);
         } catch (error) {

@@ -130,7 +130,7 @@ export class EnhancedMultiProjectAnalyzer {
 
         try {
             const projectInfo = await this.performProjectAnalysis(rootPath);
-            
+
             if (projectInfo) {
                 this.projectCache.set(rootPath, projectInfo);
             }
@@ -202,40 +202,40 @@ export class EnhancedMultiProjectAnalyzer {
         // 檢測順序很重要，從最具體到最一般
         if (fileSet.has('package.json')) {
             const packageJson = await this.readPackageJson(rootPath);
-            
+
             // VS Code 擴展
             if (packageJson?.engines?.vscode) {
                 return ProjectType.VSCodeExtension;
             }
-            
+
             // Electron
             if (packageJson?.main && (
-                packageJson.dependencies?.electron || 
+                packageJson.dependencies?.electron ||
                 packageJson.devDependencies?.electron
             )) {
                 return ProjectType.Electron;
             }
 
             // React Native
-            if (packageJson?.dependencies?.['react-native'] || 
+            if (packageJson?.dependencies?.['react-native'] ||
                 packageJson?.devDependencies?.['react-native']) {
                 return ProjectType.ReactNative;
             }
 
             // React
-            if (packageJson?.dependencies?.react || 
+            if (packageJson?.dependencies?.react ||
                 packageJson?.devDependencies?.react) {
                 return ProjectType.React;
             }
 
             // Vue
-            if (packageJson?.dependencies?.vue || 
+            if (packageJson?.dependencies?.vue ||
                 packageJson?.devDependencies?.vue) {
                 return ProjectType.Vue;
             }
 
             // Angular
-            if (packageJson?.dependencies?.['@angular/core'] || 
+            if (packageJson?.dependencies?.['@angular/core'] ||
                 packageJson?.devDependencies?.['@angular/core']) {
                 return ProjectType.Angular;
             }
@@ -244,16 +244,16 @@ export class EnhancedMultiProjectAnalyzer {
         }
 
         // Python
-        if (fileSet.has('requirements.txt') || 
-            fileSet.has('setup.py') || 
+        if (fileSet.has('requirements.txt') ||
+            fileSet.has('setup.py') ||
             fileSet.has('pyproject.toml') ||
             fileSet.has('pipfile')) {
             return ProjectType.Python;
         }
 
         // Java
-        if (fileSet.has('pom.xml') || 
-            fileSet.has('build.gradle') || 
+        if (fileSet.has('pom.xml') ||
+            fileSet.has('build.gradle') ||
             fileSet.has('build.gradle.kts')) {
             return ProjectType.Java;
         }
@@ -293,7 +293,7 @@ export class EnhancedMultiProjectAnalyzer {
         }
 
         // Swift
-        if (fileSet.has('package.swift') || 
+        if (fileSet.has('package.swift') ||
             files.some(f => f.endsWith('.xcodeproj'))) {
             return ProjectType.Swift;
         }
@@ -473,7 +473,7 @@ export class EnhancedMultiProjectAnalyzer {
      */
     private async getProjectMetadata(rootPath: string, projectType: ProjectType): Promise<ProjectMetadata> {
         const stats = await this.getDirectoryStats(rootPath);
-        
+
         let metadata: Partial<ProjectMetadata> = {
             lastModified: stats.lastModified,
             size: stats.size,
@@ -529,7 +529,7 @@ export class EnhancedMultiProjectAnalyzer {
 
         // 查找可能的子項目目錄
         const subdirs = await this.getSubdirectories(rootPath);
-        
+
         for (const subdir of subdirs) {
             // 跳過常見的非項目目錄
             if (this.shouldSkipDirectory(subdir)) {
@@ -538,7 +538,7 @@ export class EnhancedMultiProjectAnalyzer {
 
             const subProjectPath = path.join(rootPath, subdir);
             const subProject = await this.analyzeProject(subProjectPath);
-            
+
             if (subProject) {
                 subProjects.push(subProject);
             }
@@ -551,8 +551,8 @@ export class EnhancedMultiProjectAnalyzer {
      * 執行健康檢查
      */
     private async performHealthCheck(
-        rootPath: string, 
-        projectType: ProjectType, 
+        rootPath: string,
+        projectType: ProjectType,
         dependencies: ProjectDependency[]
     ): Promise<ProjectHealth> {
         const issues: HealthIssue[] = [];

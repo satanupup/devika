@@ -141,7 +141,7 @@ export class TypeSafeConfigManager {
         itemChecker?: (item: unknown) => item is T
     ): T[] {
         const value = config.get(key);
-        if (!Array.isArray(value)) return defaultValue;
+        if (!Array.isArray(value)) {return defaultValue;}
 
         if (itemChecker) {
             return value.filter(itemChecker);
@@ -210,8 +210,8 @@ export class TypeSafeErrorHandler {
             details?: Record<string, unknown>;
         };
 
-        if (code) error.code = code;
-        if (details) error.details = details;
+        if (code) {error.code = code;}
+        if (details) {error.details = details;}
 
         return error;
     }

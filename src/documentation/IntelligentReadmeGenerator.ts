@@ -54,13 +54,13 @@ export class IntelligentReadmeGenerator {
     ): Promise<string> {
         // 分析項目結構
         const projectStructure = await this.multiProjectAnalyzer.analyzeWorkspace();
-        
+
         // 選擇合適的模板
         const template = this.selectTemplate(projectStructure, options.template);
-        
+
         // 生成各個章節
         const sections = await this.generateSections(projectStructure, template, options);
-        
+
         // 組合最終的 README
         return this.assembleReadme(sections, options);
     }
@@ -178,7 +178,7 @@ export class IntelligentReadmeGenerator {
      */
     private async generateTitle(projectStructure: any, options: ReadmeGenerationOptions): Promise<string> {
         const projectName = projectStructure.workspaceName || 'Project';
-        
+
         if (projectStructure.projects.length === 1) {
             const project = projectStructure.projects[0];
             const description = project.description || '';
@@ -345,19 +345,19 @@ ${JSON.stringify(projectStructure, null, 2)}
      */
     private async generateProjectStructure(projectStructure: any, options: ReadmeGenerationOptions): Promise<string> {
         let structure = '## 項目結構\n\n';
-        
+
         if (projectStructure.projects.length > 1) {
             structure += '```\n';
             structure += `${projectStructure.workspaceName}/\n`;
-            
+
             projectStructure.projects.forEach((project: ProjectInfo, index: number) => {
                 const isLast = index === projectStructure.projects.length - 1;
                 const prefix = isLast ? '└── ' : '├── ';
                 structure += `${prefix}${project.name}/ (${project.type})\n`;
             });
-            
+
             structure += '```\n\n';
-            
+
             // 詳細描述每個項目
             projectStructure.projects.forEach((project: ProjectInfo) => {
                 structure += `### ${project.name}\n\n`;

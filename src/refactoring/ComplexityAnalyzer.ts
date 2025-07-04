@@ -112,7 +112,7 @@ export class ComplexityAnalyzer {
                 const functions: FunctionAnalysis[] = [];
                 this.visitNode(sourceFile, sourceFile, functions);
 
-                return functions.sort((a, b) => 
+                return functions.sort((a, b) =>
                     this.calculateRiskScore(b.metrics) - this.calculateRiskScore(a.metrics)
                 );
             },
@@ -448,10 +448,10 @@ export class ComplexityAnalyzer {
      */
     private calculateRiskLevel(metrics: ComplexityMetrics): 'low' | 'medium' | 'high' | 'critical' {
         const score = this.calculateRiskScore(metrics);
-        
-        if (score >= 80) return 'critical';
-        if (score >= 60) return 'high';
-        if (score >= 40) return 'medium';
+
+        if (score >= 80) {return 'critical';}
+        if (score >= 60) {return 'high';}
+        if (score >= 40) {return 'medium';}
         return 'low';
     }
 
@@ -460,22 +460,22 @@ export class ComplexityAnalyzer {
      */
     private calculateRiskScore(metrics: ComplexityMetrics): number {
         let score = 0;
-        
+
         // 圈複雜度權重 30%
         score += Math.min(30, (metrics.cyclomaticComplexity / 20) * 30);
-        
+
         // 認知複雜度權重 25%
         score += Math.min(25, (metrics.cognitiveComplexity / 30) * 25);
-        
+
         // 代碼行數權重 20%
         score += Math.min(20, (metrics.linesOfCode / 100) * 20);
-        
+
         // 嵌套深度權重 15%
         score += Math.min(15, (metrics.nestingDepth / 6) * 15);
-        
+
         // 參數數量權重 10%
         score += Math.min(10, (metrics.parameters / 10) * 10);
-        
+
         return Math.round(score);
     }
 
@@ -485,14 +485,14 @@ export class ComplexityAnalyzer {
     generateRefactoringReport(analyses: FunctionAnalysis[]): string {
         const criticalFunctions = analyses.filter(a => a.riskLevel === 'critical');
         const highRiskFunctions = analyses.filter(a => a.riskLevel === 'high');
-        
+
         let report = '# 函數複雜度分析報告\n\n';
-        
+
         report += `## 概覽\n`;
         report += `- 總函數數量: ${analyses.length}\n`;
         report += `- 高風險函數: ${criticalFunctions.length + highRiskFunctions.length}\n`;
         report += `- 需要立即重構: ${criticalFunctions.length}\n\n`;
-        
+
         if (criticalFunctions.length > 0) {
             report += `## 🚨 緊急需要重構的函數\n\n`;
             criticalFunctions.forEach(func => {
@@ -503,7 +503,7 @@ export class ComplexityAnalyzer {
                 report += `- 建議: ${func.suggestions[0]?.description || '無'}\n\n`;
             });
         }
-        
+
         return report;
     }
 }

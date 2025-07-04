@@ -94,9 +94,9 @@ export class IntelligentTaskDispatcher {
             for (let i = 0; i < workspaceFolders.length; i++) {
                 const folder = workspaceFolders[i];
                 await this.codeContextService.indexWorkspace(folder);
-                progress.report({ 
-                    increment: (i + 1) / workspaceFolders.length * 50, 
-                    message: `索引工作區 ${i + 1}/${workspaceFolders.length}...` 
+                progress.report({
+                    increment: (i + 1) / workspaceFolders.length * 50,
+                    message: `索引工作區 ${i + 1}/${workspaceFolders.length}...`
                 });
             }
 
@@ -282,8 +282,8 @@ export class IntelligentTaskDispatcher {
     }
 
     private async generateIntelligentResponse(
-        originalQuery: string, 
-        intent: UserIntent, 
+        originalQuery: string,
+        intent: UserIntent,
         result: TaskResult
     ): Promise<string> {
         const prompt = `
@@ -452,7 +452,7 @@ export class IntelligentTaskDispatcher {
 
     private async analyzeMarkdownFiles(): Promise<any[]> {
         const workspaceFolders = vscode.workspace.workspaceFolders;
-        if (!workspaceFolders) return [];
+        if (!workspaceFolders) {return [];}
 
         try {
             // 查找所有 Markdown 文件
@@ -482,7 +482,7 @@ export class IntelligentTaskDispatcher {
 
     private async getBasicProjectInfo(): Promise<any> {
         const workspaceFolders = vscode.workspace.workspaceFolders;
-        if (!workspaceFolders) return {};
+        if (!workspaceFolders) {return {};}
 
         return {
             workspaceName: workspaceFolders[0].name,

@@ -356,33 +356,33 @@ export class APICoverageAnalyzer {
     // 輔助方法
     private assessComplexity(apiData: any): 'simple' | 'moderate' | 'complex' {
         const paramCount = (apiData.parameters || '').split(',').length;
-        if (paramCount <= 2) return 'simple';
-        if (paramCount <= 5) return 'moderate';
+        if (paramCount <= 2) {return 'simple';}
+        if (paramCount <= 5) {return 'moderate';}
         return 'complex';
     }
 
     private assessPriority(apiData: any): 'critical' | 'high' | 'medium' | 'low' {
         const category = apiData.category.toLowerCase();
-        if (['commands', 'window', 'workspace'].includes(category)) return 'high';
-        if (['languages', 'debug', 'tasks'].includes(category)) return 'medium';
+        if (['commands', 'window', 'workspace'].includes(category)) {return 'high';}
+        if (['languages', 'debug', 'tasks'].includes(category)) {return 'medium';}
         return 'low';
     }
 
     private categorizeAPI(apiName: string): string {
-        if (apiName.startsWith('window.')) return 'window';
-        if (apiName.startsWith('workspace.')) return 'workspace';
-        if (apiName.startsWith('commands.')) return 'commands';
-        if (apiName.startsWith('languages.')) return 'languages';
-        if (apiName.startsWith('debug.')) return 'debug';
-        if (apiName.startsWith('tasks.')) return 'tasks';
+        if (apiName.startsWith('window.')) {return 'window';}
+        if (apiName.startsWith('workspace.')) {return 'workspace';}
+        if (apiName.startsWith('commands.')) {return 'commands';}
+        if (apiName.startsWith('languages.')) {return 'languages';}
+        if (apiName.startsWith('debug.')) {return 'debug';}
+        if (apiName.startsWith('tasks.')) {return 'tasks';}
         return 'other';
     }
 
     private assessImplementationQuality(line: string, apiName: string): 'excellent' | 'good' | 'fair' | 'poor' {
         // 簡化的品質評估
-        if (line.includes('try') || line.includes('catch')) return 'excellent';
-        if (line.includes('await') || line.includes('Promise')) return 'good';
-        if (line.includes('//') || line.includes('/*')) return 'fair';
+        if (line.includes('try') || line.includes('catch')) {return 'excellent';}
+        if (line.includes('await') || line.includes('Promise')) {return 'good';}
+        if (line.includes('//') || line.includes('/*')) {return 'fair';}
         return 'poor';
     }
 
@@ -405,8 +405,8 @@ export class APICoverageAnalyzer {
         const highPriority = ['commands', 'window', 'workspace'];
         const mediumPriority = ['languages', 'debug', 'tasks'];
 
-        if (highPriority.includes(category)) return 'high';
-        if (mediumPriority.includes(category)) return 'medium';
+        if (highPriority.includes(category)) {return 'high';}
+        if (mediumPriority.includes(category)) {return 'medium';}
         return 'low';
     }
 

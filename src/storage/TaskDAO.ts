@@ -34,7 +34,7 @@ export class TaskDAO {
      */
     async create(task: Omit<Task, 'dependencies' | 'subtasks'>): Promise<Task> {
         await this.dbManager.beginTransaction();
-        
+
         try {
             // 插入主任務記錄
             const taskRecord: Omit<TaskRecord, 'id'> = {

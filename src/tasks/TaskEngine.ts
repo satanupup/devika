@@ -53,7 +53,7 @@ export class TaskEngine {
 
     async executeTaskPlan(plan: TaskPlan): Promise<TaskExecution> {
         const executionId = this.generateExecutionId();
-        
+
         // Create checkpoint before execution
         const affectedFiles = this.getAffectedFiles(plan);
         const checkpointId = await this.checkpointManager.createAutoCheckpoint(
@@ -108,7 +108,7 @@ export class TaskEngine {
                 execution.results[i].startTime = new Date().toISOString();
 
                 const result = await this.executeStep(step);
-                
+
                 execution.results[i].status = 'completed';
                 execution.results[i].endTime = new Date().toISOString();
                 execution.results[i].duration = this.calculateDuration(
@@ -122,7 +122,7 @@ export class TaskEngine {
                 execution.results[i].status = 'failed';
                 execution.results[i].endTime = new Date().toISOString();
                 execution.results[i].error = error instanceof Error ? error.message : String(error);
-                
+
                 // Decide whether to continue or stop
                 const shouldContinue = await this.handleStepFailure(step, error, execution);
                 if (!shouldContinue) {
@@ -206,7 +206,7 @@ export class TaskEngine {
         return new Promise((resolve, reject) => {
             const terminal = vscode.window.createTerminal('Devika Task');
             terminal.sendText(command);
-            
+
             // For now, just return the command that was executed
             // In a real implementation, you'd capture the output
             resolve(`Executed: ${command}`);
@@ -229,8 +229,8 @@ export class TaskEngine {
     }
 
     private async handleStepFailure(
-        step: TaskStep, 
-        error: any, 
+        step: TaskStep,
+        error: any,
         execution: TaskExecution
     ): Promise<boolean> {
         const choice = await vscode.window.showErrorMessage(
@@ -272,7 +272,7 @@ export class TaskEngine {
     private notifyExecutionComplete(execution: TaskExecution): void {
         const completedSteps = execution.results.filter(r => r.status === 'completed').length;
         const totalSteps = execution.results.length;
-        
+
         if (execution.status === 'completed') {
             vscode.window.showInformationMessage(
                 `任务执行完成！${completedSteps}/${totalSteps} 个步骤成功执行`

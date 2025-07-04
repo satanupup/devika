@@ -235,7 +235,7 @@ export class LazyLoader {
 
         this.logger.info('LazyLoader', `Preloading ${highPriorityModules.length} high priority modules`);
 
-        const loadPromises = highPriorityModules.map(module => 
+        const loadPromises = highPriorityModules.map(module =>
             this.loadModule(module.name).catch(error => {
                 this.logger.warn('LazyLoader', `Failed to preload module: ${module.name}`, error);
             })

@@ -37,7 +37,7 @@ export class CodeParser {
                 while ((match = pattern.exec(lineText)) !== null) {
                     const type = match[1].toUpperCase() as TodoItem['type'];
                     const text = match[2].trim();
-                    
+
                     const startPos = new vscode.Position(lineIndex, match.index);
                     const endPos = new vscode.Position(lineIndex, match.index + match[0].length);
                     const range = new vscode.Range(startPos, endPos);
@@ -239,7 +239,7 @@ export class CodeParser {
         cognitiveComplexity: number;
     }> {
         const text = range ? document.getText(range) : document.getText();
-        
+
         // 簡單的複雜度分析
         const cyclomaticComplexity = this.calculateCyclomaticComplexity(text);
         const linesOfCode = this.countLinesOfCode(text);

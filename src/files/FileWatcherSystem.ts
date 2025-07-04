@@ -64,7 +64,7 @@ export class FileWatcherSystem {
         watcherId?: string
     ): string {
         const id = watcherId || this.generateWatcherId();
-        
+
         // 如果已存在相同 ID 的監視器，先銷毀它
         if (this.watchers.has(id)) {
             this.destroyWatcher(id);
@@ -115,7 +115,7 @@ export class FileWatcherSystem {
             watcher.dispose();
             this.watchers.delete(watcherId);
             this.stats.watchedPaths--;
-            
+
             // 清除相關的防抖計時器
             const timersToRemove: string[] = [];
             for (const [key, timer] of this.debounceTimers) {
@@ -372,7 +372,7 @@ export class FileWatcherSystem {
      */
     private updateStats(type: 'created' | 'changed' | 'deleted'): void {
         this.stats.totalEvents++;
-        
+
         switch (type) {
             case 'created':
                 this.stats.createdFiles++;
@@ -417,7 +417,7 @@ export class FileWatcherSystem {
      */
     private loadEventHistory(): void {
         const history = this.context.globalState.get<FileChangeEvent[]>('fileEventHistory', []);
-        
+
         // 恢復日期對象
         this.eventHistory = history.map(event => ({
             ...event,

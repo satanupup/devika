@@ -684,7 +684,7 @@ export class BrowserActionSystem {
     // 輔助方法
     private handleWebviewMessage(sessionId: string, message: any): void {
         const session = this.sessions.get(sessionId);
-        if (!session) return;
+        if (!session) {return;}
 
         switch (message.command) {
             case 'navigationComplete':
@@ -757,7 +757,7 @@ export class BrowserActionSystem {
     }
 
     private convertToCSV(data: any[]): string {
-        if (data.length === 0) return '';
+        if (data.length === 0) {return '';}
 
         const headers = Object.keys(data[0]);
         const rows = [headers.join(',')];

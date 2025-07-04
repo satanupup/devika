@@ -244,7 +244,7 @@ export class PersonalizationCommandProvider {
             }
           });
 
-          if (!ratingInput) return;
+          if (!ratingInput) {return;}
           rating = parseInt(ratingInput);
         }
 

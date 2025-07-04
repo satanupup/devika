@@ -349,7 +349,7 @@ export class TerminalIntegrationSystem {
         for (const command of config.hooks.preDeploy) {
           const result = await this.executeCommand(sessionId, command);
           results.push(result);
-          if (!result.success) throw new Error('預部署鉤子失敗');
+          if (!result.success) {throw new Error('預部署鉤子失敗');}
         }
       }
 
@@ -357,14 +357,14 @@ export class TerminalIntegrationSystem {
       if (config.buildCommand) {
         const result = await this.executeCommand(sessionId, config.buildCommand);
         results.push(result);
-        if (!result.success) throw new Error('構建失敗');
+        if (!result.success) {throw new Error('構建失敗');}
       }
 
       // 執行部署命令
       for (const command of config.commands) {
         const result = await this.executeCommand(sessionId, command);
         results.push(result);
-        if (!result.success) throw new Error('部署失敗');
+        if (!result.success) {throw new Error('部署失敗');}
       }
 
       // 執行後部署鉤子

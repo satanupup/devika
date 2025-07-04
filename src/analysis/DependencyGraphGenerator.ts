@@ -79,21 +79,21 @@ export class DependencyGraphGenerator {
     ): Promise<GraphLayout> {
         // 分析依賴
         const analysis = await this.dependencyAnalyzer.analyzeDependencies(projectPath);
-        
+
         // 轉換為圖形數據
         const graphLayout = this.convertToGraphLayout(analysis.graph, options);
-        
+
         // 應用佈局算法
         this.applyLayout(graphLayout, options.layout);
-        
+
         // 生成集群
         if (options.groupByType) {
             this.generateClusters(graphLayout);
         }
-        
+
         // 計算指標
         graphLayout.metrics = this.calculateGraphMetrics(graphLayout, analysis.graph);
-        
+
         return graphLayout;
     }
 
@@ -276,15 +276,15 @@ export class DependencyGraphGenerator {
                 for (let j = i + 1; j < nodes.length; j++) {
                     const node1 = nodes[i];
                     const node2 = nodes[j];
-                    
+
                     const dx = node2.x! - node1.x!;
                     const dy = node2.y! - node1.y!;
                     const distance = Math.sqrt(dx * dx + dy * dy) || 1;
-                    
+
                     const force = 1000 / (distance * distance);
                     const fx = (dx / distance) * force;
                     const fy = (dy / distance) * force;
-                    
+
                     node1.x! -= fx;
                     node1.y! -= fy;
                     node2.x! += fx;
@@ -296,16 +296,16 @@ export class DependencyGraphGenerator {
             for (const edge of edges) {
                 const source = nodes.find(n => n.id === edge.source);
                 const target = nodes.find(n => n.id === edge.target);
-                
+
                 if (source && target) {
                     const dx = target.x! - source.x!;
                     const dy = target.y! - source.y!;
                     const distance = Math.sqrt(dx * dx + dy * dy) || 1;
-                    
+
                     const force = distance * 0.01;
                     const fx = (dx / distance) * force;
                     const fy = (dy / distance) * force;
-                    
+
                     source.x! += fx;
                     source.y! += fy;
                     target.x! -= fx;
@@ -336,17 +336,17 @@ export class DependencyGraphGenerator {
     private applyTreeLayout(graphLayout: GraphLayout): void {
         // 找到根節點（沒有入邊的節點）
         const inDegree = new Map<string, number>();
-        
+
         for (const node of graphLayout.nodes) {
             inDegree.set(node.id, 0);
         }
-        
+
         for (const edge of graphLayout.edges) {
             inDegree.set(edge.target, (inDegree.get(edge.target) || 0) + 1);
         }
-        
+
         const roots = graphLayout.nodes.filter(node => inDegree.get(node.id) === 0);
-        
+
         if (roots.length === 0) {
             // 如果沒有根節點，使用第一個節點
             roots.push(graphLayout.nodes[0]);
@@ -366,8 +366,8 @@ export class DependencyGraphGenerator {
         y: number,
         visited: Set<string>
     ): void {
-        if (visited.has(node.id)) return;
-        
+        if (visited.has(node.id)) {return;}
+
         visited.add(node.id);
         node.x = x;
         node.y = y;
@@ -476,10 +476,10 @@ export class DependencyGraphGenerator {
      * 獲取集群類型
      */
     private getClusterType(key: string): GraphCluster['type'] {
-        if (['framework'].includes(key)) return 'framework';
-        if (['testing'].includes(key)) return 'testing';
-        if (['build'].includes(key)) return 'build';
-        if (['utility'].includes(key)) return 'utility';
+        if (['framework'].includes(key)) {return 'framework';}
+        if (['testing'].includes(key)) {return 'testing';}
+        if (['build'].includes(key)) {return 'build';}
+        if (['utility'].includes(key)) {return 'utility';}
         return 'other';
     }
 
@@ -623,7 +623,7 @@ export class DependencyGraphGenerator {
         for (const edge of graphLayout.edges) {
             const source = graphLayout.nodes.find(n => n.id === edge.source);
             const target = graphLayout.nodes.find(n => n.id === edge.target);
-            
+
             if (source && target) {
                 svg += `  <line x1="${source.x! + 400}" y1="${source.y! + 300}" `;
                 svg += `x2="${target.x! + 400}" y2="${target.y! + 300}" `;

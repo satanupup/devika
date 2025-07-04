@@ -105,11 +105,11 @@ export class LearningCommandProvider {
         if (choice === '確定') {
           // 創建備份
           await this.dataManager.createBackup();
-          
+
           // 清除數據
           this.learningEngine.clearLearningData();
           this.patternRecognizer.clearPatterns();
-          
+
           vscode.window.showInformationMessage('學習數據已重置');
         }
       },
@@ -215,7 +215,7 @@ export class LearningCommandProvider {
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const patterns = this.learningEngine.getLearnedPatterns();
-        
+
         if (patterns.length === 0) {
           vscode.window.showInformationMessage('尚未學習到任何編碼模式');
           return;
@@ -250,7 +250,7 @@ export class LearningCommandProvider {
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const preferences = this.learningEngine.getUserPreferences();
-        
+
         if (preferences.length === 0) {
           vscode.window.showInformationMessage('尚未識別到用戶偏好');
           return;

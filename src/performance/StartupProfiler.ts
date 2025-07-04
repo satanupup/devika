@@ -57,7 +57,7 @@ export class StartupProfiler {
                 afterAdvanced: 0
             }
         };
-        
+
         console.log('🚀 啟動性能監控已開始');
     }
 
@@ -69,7 +69,7 @@ export class StartupProfiler {
         this.metrics.timestamps!.coreReady = now;
         this.metrics.coreInitTime = now - this.startTime;
         this.metrics.memoryUsage!.afterCore = this.getMemoryUsage();
-        
+
         console.log(`⚡ 核心初始化完成: ${this.metrics.coreInitTime}ms`);
     }
 
@@ -81,7 +81,7 @@ export class StartupProfiler {
         this.metrics.timestamps!.servicesReady = now;
         this.metrics.servicesInitTime = now - this.metrics.timestamps!.coreReady;
         this.metrics.memoryUsage!.afterServices = this.getMemoryUsage();
-        
+
         console.log(`⚙️ 服務初始化完成: ${this.metrics.servicesInitTime}ms`);
     }
 
@@ -93,7 +93,7 @@ export class StartupProfiler {
         this.metrics.timestamps!.advancedReady = now;
         this.metrics.advancedFeaturesInitTime = now - this.metrics.timestamps!.servicesReady;
         this.metrics.memoryUsage!.afterAdvanced = this.getMemoryUsage();
-        
+
         console.log(`🚀 高級功能初始化完成: ${this.metrics.advancedFeaturesInitTime}ms`);
     }
 
@@ -104,9 +104,9 @@ export class StartupProfiler {
         const now = Date.now();
         this.metrics.timestamps!.fullyReady = now;
         this.metrics.totalStartupTime = now - this.startTime;
-        
+
         console.log(`🎉 完全啟動完成: ${this.metrics.totalStartupTime}ms`);
-        
+
         // 生成性能報告
         this.generatePerformanceReport();
     }
@@ -126,7 +126,7 @@ export class StartupProfiler {
      */
     private generatePerformanceReport(): void {
         const metrics = this.metrics as StartupMetrics;
-        
+
         console.log('\n📊 Devika 啟動性能報告');
         console.log('================================');
         console.log(`總啟動時間: ${metrics.totalStartupTime}ms`);
@@ -140,7 +140,7 @@ export class StartupProfiler {
         console.log(`  服務後: ${metrics.memoryUsage.afterServices}MB`);
         console.log(`  完成後: ${metrics.memoryUsage.afterAdvanced}MB`);
         console.log('');
-        
+
         // 性能評估
         this.evaluatePerformance(metrics);
     }
@@ -150,7 +150,7 @@ export class StartupProfiler {
      */
     private evaluatePerformance(metrics: StartupMetrics): void {
         const suggestions: string[] = [];
-        
+
         // 總啟動時間評估
         if (metrics.totalStartupTime > 3000) {
             suggestions.push('⚠️ 總啟動時間超過3秒，建議優化');
@@ -176,7 +176,7 @@ export class StartupProfiler {
             console.log('優化建議:');
             suggestions.forEach(suggestion => console.log(`  ${suggestion}`));
         }
-        
+
         console.log('================================\n');
     }
 
@@ -210,22 +210,22 @@ export class StartupProfiler {
      */
     compareWithTarget(target: Partial<StartupMetrics>): void {
         const current = this.metrics as StartupMetrics;
-        
+
         console.log('\n🎯 性能目標比較');
         console.log('================================');
-        
+
         if (target.totalStartupTime) {
             const diff = current.totalStartupTime - target.totalStartupTime;
             const status = diff <= 0 ? '✅' : '❌';
             console.log(`總啟動時間: ${current.totalStartupTime}ms (目標: ${target.totalStartupTime}ms) ${status}`);
         }
-        
+
         if (target.coreInitTime) {
             const diff = current.coreInitTime - target.coreInitTime;
             const status = diff <= 0 ? '✅' : '❌';
             console.log(`核心初始化: ${current.coreInitTime}ms (目標: ${target.coreInitTime}ms) ${status}`);
         }
-        
+
         console.log('================================\n');
     }
 }

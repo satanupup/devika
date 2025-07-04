@@ -112,7 +112,7 @@ export class CheckpointManager {
     ): Promise<string> {
         const name = `Auto: ${agentAction}`;
         const description = `Automatic checkpoint before ${agentAction} (Task: ${taskId})`;
-        
+
         return this.createCheckpoint(name, description, affectedFiles, {
             taskId,
             agentAction,
@@ -138,7 +138,7 @@ export class CheckpointManager {
         const conflicts = await this.detectRollbackConflicts(checkpoint);
         if (conflicts.length > 0) {
             result.conflicts = conflicts;
-            
+
             const proceed = await vscode.window.showWarningMessage(
                 `检测到 ${conflicts.length} 个冲突文件。是否继续回滚？`,
                 { modal: true },
@@ -203,7 +203,7 @@ export class CheckpointManager {
 
     private async restoreFile(file: CheckpointFile): Promise<void> {
         const uri = vscode.Uri.file(file.filePath);
-        
+
         // Ensure directory exists
         const dirPath = path.dirname(file.filePath);
         try {
@@ -237,7 +237,7 @@ export class CheckpointManager {
 
     async showCheckpointManager(): Promise<void> {
         const checkpoints = this.getCheckpoints();
-        
+
         if (checkpoints.length === 0) {
             vscode.window.showInformationMessage('暂无检查点');
             return;
@@ -391,16 +391,16 @@ export class CheckpointManager {
 
     private async compareWithCurrent(checkpoint: Checkpoint): Promise<void> {
         let differences = 0;
-        
+
         for (const file of checkpoint.files) {
             try {
                 const uri = vscode.Uri.file(file.filePath);
                 const currentContent = await vscode.workspace.fs.readFile(uri);
                 const currentContentStr = Buffer.from(currentContent).toString('utf8');
-                
+
                 if (currentContentStr !== file.content) {
                     differences++;
-                    
+
                     // Show diff for first few files
                     if (differences <= 3) {
                         const tempUri = vscode.Uri.parse(`untitled:${path.basename(file.filePath)}.checkpoint`);
@@ -408,8 +408,8 @@ export class CheckpointManager {
                         const edit = new vscode.WorkspaceEdit();
                         edit.insert(tempUri, new vscode.Position(0, 0), file.content);
                         await vscode.workspace.applyEdit(edit);
-                        
-                        await vscode.commands.executeCommand('vscode.diff', tempUri, uri, 
+
+                        await vscode.commands.executeCommand('vscode.diff', tempUri, uri,
                             `${path.basename(file.filePath)}: 检查点 ↔ 当前`);
                     }
                 }
@@ -454,7 +454,7 @@ export class CheckpointManager {
 
     private async cleanupOldCheckpoints(): Promise<void> {
         const checkpoints = this.getCheckpoints();
-        
+
         if (checkpoints.length > this.maxCheckpoints) {
             const toDelete = checkpoints.slice(this.maxCheckpoints);
             for (const checkpoint of toDelete) {
@@ -467,7 +467,7 @@ export class CheckpointManager {
     async createWorkspaceCheckpoint(): Promise<string> {
         // Create a checkpoint of all modified files in the workspace
         const modifiedFiles: string[] = [];
-        
+
         // Get all open editors
         for (const editor of vscode.window.visibleTextEditors) {
             if (editor.document.isDirty) {
@@ -486,7 +486,7 @@ export class CheckpointManager {
         }
 
         const uniqueFiles = [...new Set(modifiedFiles)];
-        
+
         return this.createCheckpoint(
             '工作区快照',
             `工作区状态快照 (${uniqueFiles.length} 个文件)`,

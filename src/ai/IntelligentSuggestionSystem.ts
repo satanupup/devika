@@ -98,11 +98,11 @@ export class IntelligentSuggestionSystem {
         return ErrorHandlingUtils.executeWithErrorHandling(
             async () => {
                 const suggestions: IntelligentSuggestion[] = [];
-                
+
                 // 分析當前文件
                 const analysis = await this.codeEngine.analyzeFile(context.currentFile);
                 const complexityAnalysis = await this.complexityAnalyzer.analyzeFile(context.currentFile);
-                
+
                 // 並行生成不同類型的建議
                 const suggestionPromises = Array.from(this.suggestionProviders.entries()).map(
                     async ([type, provider]) => {
@@ -120,7 +120,7 @@ export class IntelligentSuggestionSystem {
 
                 // 過濾和排序建議
                 const filteredSuggestions = this.filterAndRankSuggestions(suggestions, context);
-                
+
                 // 緩存建議
                 filteredSuggestions.forEach(suggestion => {
                     this.suggestions.set(suggestion.id, suggestion);
@@ -162,9 +162,9 @@ export class IntelligentSuggestionSystem {
             async () => {
                 const edit = new vscode.WorkspaceEdit();
                 edit.replace(suggestion.uri, suggestion.range, suggestion.fixedCode!);
-                
+
                 const success = await vscode.workspace.applyEdit(edit);
-                
+
                 if (success) {
                     // 添加到上下文
                     await this.contextSystem.addContext(
@@ -178,7 +178,7 @@ export class IntelligentSuggestionSystem {
                         }
                     );
                 }
-                
+
                 return success;
             },
             `應用建議 ${suggestion.title}`,
@@ -223,7 +223,7 @@ export class IntelligentSuggestionSystem {
             };
 
             const priorityDiff = priorityOrder[b.priority] - priorityOrder[a.priority];
-            if (priorityDiff !== 0) return priorityDiff;
+            if (priorityDiff !== 0) {return priorityDiff;}
 
             return b.confidence - a.confidence;
         });

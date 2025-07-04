@@ -83,11 +83,11 @@ export class PatternRecognizer {
 
         for (const rule of rules) {
           const matches = code.matchAll(rule.regex);
-          
+
           for (const match of matches) {
             try {
               const pattern = rule.extractor(match, code);
-              
+
               if (rule.validator && !rule.validator(pattern)) {
                 continue;
               }

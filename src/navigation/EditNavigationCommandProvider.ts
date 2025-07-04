@@ -167,7 +167,7 @@ export class EditNavigationCommandProvider {
         if (uris && uris.length > 0) {
           const content = await vscode.workspace.fs.readFile(uris[0]);
           const planData = JSON.parse(content.toString());
-          
+
           // 實現導入邏輯
           vscode.window.showInformationMessage('編輯計劃已導入');
           this.navigationProvider.refresh();
@@ -446,7 +446,7 @@ export class EditNavigationCommandProvider {
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const history = this.navigationEngine.getStepHistory();
-        
+
         if (history.length === 0) {
           vscode.window.showInformationMessage('沒有步驟歷史');
           return;
@@ -481,7 +481,7 @@ export class EditNavigationCommandProvider {
 
         const progress = this.navigationEngine.getProgress();
         const history = this.navigationEngine.getStepHistory();
-        
+
         const stats = `
 編輯導航統計
 ============
@@ -542,7 +542,7 @@ export class EditNavigationCommandProvider {
         }
 
         const selectedText = editor.document.getText(editor.selection);
-        
+
         // 基於選中的代碼生成步驟
         vscode.window.showInformationMessage('從選擇生成步驟功能即將推出');
       },
@@ -673,7 +673,7 @@ export class EditNavigationCommandProvider {
       placeHolder: '例如: 添加用戶認證功能'
     });
 
-    if (!userGoal) return;
+    if (!userGoal) {return;}
 
     // 創建快速編輯上下文
     const editContext: EditContext = {
@@ -699,7 +699,7 @@ export class EditNavigationCommandProvider {
 
     // 生成步驟
     const steps = await this.stepGenerator.generateEditSteps(editContext);
-    
+
     // 添加步驟到計劃
     for (const stepData of steps) {
       await this.navigationEngine.addEditStep(stepData);

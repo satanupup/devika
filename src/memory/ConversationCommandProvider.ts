@@ -129,7 +129,7 @@ export class ConversationCommandProvider {
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const history = this.memoryManager.getSessionHistory(20);
-        
+
         if (history.length === 0) {
           vscode.window.showInformationMessage('沒有可恢復的對話');
           return;
@@ -172,9 +172,9 @@ export class ConversationCommandProvider {
         const currentSession = this.memoryManager.getCurrentSession();
         // 這裡需要從 ConversationMemoryManager 獲取活躍會話列表
         // 由於當前實現中沒有公開方法，我們使用歷史記錄作為替代
-        
+
         const history = this.memoryManager.getSessionHistory(10);
-        
+
         if (history.length === 0) {
           vscode.window.showInformationMessage('沒有可切換的對話');
           return;
@@ -220,7 +220,7 @@ export class ConversationCommandProvider {
         }
 
         const results = await this.memoryManager.searchConversations(query);
-        
+
         if (results.length === 0) {
           vscode.window.showInformationMessage('沒有找到相關對話');
           return;
@@ -296,7 +296,7 @@ export class ConversationCommandProvider {
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const history = this.memoryManager.getSessionHistory(50);
-        
+
         if (history.length === 0) {
           vscode.window.showInformationMessage('沒有對話歷史');
           return;
@@ -350,7 +350,7 @@ export class ConversationCommandProvider {
         }
 
         const actions = await this.contextAnalyzer.predictNextAction(currentSession);
-        
+
         if (actions.length === 0) {
           vscode.window.showInformationMessage('無法預測下一步行動');
           return;
@@ -388,7 +388,7 @@ export class ConversationCommandProvider {
         }
 
         const pattern = await this.contextAnalyzer.identifyConversationPattern(currentSession);
-        
+
         if (pattern) {
           vscode.window.showInformationMessage(
             `識別到對話模式: ${pattern.name} - ${pattern.description}`
@@ -461,7 +461,7 @@ export class ConversationCommandProvider {
 
         if (uris && uris.length > 0) {
           const result = await this.persistenceManager.restoreFromBackup(uris[0].fsPath);
-          
+
           if (result.success) {
             vscode.window.showInformationMessage(
               `導入完成: ${result.importedSessions} 個會話已導入，${result.skippedSessions} 個會話被跳過`
@@ -507,7 +507,7 @@ export class ConversationCommandProvider {
 
         if (uris && uris.length > 0) {
           const result = await this.persistenceManager.restoreFromBackup(uris[0].fsPath);
-          
+
           if (result.success) {
             vscode.window.showInformationMessage(
               `恢復完成: ${result.importedSessions} 個會話已恢復`
@@ -529,7 +529,7 @@ export class ConversationCommandProvider {
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const stats = await this.persistenceManager.getStorageStats();
-        
+
         const panel = vscode.window.createWebviewPanel(
           'conversationStats',
           '對話統計',

@@ -72,7 +72,7 @@ export class IntelligentFileSearchEngine {
 
         // 構建搜索模式
         const searchPattern = this.buildSearchPattern(query, options);
-        
+
         // 獲取文件列表
         const files = await this.getFileList(rootUri, options);
         stats.totalFiles = files.length;
@@ -120,7 +120,7 @@ export class IntelligentFileSearchEngine {
             const fileStat = await this.fs.stat(fileUri);
             const fileName = path.basename(fileUri.fsPath);
             const fileType = path.extname(fileName).toLowerCase();
-            
+
             // 檢查文件大小限制
             if (options.maxFileSize && fileStat.size > options.maxFileSize) {
                 return null;
@@ -154,7 +154,7 @@ export class IntelligentFileSearchEngine {
             }
 
             const workspaceFolder = vscode.workspace.getWorkspaceFolder(fileUri);
-            const relativePath = workspaceFolder 
+            const relativePath = workspaceFolder
                 ? path.relative(workspaceFolder.uri.fsPath, fileUri.fsPath)
                 : fileUri.fsPath;
 
@@ -183,10 +183,10 @@ export class IntelligentFileSearchEngine {
         for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
             const line = lines[lineIndex];
             let match;
-            
+
             // 重置正則表達式的 lastIndex
             pattern.lastIndex = 0;
-            
+
             while ((match = pattern.exec(line)) !== null) {
                 const contextStart = Math.max(0, lineIndex - 2);
                 const contextEnd = Math.min(lines.length - 1, lineIndex + 2);
@@ -230,7 +230,7 @@ export class IntelligentFileSearchEngine {
      */
     private async getFileList(rootUri: vscode.Uri, options: SearchOptions): Promise<vscode.Uri[]> {
         const includePattern = options.includePatterns?.join(',') || '**/*';
-        const excludePattern = options.excludePatterns?.join(',') || 
+        const excludePattern = options.excludePatterns?.join(',') ||
             '{**/node_modules/**,**/.git/**,**/dist/**,**/build/**,**/.vscode/**}';
 
         try {

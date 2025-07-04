@@ -206,7 +206,7 @@ export class MCPProtocolSupport {
         };
 
         const response = await this.sendMessage(server, message);
-        
+
         if (response.error) {
             throw new Error(`工具調用失敗: ${response.error.message}`);
         }
@@ -236,7 +236,7 @@ export class MCPProtocolSupport {
         };
 
         const response = await this.sendMessage(server, message);
-        
+
         if (response.error) {
             throw new Error(`獲取資源失敗: ${response.error.message}`);
         }
@@ -269,7 +269,7 @@ export class MCPProtocolSupport {
         };
 
         const response = await this.sendMessage(server, message);
-        
+
         if (response.error) {
             throw new Error(`獲取提示失敗: ${response.error.message}`);
         }
@@ -298,7 +298,7 @@ export class MCPProtocolSupport {
         };
 
         const response = await this.sendMessage(server, message);
-        
+
         if (response.error) {
             throw new Error(`採樣請求失敗: ${response.error.message}`);
         }
@@ -311,7 +311,7 @@ export class MCPProtocolSupport {
      */
     private async establishConnection(server: MCPServer): Promise<void> {
         const transport = server.connection.transport;
-        
+
         // 設置事件處理器
         transport.onMessage((message) => {
             this.handleIncomingMessage(server.id, message);
@@ -363,7 +363,7 @@ export class MCPProtocolSupport {
         };
 
         const response = await this.sendMessage(server, initMessage);
-        
+
         if (response.error) {
             throw new Error(`握手失敗: ${response.error.message}`);
         }
@@ -388,7 +388,7 @@ export class MCPProtocolSupport {
                 id: this.generateMessageId(),
                 method: 'tools/list'
             };
-            
+
             const toolsResponse = await this.sendMessage(server, toolsMessage);
             if (!toolsResponse.error) {
                 server.capabilities.tools = true;
@@ -404,7 +404,7 @@ export class MCPProtocolSupport {
                 id: this.generateMessageId(),
                 method: 'resources/list'
             };
-            
+
             const resourcesResponse = await this.sendMessage(server, resourcesMessage);
             if (!resourcesResponse.error) {
                 server.capabilities.resources = true;
@@ -420,7 +420,7 @@ export class MCPProtocolSupport {
                 id: this.generateMessageId(),
                 method: 'prompts/list'
             };
-            
+
             const promptsResponse = await this.sendMessage(server, promptsMessage);
             if (!promptsResponse.error) {
                 server.capabilities.prompts = true;
@@ -441,7 +441,7 @@ export class MCPProtocolSupport {
                 id: this.generateMessageId(),
                 method: 'tools/list'
             };
-            
+
             const toolsResponse = await this.sendMessage(server, toolsMessage);
             if (toolsResponse.result?.tools) {
                 for (const tool of toolsResponse.result.tools) {
@@ -460,7 +460,7 @@ export class MCPProtocolSupport {
                 id: this.generateMessageId(),
                 method: 'resources/list'
             };
-            
+
             const resourcesResponse = await this.sendMessage(server, resourcesMessage);
             if (resourcesResponse.result?.resources) {
                 for (const resource of resourcesResponse.result.resources) {
@@ -479,7 +479,7 @@ export class MCPProtocolSupport {
                 id: this.generateMessageId(),
                 method: 'prompts/list'
             };
-            
+
             const promptsResponse = await this.sendMessage(server, promptsMessage);
             if (promptsResponse.result?.prompts) {
                 for (const prompt of promptsResponse.result.prompts) {
@@ -498,7 +498,7 @@ export class MCPProtocolSupport {
     private async sendMessage(server: MCPServer, message: MCPMessage): Promise<MCPMessage> {
         return new Promise((resolve, reject) => {
             const messageId = message.id;
-            
+
             if (messageId) {
                 // 設置響應處理器
                 const timeout = setTimeout(() => {
@@ -544,7 +544,7 @@ export class MCPProtocolSupport {
      */
     private handleServerRequest(serverId: string, message: MCPMessage): void {
         const server = this.servers.get(serverId);
-        if (!server) return;
+        if (!server) {return;}
 
         switch (message.method) {
             case 'notifications/message':
@@ -622,20 +622,20 @@ export class MCPProtocolSupport {
         if (server) {
             await server.connection.transport.close();
             server.status = 'disconnected';
-            
+
             // 清理相關資產
             for (const [name, tool] of this.tools) {
                 if (tool.serverId === serverId) {
                     this.tools.delete(name);
                 }
             }
-            
+
             for (const [uri, resource] of this.resources) {
                 if (resource.serverId === serverId) {
                     this.resources.delete(uri);
                 }
             }
-            
+
             for (const [name, prompt] of this.prompts) {
                 if (prompt.serverId === serverId) {
                     this.prompts.delete(name);

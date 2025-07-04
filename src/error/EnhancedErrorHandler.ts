@@ -74,7 +74,7 @@ export class EnhancedErrorHandler {
             name: 'LLM Service Recovery',
             description: '重新初始化 LLM 服務連接',
             canRecover: (error, context) => {
-                return context.component === 'LLMService' && 
+                return context.component === 'LLMService' &&
                        (error.message.includes('API') || error.message.includes('network'));
             },
             execute: async () => {
@@ -96,7 +96,7 @@ export class EnhancedErrorHandler {
             name: 'File System Recovery',
             description: '重新嘗試文件操作',
             canRecover: (error, context) => {
-                return context.operation.includes('file') && 
+                return context.operation.includes('file') &&
                        (error.message.includes('ENOENT') || error.message.includes('permission'));
             },
             execute: async () => {
@@ -133,7 +133,7 @@ export class EnhancedErrorHandler {
             name: 'Configuration Recovery',
             description: '重置為默認配置',
             canRecover: (error, context) => {
-                return context.component === 'ConfigManager' || 
+                return context.component === 'ConfigManager' ||
                        error.message.includes('configuration');
             },
             execute: async () => {
@@ -150,13 +150,13 @@ export class EnhancedErrorHandler {
     }
 
     async handleError(
-        error: Error, 
+        error: Error,
         context: Partial<ErrorContext>,
         userAction?: string
     ): Promise<void> {
         const errorId = this.generateErrorId();
         const fullContext = this.buildFullContext(context);
-        
+
         const errorReport: ErrorReport = {
             id: errorId,
             timestamp: new Date().toISOString(),
@@ -215,7 +215,7 @@ export class EnhancedErrorHandler {
 
     private async showUserError(errorReport: ErrorReport): Promise<void> {
         const actions = ['查看詳情', '報告問題', '忽略'];
-        
+
         if (this.hasRecoveryOptions(errorReport)) {
             actions.unshift('嘗試修復');
         }
@@ -239,7 +239,7 @@ export class EnhancedErrorHandler {
     }
 
     private hasRecoveryOptions(errorReport: ErrorReport): boolean {
-        return this.recoveryStrategies.some(strategy => 
+        return this.recoveryStrategies.some(strategy =>
             strategy.canRecover(new Error(errorReport.message), errorReport.context)
         );
     }
@@ -430,7 +430,7 @@ ${errorReport.stack || 'No stack trace available'}
                 component: errorReport.context.component,
                 operation: errorReport.context.operation
             });
-            
+
             errorReport.reportedToTelemetry = true;
         } catch (error) {
             console.warn('Failed to report to telemetry:', error);
@@ -469,7 +469,7 @@ ${errorReport.stack || 'No stack trace available'}
     private logError(errorReport: ErrorReport): void {
         const logMessage = `[${errorReport.level.toUpperCase()}] ${errorReport.context.component}:${errorReport.context.operation} - ${errorReport.message}`;
         console.error(logMessage);
-        
+
         if (errorReport.stack) {
             console.error('Stack trace:', errorReport.stack);
         }
@@ -484,14 +484,14 @@ ${errorReport.stack || 'No stack trace available'}
     }> {
         const errors = Array.from(this.errorReports.values());
         const resolvedErrors = errors.filter(e => e.resolved).length;
-        
+
         const errorsByComponent: { [key: string]: number } = {};
         const errorsByOperation: { [key: string]: number } = {};
-        
+
         for (const error of errors) {
-            errorsByComponent[error.context.component] = 
+            errorsByComponent[error.context.component] =
                 (errorsByComponent[error.context.component] || 0) + 1;
-            errorsByOperation[error.context.operation] = 
+            errorsByOperation[error.context.operation] =
                 (errorsByOperation[error.context.operation] || 0) + 1;
         }
 
@@ -524,7 +524,7 @@ ${errorReport.stack || 'No stack trace available'}
             const recentReports = reports
                 .sort((a, b) => new Date(b[1].timestamp).getTime() - new Date(a[1].timestamp).getTime())
                 .slice(0, this.maxReports);
-            
+
             await this.context.globalState.update('errorReports', recentReports);
         } catch (error) {
             console.warn('Failed to save error reports:', error);

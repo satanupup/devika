@@ -90,7 +90,7 @@ export class MemorySystem {
         strength: number = 0.5
     ): Promise<string> {
         const id = this.generateMemoryId();
-        
+
         const memory: MemoryItem = {
             id,
             type,
@@ -104,7 +104,7 @@ export class MemorySystem {
         };
 
         this.memories.set(id, memory);
-        
+
         // 添加到上下文系統
         await this.contextSystem.addContext(
             ContextType.CONVERSATION,
@@ -194,7 +194,7 @@ export class MemorySystem {
         // 更新模式統計
         const patternKey = `${language}:${pattern}`;
         const existing = this.patterns.get(patternKey);
-        
+
         if (existing) {
             existing.frequency++;
             existing.effectiveness = (existing.effectiveness + effectiveness) / 2;
@@ -220,7 +220,7 @@ export class MemorySystem {
         effectiveness: number
     ): Promise<void> {
         const content = `Problem: ${problem}\nSolution: ${solution}`;
-        
+
         await this.addMemory(
             MemoryType.SOLUTION,
             content,
@@ -234,10 +234,10 @@ export class MemorySystem {
      */
     async getUserPreferences(context?: string): Promise<MemoryItem[]> {
         let preferences = await this.retrieveMemories('', MemoryType.USER_PREFERENCE);
-        
+
         if (context) {
-            preferences = preferences.filter(p => 
-                p.metadata.context?.includes(context) || 
+            preferences = preferences.filter(p =>
+                p.metadata.context?.includes(context) ||
                 p.content.toLowerCase().includes(context.toLowerCase())
             );
         }
@@ -273,14 +273,14 @@ export class MemorySystem {
     async forgetOldMemories(): Promise<void> {
         const now = Date.now();
         const oneMonthAgo = now - (30 * 24 * 60 * 60 * 1000);
-        
+
         for (const [id, memory] of this.memories.entries()) {
             // 計算遺忘因子
             const daysSinceAccess = (now - memory.lastAccessed.getTime()) / (24 * 60 * 60 * 1000);
             const forgetFactor = Math.exp(-daysSinceAccess / 30); // 30天半衰期
-            
+
             memory.strength *= forgetFactor;
-            
+
             // 移除非常弱的記憶
             if (memory.strength < 0.1 && memory.lastAccessed.getTime() < oneMonthAgo) {
                 this.memories.delete(id);
@@ -301,7 +301,7 @@ export class MemorySystem {
         }
 
         // 標籤匹配
-        const tagMatch = memory.tags.some(tag => 
+        const tagMatch = memory.tags.some(tag =>
             tag.toLowerCase().includes(query) || query.includes(tag.toLowerCase())
         );
         if (tagMatch) {
@@ -331,10 +331,10 @@ export class MemorySystem {
     ): void {
         const patternKey = `${action}:${context}`;
         const existing = this.patterns.get(patternKey);
-        
+
         if (existing) {
             existing.frequency++;
-            existing.effectiveness = positive 
+            existing.effectiveness = positive
                 ? Math.min(1, existing.effectiveness + 0.1)
                 : Math.max(0, existing.effectiveness - 0.1);
             existing.lastSeen = new Date();
@@ -354,21 +354,21 @@ export class MemorySystem {
      */
     private extractTags(content: string, metadata: MemoryMetadata): string[] {
         const tags: string[] = [];
-        
+
         // 從內容中提取關鍵詞
         const words = content.toLowerCase().match(/\b\w+\b/g) || [];
-        const keywords = words.filter(word => 
-            word.length > 3 && 
+        const keywords = words.filter(word =>
+            word.length > 3 &&
             !['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'who', 'boy', 'did', 'she', 'use', 'way', 'who', 'oil', 'sit', 'set'].includes(word)
         );
-        
+
         tags.push(...keywords.slice(0, 5));
-        
+
         // 從元數據中添加標籤
-        if (metadata.language) tags.push(metadata.language);
-        if (metadata.framework) tags.push(metadata.framework);
-        if (metadata.context) tags.push(metadata.context);
-        
+        if (metadata.language) {tags.push(metadata.language);}
+        if (metadata.framework) {tags.push(metadata.framework);}
+        if (metadata.context) {tags.push(metadata.context);}
+
         return [...new Set(tags)]; // 去重
     }
 
@@ -398,7 +398,7 @@ export class MemorySystem {
             const content = await FileOperationUtils.readFile(this.memoryFile);
             if (content) {
                 const data = JSON.parse(content);
-                
+
                 // 恢復記憶
                 if (data.memories) {
                     for (const [id, memoryData] of Object.entries(data.memories)) {
@@ -408,7 +408,7 @@ export class MemorySystem {
                         this.memories.set(id, memory);
                     }
                 }
-                
+
                 // 恢復模式
                 if (data.patterns) {
                     for (const [key, patternData] of Object.entries(data.patterns)) {
@@ -433,7 +433,7 @@ export class MemorySystem {
                 patterns: Object.fromEntries(this.patterns),
                 lastSaved: new Date().toISOString()
             };
-            
+
             await FileOperationUtils.writeFile(
                 this.memoryFile,
                 JSON.stringify(data, null, 2),

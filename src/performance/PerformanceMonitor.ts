@@ -76,7 +76,7 @@ export class PerformanceMonitor {
      * 開始性能監控
      */
     startMonitoring(intervalMs: number = 30000): void {
-        if (this.isMonitoring) return;
+        if (this.isMonitoring) {return;}
 
         this.isMonitoring = true;
         this.activationTime = Date.now();
@@ -102,7 +102,7 @@ export class PerformanceMonitor {
      * 停止性能監控
      */
     stopMonitoring(): void {
-        if (!this.isMonitoring) return;
+        if (!this.isMonitoring) {return;}
 
         this.isMonitoring = false;
         if (this.monitoringInterval) {
@@ -120,7 +120,7 @@ export class PerformanceMonitor {
         if (!this.commandTimings.has(commandName)) {
             this.commandTimings.set(commandName, []);
         }
-        
+
         const timings = this.commandTimings.get(commandName)!;
         timings.push(executionTime);
 
@@ -137,7 +137,7 @@ export class PerformanceMonitor {
         if (!this.apiTimings.has(apiName)) {
             this.apiTimings.set(apiName, []);
         }
-        
+
         const timings = this.apiTimings.get(apiName)!;
         timings.push(responseTime);
 
@@ -170,15 +170,15 @@ export class PerformanceMonitor {
         for (let i = 0; i < iterations; i++) {
             // 記錄內存使用前
             const memoryBefore = process.memoryUsage().heapUsed;
-            
+
             // 執行測試
             const startTime = performance.now();
             await testFunction();
             const endTime = performance.now();
-            
+
             // 記錄內存使用後
             const memoryAfter = process.memoryUsage().heapUsed;
-            
+
             times.push(endTime - startTime);
             totalMemoryUsage += memoryAfter - memoryBefore;
 
@@ -192,10 +192,10 @@ export class PerformanceMonitor {
         const averageTime = times.reduce((sum, time) => sum + time, 0) / times.length;
         const minTime = Math.min(...times);
         const maxTime = Math.max(...times);
-        
+
         const variance = times.reduce((sum, time) => sum + Math.pow(time - averageTime, 2), 0) / times.length;
         const standardDeviation = Math.sqrt(variance);
-        
+
         const throughput = 1000 / averageTime; // 每秒操作數
         const averageMemoryUsage = totalMemoryUsage / iterations;
 
@@ -442,8 +442,8 @@ ${this.generateOptimizationSuggestions(latestMetrics)}
      * 計算趨勢
      */
     private calculateTrend(values: number[]): number {
-        if (values.length < 2) return 0;
-        
+        if (values.length < 2) {return 0;}
+
         const first = values[0];
         const last = values[values.length - 1];
         return last - first;

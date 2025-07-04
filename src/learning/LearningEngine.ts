@@ -126,7 +126,7 @@ export class LearningEngine {
     data: Record<string, any>,
     outcome?: 'positive' | 'negative' | 'neutral'
   ): Promise<void> {
-    if (!this.isLearningEnabled) return;
+    if (!this.isLearningEnabled) {return;}
 
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
@@ -497,10 +497,10 @@ export class LearningEngine {
    */
   private generatePatternName(code: string, language: string): string {
     // 簡單的模式名稱生成邏輯
-    if (code.includes('function')) return 'Function Pattern';
-    if (code.includes('class')) return 'Class Pattern';
-    if (code.includes('if')) return 'Conditional Pattern';
-    if (code.includes('for') || code.includes('while')) return 'Loop Pattern';
+    if (code.includes('function')) {return 'Function Pattern';}
+    if (code.includes('class')) {return 'Class Pattern';}
+    if (code.includes('if')) {return 'Conditional Pattern';}
+    if (code.includes('for') || code.includes('while')) {return 'Loop Pattern';}
     return 'Code Pattern';
   }
 

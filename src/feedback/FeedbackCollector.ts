@@ -91,7 +91,7 @@ export class FeedbackCollector {
     private async saveFeedbackLocally(feedback: FeedbackData): Promise<void> {
         const existingFeedback = this.context.globalState.get<FeedbackData[]>('userFeedback', []);
         existingFeedback.push(feedback);
-        
+
         // Keep only the most recent 100 feedback entries
         if (existingFeedback.length > 100) {
             existingFeedback.splice(0, existingFeedback.length - 100);
@@ -107,7 +107,7 @@ export class FeedbackCollector {
 
     async showFeedbackHistory(): Promise<void> {
         const feedback = this.context.globalState.get<FeedbackData[]>('userFeedback', []);
-        
+
         if (feedback.length === 0) {
             vscode.window.showInformationMessage('暂无反馈记录');
             return;
@@ -422,11 +422,11 @@ export class FeedbackCollector {
         const lastPromptKey = `lastFeedbackPrompt_${pluginId}`;
         const lastPrompt = this.context.globalState.get<string>(lastPromptKey);
         const now = new Date().getTime();
-        
+
         if (lastPrompt) {
             const lastPromptTime = new Date(lastPrompt).getTime();
             const daysSinceLastPrompt = (now - lastPromptTime) / (1000 * 60 * 60 * 24);
-            
+
             // Only prompt once per week per plugin
             if (daysSinceLastPrompt < 7) {
                 return;

@@ -134,7 +134,7 @@ export class PluginManager {
                     if (token.isCancellationRequested) {
                         throw new Error('使用者取消操作');
                     }
-                    
+
                     progress.report({
                         increment: (100 / plugin.steps.length),
                         message: plugin.steps[i]
@@ -231,7 +231,7 @@ export class PluginManager {
                     '**/node_modules/**'
                 );
 
-                return files.map(file => 
+                return files.map(file =>
                     vscode.workspace.asRelativePath(file)
                 );
             }

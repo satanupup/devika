@@ -423,17 +423,17 @@ export class AdaptiveSuggestionSystem {
   private async detectProjectType(uri: vscode.Uri): Promise<string | undefined> {
     // 簡單的項目類型檢測邏輯
     const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
-    if (!workspaceFolder) return undefined;
+    if (!workspaceFolder) {return undefined;}
 
     try {
       const packageJsonUri = vscode.Uri.joinPath(workspaceFolder.uri, 'package.json');
       const packageJson = await vscode.workspace.fs.readFile(packageJsonUri);
       const packageData = JSON.parse(packageJson.toString());
 
-      if (packageData.dependencies?.react) return 'react';
-      if (packageData.dependencies?.vue) return 'vue';
-      if (packageData.dependencies?.angular) return 'angular';
-      if (packageData.dependencies?.express) return 'express';
+      if (packageData.dependencies?.react) {return 'react';}
+      if (packageData.dependencies?.vue) {return 'vue';}
+      if (packageData.dependencies?.angular) {return 'angular';}
+      if (packageData.dependencies?.express) {return 'express';}
 
       return 'javascript';
     } catch {

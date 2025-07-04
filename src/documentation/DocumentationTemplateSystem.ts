@@ -301,7 +301,7 @@ export class DocumentationTemplateSystem {
 
         // 處理條件章節
         if (options.sections) {
-            const sectionsToInclude = template.sections.filter(section => 
+            const sectionsToInclude = template.sections.filter(section =>
                 options.sections!.includes(section.id) && this.evaluateCondition(section.condition, options.variables)
             );
 
@@ -337,7 +337,7 @@ export class DocumentationTemplateSystem {
      * 評估條件
      */
     private evaluateCondition(condition: string | undefined, variables: { [key: string]: any }): boolean {
-        if (!condition) return true;
+        if (!condition) {return true;}
 
         try {
             // 簡單的條件評估（生產環境中應使用更安全的方法）
@@ -352,10 +352,10 @@ export class DocumentationTemplateSystem {
      * 格式化值
      */
     private formatValue(value: any): string {
-        if (value === null || value === undefined) return '';
-        if (Array.isArray(value)) return value.join(', ');
-        if (typeof value === 'object') return JSON.stringify(value, null, 2);
-        if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+        if (value === null || value === undefined) {return '';}
+        if (Array.isArray(value)) {return value.join(', ');}
+        if (typeof value === 'object') {return JSON.stringify(value, null, 2);}
+        if (typeof value === 'boolean') {return value ? 'Yes' : 'No';}
         return String(value);
     }
 
@@ -681,7 +681,7 @@ export class DocumentationTemplateSystem {
     async importTemplate(templateJson: string): Promise<string> {
         try {
             const template = JSON.parse(templateJson) as DocumentTemplate;
-            
+
             // 驗證模板格式
             this.validateTemplate(template);
 

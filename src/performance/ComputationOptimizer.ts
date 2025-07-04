@@ -72,7 +72,7 @@ export class ComputationOptimizer {
         };
 
         const fnName = fn.name || 'anonymous';
-        
+
         // 初始化統計
         if (!this.computationStats.has(fnName)) {
             this.computationStats.set(fnName, {
@@ -127,11 +127,11 @@ export class ComputationOptimizer {
         immediate: boolean = false
     ): T {
         const fnName = fn.name || 'anonymous';
-        
+
         return ((...args: Parameters<T>) => {
             const key = `debounce:${fnName}`;
             const callNow = immediate && !this.debounceTimers.has(key);
-            
+
             // 清除之前的定時器
             const existingTimer = this.debounceTimers.get(key);
             if (existingTimer) {
@@ -145,7 +145,7 @@ export class ComputationOptimizer {
                     fn(...args);
                 }
             }, delay);
-            
+
             this.debounceTimers.set(key, timer);
 
             if (callNow) {
@@ -162,7 +162,7 @@ export class ComputationOptimizer {
         limit: number
     ): T {
         const fnName = fn.name || 'anonymous';
-        
+
         return ((...args: Parameters<T>) => {
             const key = `throttle:${fnName}`;
             const now = Date.now();
@@ -187,18 +187,18 @@ export class ComputationOptimizer {
         return ErrorHandlingUtils.executeWithErrorHandling(
             async () => {
                 const results: R[] = [];
-                
+
                 for (let i = 0; i < items.length; i += batchSize) {
                     const batch = items.slice(i, i + batchSize);
                     const batchResults = await processor(batch);
                     results.push(...batchResults);
-                    
+
                     // 添加延遲以避免阻塞
                     if (delay > 0 && i + batchSize < items.length) {
                         await new Promise(resolve => setTimeout(resolve, delay));
                     }
                 }
-                
+
                 return results;
             },
             '批量處理',
@@ -245,13 +245,13 @@ export class ComputationOptimizer {
         maxIterations?: number
     ): T | undefined {
         const limit = maxIterations || array.length;
-        
+
         for (let i = 0; i < Math.min(array.length, limit); i++) {
             if (predicate(array[i], i)) {
                 return array[i];
             }
         }
-        
+
         return undefined;
     }
 
@@ -266,13 +266,13 @@ export class ComputationOptimizer {
     ): Promise<void> {
         for (let i = 0; i < array.length; i += chunkSize) {
             const chunk = array.slice(i, i + chunkSize);
-            
+
             await Promise.all(
-                chunk.map((item, chunkIndex) => 
+                chunk.map((item, chunkIndex) =>
                     callback(item, i + chunkIndex)
                 )
             );
-            
+
             // 添加延遲以避免阻塞
             if (delay > 0 && i + chunkSize < array.length) {
                 await new Promise(resolve => setTimeout(resolve, delay));
@@ -410,7 +410,7 @@ export class ComputationOptimizer {
         let oldestTimestamp = Infinity;
 
         for (const [key, item] of this.memoCache.entries()) {
-            if (item.accessCount < minAccessCount || 
+            if (item.accessCount < minAccessCount ||
                 (item.accessCount === minAccessCount && item.timestamp < oldestTimestamp)) {
                 minAccessCount = item.accessCount;
                 oldestTimestamp = item.timestamp;

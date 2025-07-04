@@ -138,7 +138,7 @@ export class MultiLanguageDocumentationSupport {
         targetLanguages: string[]
     ): Promise<string> {
         const projectId = this.generateProjectId(name);
-        
+
         const project: TranslationProject = {
             id: projectId,
             name,
@@ -179,14 +179,14 @@ export class MultiLanguageDocumentationSupport {
         }
 
         const languages = targetLanguages || project.targetLanguages;
-        
+
         for (const targetLanguage of languages) {
             const translation = await this.createDocumentTranslation(
                 project.sourceLanguage,
                 targetLanguage,
                 sourceFile
             );
-            
+
             project.documents.push(translation);
         }
 
@@ -203,11 +203,11 @@ export class MultiLanguageDocumentationSupport {
         sourceFile: string
     ): Promise<DocumentTranslation> {
         const targetFile = this.generateTargetFileName(sourceFile, targetLanguage);
-        
+
         // 解析源文檔
         const sourceContent = await this.readFile(sourceFile);
         const entries = await this.extractTranslatableEntries(sourceContent);
-        
+
         // 計算元數據
         const metadata: TranslationMetadata = {
             title: path.basename(sourceFile),
@@ -250,7 +250,7 @@ export class MultiLanguageDocumentationSupport {
 
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
-            
+
             // 提取標題
             const titleMatch = line.match(/^(#{1,6})\s+(.+)$/);
             if (titleMatch) {
@@ -295,7 +295,7 @@ export class MultiLanguageDocumentationSupport {
         }
 
         const document = project.documents[documentIndex];
-        
+
         for (const entry of document.entries) {
             if (entry.status === 'pending') {
                 try {
@@ -331,10 +331,10 @@ export class MultiLanguageDocumentationSupport {
 
         // 更新進度
         this.updateTranslationProgress(document);
-        
+
         // 保存到翻譯記憶庫
         await this.saveToTranslationMemory(document);
-        
+
         await this.saveProjects();
     }
 
@@ -349,9 +349,9 @@ export class MultiLanguageDocumentationSupport {
 
         const document = project.documents[documentIndex];
         const sourceContent = await this.readFile(document.sourceFile);
-        
+
         let translatedContent = sourceContent;
-        
+
         // 替換翻譯內容
         for (const entry of document.entries) {
             if (entry.translatedText && entry.status !== 'pending') {
@@ -364,7 +364,7 @@ export class MultiLanguageDocumentationSupport {
 
         // 保存翻譯文檔
         await this.writeFile(document.targetFile, translatedContent);
-        
+
         return document.targetFile;
     }
 
@@ -382,7 +382,7 @@ export class MultiLanguageDocumentationSupport {
 
         for (let i = 0; i < document.entries.length; i++) {
             const entry = document.entries[i];
-            
+
             if (!entry.translatedText) {
                 checks.push({
                     type: 'consistency',
@@ -489,11 +489,11 @@ export class MultiLanguageDocumentationSupport {
             stats.translatedEntries += document.progress.translatedEntries;
             stats.reviewedEntries += document.progress.reviewedEntries;
             stats.approvedEntries += document.progress.approvedEntries;
-            
+
             stats.languageProgress[document.targetLanguage] = document.progress.percentage;
         }
 
-        stats.overallProgress = stats.totalEntries > 0 
+        stats.overallProgress = stats.totalEntries > 0
             ? Math.round((stats.translatedEntries / stats.totalEntries) * 100)
             : 0;
 
@@ -536,9 +536,9 @@ export class MultiLanguageDocumentationSupport {
     private estimateTranslationTime(entryCount: number): string {
         const hoursPerEntry = 0.1; // 假設每個條目需要6分鐘
         const totalHours = entryCount * hoursPerEntry;
-        
-        if (totalHours < 1) return '< 1 小時';
-        if (totalHours < 24) return `${Math.ceil(totalHours)} 小時`;
+
+        if (totalHours < 1) {return '< 1 小時';}
+        if (totalHours < 24) {return `${Math.ceil(totalHours)} 小時`;}
         return `${Math.ceil(totalHours / 24)} 天`;
     }
 
@@ -607,7 +607,7 @@ export class MultiLanguageDocumentationSupport {
         const glossaryEntries = this.glossary.get(targetLanguage) || [];
 
         for (const glossaryEntry of glossaryEntries) {
-            if (entry.sourceText.includes(glossaryEntry.term) && 
+            if (entry.sourceText.includes(glossaryEntry.term) &&
                 !entry.translatedText.includes(glossaryEntry.translation)) {
                 checks.push({
                     type: 'terminology',

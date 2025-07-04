@@ -153,14 +153,14 @@ export class CodeCompletionProvider implements vscode.CompletionItemProvider, vs
           placeHolder: '例如: My Custom Function'
         });
 
-        if (!name) return;
+        if (!name) {return;}
 
         const prefix = await vscode.window.showInputBox({
           prompt: '輸入觸發前綴',
           placeHolder: '例如: mycustom'
         });
 
-        if (!prefix) return;
+        if (!prefix) {return;}
 
         const description = await vscode.window.showInputBox({
           prompt: '輸入描述（可選）',
@@ -172,7 +172,7 @@ export class CodeCompletionProvider implements vscode.CompletionItemProvider, vs
           placeHolder: '使用 ${1:placeholder} 語法添加佔位符'
         });
 
-        if (!body) return;
+        if (!body) {return;}
 
         // 獲取當前語言
         const editor = vscode.window.activeTextEditor;

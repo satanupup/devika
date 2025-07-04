@@ -53,7 +53,7 @@ export class DocumentationAgent extends BaseAgent {
         if (confirmed) {
             await context.fileSystem.writeFile('CONTRIBUTING.md', contributingContent);
             await context.ui.showMessage('✅ CONTRIBUTING.md 已成功建立！', 'info');
-            
+
             return {
                 success: true,
                 message: 'CONTRIBUTING.md 已成功建立',
@@ -80,10 +80,10 @@ export class DocumentationAgent extends BaseAgent {
         const projectAnalysis = await this.analyzeProjectStructure(context);
 
         // 分析程式碼檔案
-        const codeFiles = projectStructure.filter(file => 
-            file.endsWith('.ts') || 
-            file.endsWith('.js') || 
-            file.endsWith('.py') || 
+        const codeFiles = projectStructure.filter(file =>
+            file.endsWith('.ts') ||
+            file.endsWith('.js') ||
+            file.endsWith('.py') ||
             file.endsWith('.java') ||
             file.endsWith('.go') ||
             file.endsWith('.rs')
@@ -116,7 +116,7 @@ export class DocumentationAgent extends BaseAgent {
         if (confirmed) {
             await context.fileSystem.writeFile('ROADMAP.md', roadmapContent);
             await context.ui.showMessage('✅ ROADMAP.md 已成功建立！', 'info');
-            
+
             return {
                 success: true,
                 message: 'ROADMAP.md 已成功建立',
@@ -175,7 +175,7 @@ export class DocumentationAgent extends BaseAgent {
         if (confirmed) {
             await context.fileSystem.writeFile('CHANGELOG.md', changelogContent);
             await context.ui.showMessage('✅ CHANGELOG.md 已成功建立！', 'info');
-            
+
             return {
                 success: true,
                 message: 'CHANGELOG.md 已成功建立',
@@ -198,8 +198,8 @@ export class DocumentationAgent extends BaseAgent {
     }> {
         const lines = readmeContent.split('\n');
         const headers = lines.filter(line => line.startsWith('#'));
-        
-        const sections = headers.map(header => 
+
+        const sections = headers.map(header =>
             header.replace(/^#+\s*/, '').toLowerCase()
         );
 
@@ -214,7 +214,7 @@ export class DocumentationAgent extends BaseAgent {
 
     private async detectDocumentationGaps(context: TaskContext): Promise<string[]> {
         const gaps: string[] = [];
-        
+
         // 檢查常見文件
         const commonDocs = [
             { file: 'README.md', name: 'README' },

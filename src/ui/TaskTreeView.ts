@@ -583,7 +583,7 @@ class TaskDragAndDropController implements vscode.TreeDragAndDropController<Task
 
   async handleDrop(target: TaskTreeItem | undefined, sources: vscode.DataTransfer): Promise<void> {
     const transferItem = sources.get('application/vnd.code.tree.devikaTaskList');
-    if (!transferItem) return;
+    if (!transferItem) {return;}
 
     const tasks = transferItem.value as Task[];
 

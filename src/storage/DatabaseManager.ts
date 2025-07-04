@@ -89,7 +89,7 @@ export class DatabaseManager {
 
         // 檢查當前數據庫版本
         const currentVersion = await this.getDatabaseVersion();
-        
+
         if (currentVersion === 0) {
             // 新數據庫，創建所有表
             await this.createTables();
@@ -204,14 +204,14 @@ export class DatabaseManager {
             }
 
             const sql = this.generateCreateTableSQL(table);
-            
+
             this.db.run(sql, (err) => {
                 if (err) {
                     console.error(`創建表 ${table.name} 失敗:`, err);
                     reject(err);
                 } else {
                     console.log(`表 ${table.name} 創建成功`);
-                    
+
                     // 創建索引
                     if (table.indexes) {
                         this.createIndexes(table.name, table.indexes)
@@ -231,23 +231,23 @@ export class DatabaseManager {
     private generateCreateTableSQL(table: TableDefinition): string {
         const columns = table.columns.map(col => {
             let sql = `${col.name} ${col.type}`;
-            
+
             if (col.primaryKey) {
                 sql += ' PRIMARY KEY';
             }
-            
+
             if (col.autoIncrement) {
                 sql += ' AUTOINCREMENT';
             }
-            
+
             if (col.notNull) {
                 sql += ' NOT NULL';
             }
-            
+
             if (col.unique) {
                 sql += ' UNIQUE';
             }
-            
+
             if (col.defaultValue !== undefined) {
                 if (typeof col.defaultValue === 'string') {
                     sql += ` DEFAULT '${col.defaultValue}'`;
@@ -255,7 +255,7 @@ export class DatabaseManager {
                     sql += ` DEFAULT ${col.defaultValue}`;
                 }
             }
-            
+
             if (col.foreignKey) {
                 sql += ` REFERENCES ${col.foreignKey.table}(${col.foreignKey.column})`;
                 if (col.foreignKey.onDelete) {
@@ -265,7 +265,7 @@ export class DatabaseManager {
                     sql += ` ON UPDATE ${col.foreignKey.onUpdate}`;
                 }
             }
-            
+
             return sql;
         });
 
@@ -293,7 +293,7 @@ export class DatabaseManager {
 
             const unique = index.unique ? 'UNIQUE ' : '';
             const sql = `CREATE ${unique}INDEX ${index.name} ON ${tableName} (${index.columns.join(', ')})`;
-            
+
             this.db.run(sql, (err) => {
                 if (err) {
                     console.error(`創建索引 ${index.name} 失敗:`, err);
@@ -311,12 +311,12 @@ export class DatabaseManager {
      */
     private async migrateDatabase(fromVersion: number, toVersion: number): Promise<void> {
         console.log(`開始數據庫遷移: ${fromVersion} -> ${toVersion}`);
-        
+
         // 這裡可以實作具體的遷移邏輯
         // 暫時簡單地重新創建表結構
         await this.createTables();
         await this.setDatabaseVersion(toVersion);
-        
+
         console.log('數據庫遷移完成');
     }
 

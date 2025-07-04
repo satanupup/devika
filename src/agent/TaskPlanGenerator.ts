@@ -33,18 +33,18 @@ export class TaskPlanGenerator {
         try {
             // Gather context information
             const contextInfo = await this.gatherContextInfo(request);
-            
+
             // Generate the plan using LLM
             const planPrompt = this.buildPlanPrompt(request, contextInfo);
             const llmResult = await this.llmService.generateCompletion(planPrompt);
             const llmResponse = llmResult.content;
-            
+
             // Parse the LLM response into a structured plan
             const plan = this.parseLLMResponseToPlan(llmResponse, request);
-            
+
             // Validate and optimize the plan
             const validatedPlan = this.validateAndOptimizePlan(plan);
-            
+
             return validatedPlan;
 
         } catch (error) {
@@ -64,7 +64,7 @@ export class TaskPlanGenerator {
         const workspaceFolders = vscode.workspace.workspaceFolders;
         if (workspaceFolders) {
             context.workspaceRoot = workspaceFolders[0].uri.fsPath;
-            
+
             // Get basic project structure
             const files = await vscode.workspace.findFiles('**/*', '**/node_modules/**', 50);
             context.workspaceFiles = files.map(f => f.fsPath);
@@ -147,7 +147,7 @@ IMPORTANT: Respond ONLY with valid JSON. Do not include any explanatory text bef
         try {
             // Clean up the response to extract JSON
             let jsonStr = llmResponse.trim();
-            
+
             // Remove any markdown code blocks
             if (jsonStr.startsWith('```json')) {
                 jsonStr = jsonStr.replace(/^```json\s*/, '').replace(/\s*```$/, '');
@@ -195,7 +195,7 @@ IMPORTANT: Respond ONLY with valid JSON. Do not include any explanatory text bef
     private validateAndOptimizePlan(plan: TaskPlan): TaskPlan {
         // Validate step dependencies
         const stepIds = new Set(plan.steps.map(s => s.id));
-        
+
         for (const step of plan.steps) {
             // Check if all dependencies exist
             for (const depId of step.dependencies) {
@@ -260,9 +260,9 @@ IMPORTANT: Respond ONLY with valid JSON. Do not include any explanatory text bef
 
     private isValidFilePath(filePath: string): boolean {
         // Basic validation for file paths
-        if (!filePath || filePath.trim() === '') return false;
-        if (filePath.includes('..')) return false; // Prevent directory traversal
-        if (filePath.startsWith('/') && process.platform === 'win32') return false;
+        if (!filePath || filePath.trim() === '') {return false;}
+        if (filePath.includes('..')) {return false;} // Prevent directory traversal
+        if (filePath.startsWith('/') && process.platform === 'win32') {return false;}
         return true;
     }
 
@@ -299,7 +299,7 @@ IMPORTANT: Respond ONLY with valid JSON. Do not include any explanatory text bef
         // Get current editor context
         const editor = vscode.window.activeTextEditor;
         const selectedFiles: string[] = [];
-        
+
         if (editor) {
             selectedFiles.push(editor.document.fileName);
         }

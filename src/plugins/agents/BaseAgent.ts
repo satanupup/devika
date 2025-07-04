@@ -20,7 +20,7 @@ export abstract class BaseAgent {
     protected async loadPrompts(): Promise<void> {
         // 載入 prompt 模板
         const promptsDir = path.join(__dirname, '../../prompts');
-        
+
         try {
             const promptFiles = [
                 'contributing.prompt.txt',
@@ -33,7 +33,7 @@ export abstract class BaseAgent {
                 if (fs.existsSync(promptPath)) {
                     const template = fs.readFileSync(promptPath, 'utf-8');
                     const name = path.basename(file, '.prompt.txt');
-                    
+
                     this.prompts.set(name, {
                         name,
                         template,
@@ -87,7 +87,7 @@ export abstract class BaseAgent {
         buildTool?: string;
     }> {
         const structure = await context.fileSystem.getProjectStructure();
-        
+
         const analysis = {
             hasPackageJson: structure.includes('package.json'),
             hasTsConfig: structure.includes('tsconfig.json'),
@@ -105,25 +105,25 @@ export abstract class BaseAgent {
                 const dependencies = { ...packageJson.dependencies, ...packageJson.devDependencies };
 
                 // 檢測前端框架
-                if (dependencies.react) analysis.frameworks.push('React');
-                if (dependencies.vue) analysis.frameworks.push('Vue');
-                if (dependencies.angular) analysis.frameworks.push('Angular');
-                if (dependencies.svelte) analysis.frameworks.push('Svelte');
+                if (dependencies.react) {analysis.frameworks.push('React');}
+                if (dependencies.vue) {analysis.frameworks.push('Vue');}
+                if (dependencies.angular) {analysis.frameworks.push('Angular');}
+                if (dependencies.svelte) {analysis.frameworks.push('Svelte');}
 
                 // 檢測後端框架
-                if (dependencies.express) analysis.frameworks.push('Express');
-                if (dependencies.fastify) analysis.frameworks.push('Fastify');
-                if (dependencies.nestjs) analysis.frameworks.push('NestJS');
+                if (dependencies.express) {analysis.frameworks.push('Express');}
+                if (dependencies.fastify) {analysis.frameworks.push('Fastify');}
+                if (dependencies.nestjs) {analysis.frameworks.push('NestJS');}
 
                 // 檢測測試框架
-                if (dependencies.jest) analysis.testFramework = 'Jest';
-                else if (dependencies.mocha) analysis.testFramework = 'Mocha';
-                else if (dependencies.vitest) analysis.testFramework = 'Vitest';
+                if (dependencies.jest) {analysis.testFramework = 'Jest';}
+                else if (dependencies.mocha) {analysis.testFramework = 'Mocha';}
+                else if (dependencies.vitest) {analysis.testFramework = 'Vitest';}
 
                 // 檢測建置工具
-                if (dependencies.webpack) analysis.buildTool = 'Webpack';
-                else if (dependencies.vite) analysis.buildTool = 'Vite';
-                else if (dependencies.rollup) analysis.buildTool = 'Rollup';
+                if (dependencies.webpack) {analysis.buildTool = 'Webpack';}
+                else if (dependencies.vite) {analysis.buildTool = 'Vite';}
+                else if (dependencies.rollup) {analysis.buildTool = 'Rollup';}
 
             } catch (error) {
                 console.warn('無法解析 package.json:', error);
@@ -137,27 +137,27 @@ export abstract class BaseAgent {
         try {
             if (await context.fileSystem.fileExists('package.json')) {
                 const packageJson = JSON.parse(await context.fileSystem.readFile('package.json'));
-                
+
                 // VS Code Extension
                 if (packageJson.engines?.vscode) {
                     return 'extension';
                 }
-                
+
                 // Library (有 main 或 exports，但沒有 private: true)
                 if ((packageJson.main || packageJson.exports) && !packageJson.private) {
                     return 'library';
                 }
-                
+
                 // Application
                 return 'application';
             }
-            
+
             // Python 專案
-            if (await context.fileSystem.fileExists('setup.py') || 
+            if (await context.fileSystem.fileExists('setup.py') ||
                 await context.fileSystem.fileExists('pyproject.toml')) {
                 return 'library';
             }
-            
+
             return 'unknown';
         } catch (error) {
             return 'unknown';
@@ -186,7 +186,7 @@ export abstract class BaseAgent {
     }
 
     protected async validateInputs(context: TaskContext, requiredInputs: string[]): Promise<void> {
-        const missingInputs = requiredInputs.filter(input => 
+        const missingInputs = requiredInputs.filter(input =>
             !(input in context.inputs) || context.inputs[input] === undefined
         );
 
@@ -197,7 +197,7 @@ export abstract class BaseAgent {
 
     protected async handleError(error: Error, context: TaskContext): Promise<TaskResult> {
         await context.ui.showMessage(`執行失敗: ${error.message}`, 'error');
-        
+
         return {
             success: false,
             message: error.message,
@@ -221,7 +221,7 @@ export abstract class BaseAgent {
                 return await operation();
             } catch (error) {
                 lastError = error as Error;
-                
+
                 if (attempt === maxRetries) {
                     throw lastError;
                 }

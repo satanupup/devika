@@ -346,9 +346,9 @@ export class CommonPatterns {
     static formatTimeDiff(startTime: number, endTime: number = Date.now()): string {
         const diff = endTime - startTime;
 
-        if (diff < 1000) return `${diff}ms`;
-        if (diff < 60000) return `${(diff / 1000).toFixed(1)}s`;
-        if (diff < 3600000) return `${(diff / 60000).toFixed(1)}m`;
+        if (diff < 1000) {return `${diff}ms`;}
+        if (diff < 60000) {return `${(diff / 1000).toFixed(1)}s`;}
+        if (diff < 3600000) {return `${(diff / 60000).toFixed(1)}m`;}
 
         return `${(diff / 3600000).toFixed(1)}h`;
     }

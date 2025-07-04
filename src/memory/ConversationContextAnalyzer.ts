@@ -395,8 +395,8 @@ export class ConversationContextAnalyzer {
     const positiveCount = positiveWords.filter(word => content.includes(word)).length;
     const negativeCount = negativeWords.filter(word => content.includes(word)).length;
 
-    if (positiveCount > negativeCount) return 'positive';
-    if (negativeCount > positiveCount) return 'negative';
+    if (positiveCount > negativeCount) {return 'positive';}
+    if (negativeCount > positiveCount) {return 'negative';}
     return 'neutral';
   }
 
@@ -431,10 +431,10 @@ export class ConversationContextAnalyzer {
   ): number {
     let confidence = 0.5; // 基礎信心度
 
-    if (intent !== 'help') confidence += 0.2;
-    if (entities.length > 0) confidence += 0.1;
-    if (topics.length > 0) confidence += 0.1;
-    if (codeReferences.length > 0) confidence += 0.1;
+    if (intent !== 'help') {confidence += 0.2;}
+    if (entities.length > 0) {confidence += 0.1;}
+    if (topics.length > 0) {confidence += 0.1;}
+    if (codeReferences.length > 0) {confidence += 0.1;}
 
     return Math.min(confidence, 1);
   }

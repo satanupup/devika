@@ -109,7 +109,7 @@ export class VisualContentAnalyzer {
         return ErrorHandlingUtils.executeWithErrorHandling(
             async () => {
                 const components: ComponentIdentification[] = [];
-                
+
                 if (!mediaContent.analysisResult?.uiElements) {
                     return components;
                 }
@@ -138,13 +138,13 @@ export class VisualContentAnalyzer {
      */
     async generateResponsiveDesignSuggestions(mediaContent: MediaContent): Promise<string[]> {
         const suggestions: string[] = [];
-        
+
         if (!mediaContent.metadata.width || !mediaContent.metadata.height) {
             return suggestions;
         }
 
         const aspectRatio = mediaContent.metadata.width / mediaContent.metadata.height;
-        
+
         // 基於寬高比提供建議
         if (aspectRatio > 2) {
             suggestions.push('考慮為寬螢幕設計添加側邊欄或多欄佈局');
@@ -173,7 +173,7 @@ export class VisualContentAnalyzer {
      */
     async generateAccessibilitySuggestions(mediaContent: MediaContent): Promise<string[]> {
         const suggestions: string[] = [];
-        
+
         if (!mediaContent.analysisResult) {
             return suggestions;
         }
@@ -198,7 +198,7 @@ export class VisualContentAnalyzer {
 
         // 檢查按鈕大小
         const buttons = uiElements?.filter(el => el.type === 'button') || [];
-        const smallButtons = buttons.filter(btn => 
+        const smallButtons = buttons.filter(btn =>
             btn.boundingBox.width < 44 || btn.boundingBox.height < 44
         );
         if (smallButtons.length > 0) {
@@ -227,16 +227,16 @@ export class VisualContentAnalyzer {
         for (const element of mediaContent.analysisResult.uiElements) {
             // React 建議
             suggestions.react.push(this.generateReactCode(element));
-            
+
             // Vue 建議
             suggestions.vue.push(this.generateVueCode(element));
-            
+
             // Angular 建議
             suggestions.angular.push(this.generateAngularCode(element));
-            
+
             // HTML 建議
             suggestions.html.push(this.generateHTMLCode(element));
-            
+
             // Flutter 建議
             suggestions.flutter.push(this.generateFlutterCode(element));
         }
@@ -319,7 +319,7 @@ export class VisualContentAnalyzer {
     private async extractBreakpoints(mediaContent: MediaContent): Promise<Record<string, number>> {
         // 基於圖像尺寸推斷斷點
         const width = mediaContent.metadata.width || 1920;
-        
+
         return {
             mobile: 375,
             tablet: 768,
@@ -348,15 +348,15 @@ export class VisualContentAnalyzer {
      */
     private async identifyCompositeComponents(components: ComponentIdentification[]): Promise<ComponentIdentification[]> {
         const compositeComponents: ComponentIdentification[] = [];
-        
+
         // 識別卡片組件
         const cardComponents = this.identifyCardComponents(components);
         compositeComponents.push(...cardComponents);
-        
+
         // 識別導航組件
         const navComponents = this.identifyNavigationComponents(components);
         compositeComponents.push(...navComponents);
-        
+
         return compositeComponents;
     }
 
@@ -434,18 +434,18 @@ export class VisualContentAnalyzer {
      */
     private extractElementProps(element: UIElement): Record<string, any> {
         const props: Record<string, any> = {};
-        
+
         if (element.label) {
             props.label = element.label;
         }
-        
+
         props.width = element.boundingBox.width;
         props.height = element.boundingBox.height;
-        
+
         if (element.properties) {
             Object.assign(props, element.properties);
         }
-        
+
         return props;
     }
 

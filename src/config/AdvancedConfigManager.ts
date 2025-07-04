@@ -210,7 +210,7 @@ export class AdvancedConfigManager {
 
         try {
             const config = vscode.workspace.getConfiguration();
-            
+
             for (const [key, value] of Object.entries(template.settings)) {
                 await config.update(key, value, vscode.ConfigurationTarget.Global);
             }
@@ -232,7 +232,7 @@ export class AdvancedConfigManager {
         category: string = 'custom'
     ): Promise<string | undefined> {
         const currentSettings = this.getCurrentSettings();
-        
+
         const template: ConfigTemplate = {
             id: `custom_${Date.now()}`,
             name,
@@ -245,11 +245,11 @@ export class AdvancedConfigManager {
         };
 
         this.addTemplate(template);
-        
+
         vscode.window.showInformationMessage(
             `已創建自定義配置模板: ${name}`
         );
-        
+
         return template.id;
     }
 
@@ -367,7 +367,7 @@ export class AdvancedConfigManager {
             };
 
             const jsonString = JSON.stringify(exportData, null, 2);
-            
+
             const uri = await vscode.window.showSaveDialog({
                 defaultUri: vscode.Uri.file(`devika-config-${Date.now()}.json`),
                 filters: {
@@ -385,7 +385,7 @@ export class AdvancedConfigManager {
         } catch (error) {
             vscode.window.showErrorMessage(`導出配置失敗: ${error}`);
         }
-        
+
         return undefined;
     }
 
@@ -420,7 +420,7 @@ export class AdvancedConfigManager {
                 placeHolder: '選擇要導入的內容'
             });
 
-            if (!choice) return false;
+            if (!choice) {return false;}
 
             const config = vscode.workspace.getConfiguration();
 
@@ -569,7 +569,7 @@ export class AdvancedConfigManager {
             <div class="config-section">
                 <h2>✅ 配置驗證</h2>
                 <div id="validation-result">
-                    ${validation.isValid 
+                    ${validation.isValid
                         ? '<div class="validation-success">✅ 配置驗證通過</div>'
                         : `<div class="validation-error">❌ 發現 ${validation.errors.length} 個配置錯誤:</div>
                            ${validation.errors.map(error => `<div class="validation-error">• ${error}</div>`).join('')}`

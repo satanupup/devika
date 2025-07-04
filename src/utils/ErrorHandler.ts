@@ -287,8 +287,8 @@ Recoverable: ${error.recoverable}
         const userMessage = error.toUserMessage();
         const actions = error.getRecoveryActions();
 
-        let showDetailsAction = '顯示詳細信息';
-        let retryAction = '重試';
+        const showDetailsAction = '顯示詳細信息';
+        const retryAction = '重試';
 
         const selectedAction = await this.showErrorMessage(error.severity, userMessage, [
             showDetailsAction,

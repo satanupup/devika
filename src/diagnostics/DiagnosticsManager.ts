@@ -54,7 +54,7 @@ export class DiagnosticsManager {
     private initialize(): void {
         // 監聽診斷變更
         vscode.languages.onDidChangeDiagnostics(this.onDiagnosticsChanged, this, this.context.subscriptions);
-        
+
         // 定期同步診斷到數據庫
         setInterval(() => {
             this.syncDiagnosticsToDatabase();
@@ -68,7 +68,7 @@ export class DiagnosticsManager {
         for (const uri of event.uris) {
             const diagnostics = vscode.languages.getDiagnostics(uri);
             this.diagnosticsCollection.set(uri.toString(), diagnostics);
-            
+
             // 更新數據庫
             await this.updateDiagnosticsInDatabase(uri, diagnostics);
         }
@@ -81,7 +81,7 @@ export class DiagnosticsManager {
      */
     getAllDiagnostics(): Map<string, vscode.Diagnostic[]> {
         const allDiagnostics = new Map<string, vscode.Diagnostic[]>();
-        
+
         // 從 VS Code 獲取當前所有診斷
         for (const [uri, diagnostics] of vscode.languages.getDiagnostics()) {
             if (diagnostics.length > 0) {
@@ -114,14 +114,14 @@ export class DiagnosticsManager {
         };
 
         const allDiagnostics = this.getAllDiagnostics();
-        
+
         for (const [uriString, diagnostics] of allDiagnostics) {
             const fileName = vscode.Uri.parse(uriString).fsPath;
             summary.byFile[fileName] = diagnostics.length;
-            
+
             for (const diagnostic of diagnostics) {
                 summary.total++;
-                
+
                 // 按嚴重程度統計
                 switch (diagnostic.severity) {
                     case vscode.DiagnosticSeverity.Error:
@@ -243,7 +243,7 @@ ${context}
             `;
 
             const response = await this.llmService.generateCompletion(prompt);
-            
+
             // 解析 AI 回應
             const solutions = this.parseAISolutions(response.content);
             const autoFixAvailable = this.checkAutoFixAvailability(diagnostic);
@@ -307,7 +307,7 @@ ${context}
      */
     async markDiagnosticAsResolved(uri: vscode.Uri, diagnostic: vscode.Diagnostic): Promise<void> {
         const diagnosticId = this.generateDiagnosticId(uri, diagnostic);
-        
+
         await this.dbManager.run(`
             UPDATE diagnostics 
             SET status = 'resolved', resolved_at = ? 
@@ -320,7 +320,7 @@ ${context}
      */
     async ignoreDiagnostic(uri: vscode.Uri, diagnostic: vscode.Diagnostic): Promise<void> {
         const diagnosticId = this.generateDiagnosticId(uri, diagnostic);
-        
+
         await this.dbManager.run(`
             UPDATE diagnostics 
             SET status = 'ignored' 
@@ -346,7 +346,7 @@ ${context}
             // 插入或更新當前診斷
             for (const diagnostic of diagnostics) {
                 const diagnosticId = this.generateDiagnosticId(uri, diagnostic);
-                
+
                 const existing = await this.dbManager.get(
                     'SELECT id FROM diagnostics WHERE id = ?',
                     [diagnosticId]
@@ -391,7 +391,7 @@ ${context}
      */
     private async syncDiagnosticsToDatabase(): Promise<void> {
         const allDiagnostics = this.getAllDiagnostics();
-        
+
         for (const [uriString, diagnostics] of allDiagnostics) {
             const uri = vscode.Uri.parse(uriString);
             await this.updateDiagnosticsInDatabase(uri, diagnostics);
@@ -431,7 +431,7 @@ ${context}
         // 簡單的解析邏輯，可以根據需要改進
         const lines = content.split('\n');
         const solutions: string[] = [];
-        
+
         let currentSolution = '';
         for (const line of lines) {
             if (line.match(/^\d+\./)) {
@@ -443,7 +443,7 @@ ${context}
                 currentSolution += '\n' + line;
             }
         }
-        
+
         if (currentSolution) {
             solutions.push(currentSolution.trim());
         }

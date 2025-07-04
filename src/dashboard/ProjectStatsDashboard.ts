@@ -186,7 +186,7 @@ export class ProjectStatsDashboard {
      * 更新儀表板數據
      */
     private async updateDashboard(): Promise<void> {
-        if (!this.panel) return;
+        if (!this.panel) {return;}
 
         try {
             const dashboardData = await this.collectDashboardData();
@@ -771,7 +771,7 @@ export class ProjectStatsDashboard {
     }
 
     private formatBytes(bytes: number): string {
-        if (bytes === 0) return '0 B';
+        if (bytes === 0) {return '0 B';}
         const k = 1024;
         const sizes = ['B', 'KB', 'MB', 'GB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -779,9 +779,9 @@ export class ProjectStatsDashboard {
     }
 
     private getScoreClass(score: number): string {
-        if (score >= 90) return 'excellent';
-        if (score >= 75) return 'good';
-        if (score >= 60) return 'fair';
+        if (score >= 90) {return 'excellent';}
+        if (score >= 75) {return 'good';}
+        if (score >= 60) {return 'fair';}
         return 'poor';
     }
 

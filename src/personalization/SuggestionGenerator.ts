@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
-import { 
-  PersonalizedSuggestion, 
-  SuggestionType, 
-  SuggestionPriority, 
+import {
+  PersonalizedSuggestion,
+  SuggestionType,
+  SuggestionPriority,
   SuggestionContext,
-  SuggestionAction 
+  SuggestionAction
 } from './PersonalizationEngine';
 import { UserPreference, CodingPattern } from '../learning/LearningEngine';
 import { ErrorHandlingUtils } from '../utils/ErrorHandlingUtils';
@@ -65,27 +65,27 @@ export class SuggestionGenerator {
     return ErrorHandlingUtils.executeWithErrorHandling(
       async () => {
         const suggestions: PersonalizedSuggestion[] = [];
-        
+
         // 基於用戶偏好生成風格建議
         switch (preference.name) {
           case 'arrow_function':
             if (preference.value.preference > 0.7) {
               const suggestion = await this.createArrowFunctionSuggestion(context);
-              if (suggestion) suggestions.push(suggestion);
+              if (suggestion) {suggestions.push(suggestion);}
             }
             break;
-            
+
           case 'camelCase':
             if (preference.value.preference > 0.7) {
               const suggestion = await this.createNamingStyleSuggestion(context, 'camelCase');
-              if (suggestion) suggestions.push(suggestion);
+              if (suggestion) {suggestions.push(suggestion);}
             }
             break;
-            
+
           case 'async_await':
             if (preference.value.preference > 0.7) {
               const suggestion = await this.createAsyncAwaitSuggestion(context);
-              if (suggestion) suggestions.push(suggestion);
+              if (suggestion) {suggestions.push(suggestion);}
             }
             break;
         }
@@ -111,27 +111,27 @@ export class SuggestionGenerator {
         // 基於代碼分析生成最佳實踐建議
         if (analysis.complexity > 10) {
           const suggestion = await this.createComplexityReductionSuggestion(context, analysis);
-          if (suggestion) suggestions.push(suggestion);
+          if (suggestion) {suggestions.push(suggestion);}
         }
 
         if (analysis.duplicatedCode.length > 0) {
           const suggestion = await this.createDuplicationRemovalSuggestion(context, analysis);
-          if (suggestion) suggestions.push(suggestion);
+          if (suggestion) {suggestions.push(suggestion);}
         }
 
         if (analysis.unusedVariables.length > 0) {
           const suggestion = await this.createUnusedVariablesSuggestion(context, analysis);
-          if (suggestion) suggestions.push(suggestion);
+          if (suggestion) {suggestions.push(suggestion);}
         }
 
         if (analysis.testCoverage < 0.8) {
           const suggestion = await this.createTestCoverageSuggestion(context, analysis);
-          if (suggestion) suggestions.push(suggestion);
+          if (suggestion) {suggestions.push(suggestion);}
         }
 
         if (analysis.documentationCoverage < 0.6) {
           const suggestion = await this.createDocumentationSuggestion(context, analysis);
-          if (suggestion) suggestions.push(suggestion);
+          if (suggestion) {suggestions.push(suggestion);}
         }
 
         return suggestions;
@@ -154,7 +154,7 @@ export class SuggestionGenerator {
 
         for (const issue of analysis.performanceIssues) {
           const suggestion = await this.createPerformanceSuggestion(context, issue);
-          if (suggestion) suggestions.push(suggestion);
+          if (suggestion) {suggestions.push(suggestion);}
         }
 
         // 基於語言特定的性能建議
@@ -187,12 +187,12 @@ export class SuggestionGenerator {
             const tsSuggestions = await this.generateTypeScriptLearningSuggestions(context);
             suggestions.push(...tsSuggestions);
             break;
-            
+
           case 'react':
             const reactSuggestions = await this.generateReactLearningSuggestions(context);
             suggestions.push(...reactSuggestions);
             break;
-            
+
           case 'testing':
             const testSuggestions = await this.generateTestingLearningSuggestions(context);
             suggestions.push(...testSuggestions);
@@ -212,11 +212,11 @@ export class SuggestionGenerator {
   private async createArrowFunctionSuggestion(context: SuggestionContext): Promise<PersonalizedSuggestion | null> {
     const document = await vscode.workspace.openTextDocument(context.fileUri);
     const text = document.getText();
-    
+
     // 檢查是否有傳統函數可以轉換為箭頭函數
     const functionRegex = /function\s+(\w+)\s*\([^)]*\)\s*{/g;
     const matches = text.match(functionRegex);
-    
+
     if (!matches || matches.length === 0) {
       return null;
     }
@@ -255,12 +255,12 @@ export class SuggestionGenerator {
   ): Promise<PersonalizedSuggestion | null> {
     const document = await vscode.workspace.openTextDocument(context.fileUri);
     const text = document.getText();
-    
+
     // 檢查命名風格不一致的變數
     const variableRegex = /(?:const|let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/g;
     const variables = [];
     let match;
-    
+
     while ((match = variableRegex.exec(text)) !== null) {
       variables.push(match[1]);
     }
@@ -308,11 +308,11 @@ export class SuggestionGenerator {
   private async createAsyncAwaitSuggestion(context: SuggestionContext): Promise<PersonalizedSuggestion | null> {
     const document = await vscode.workspace.openTextDocument(context.fileUri);
     const text = document.getText();
-    
+
     // 檢查是否有 Promise.then() 可以轉換為 async/await
     const promiseChainRegex = /\.then\s*\([^)]*\)/g;
     const matches = text.match(promiseChainRegex);
-    
+
     if (!matches || matches.length === 0) {
       return null;
     }
@@ -348,7 +348,7 @@ export class SuggestionGenerator {
   private async analyzeCode(context: SuggestionContext): Promise<CodeAnalysisResult> {
     const document = await vscode.workspace.openTextDocument(context.fileUri);
     const text = document.getText();
-    
+
     return {
       complexity: this.calculateComplexity(text),
       duplicatedCode: this.findDuplicatedCode(text),
@@ -366,7 +366,7 @@ export class SuggestionGenerator {
   private calculateComplexity(code: string): number {
     const complexityKeywords = ['if', 'else', 'while', 'for', 'switch', 'case', 'catch', '&&', '||', '?'];
     let complexity = 1; // 基礎複雜度
-    
+
     complexityKeywords.forEach(keyword => {
       const regex = new RegExp(`\\b${keyword}\\b`, 'g');
       const matches = code.match(regex);
@@ -374,7 +374,7 @@ export class SuggestionGenerator {
         complexity += matches.length;
       }
     });
-    
+
     return complexity;
   }
 
@@ -385,7 +385,7 @@ export class SuggestionGenerator {
     // 簡化的重複代碼檢測
     const lines = code.split('\n').filter(line => line.trim().length > 10);
     const duplicates: string[] = [];
-    
+
     for (let i = 0; i < lines.length; i++) {
       for (let j = i + 1; j < lines.length; j++) {
         if (lines[i].trim() === lines[j].trim()) {
@@ -393,7 +393,7 @@ export class SuggestionGenerator {
         }
       }
     }
-    
+
     return [...new Set(duplicates)];
   }
 
@@ -404,11 +404,11 @@ export class SuggestionGenerator {
     const variableRegex = /(?:const|let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/g;
     const variables: string[] = [];
     let match;
-    
+
     while ((match = variableRegex.exec(code)) !== null) {
       variables.push(match[1]);
     }
-    
+
     return variables.filter(variable => {
       const usageRegex = new RegExp(`\\b${variable}\\b`, 'g');
       const matches = code.match(usageRegex);
@@ -421,20 +421,20 @@ export class SuggestionGenerator {
    */
   private findPerformanceIssues(code: string): string[] {
     const issues: string[] = [];
-    
+
     // 檢查常見的性能問題
     if (code.includes('document.getElementById') && code.match(/document\.getElementById/g)!.length > 3) {
       issues.push('頻繁的 DOM 查詢');
     }
-    
+
     if (code.includes('for') && code.includes('innerHTML')) {
       issues.push('在迴圈中修改 DOM');
     }
-    
+
     if (code.includes('JSON.parse') && code.includes('JSON.stringify')) {
       issues.push('不必要的 JSON 序列化/反序列化');
     }
-    
+
     return issues;
   }
 
@@ -443,15 +443,15 @@ export class SuggestionGenerator {
    */
   private findSecurityIssues(code: string): string[] {
     const issues: string[] = [];
-    
+
     if (code.includes('eval(')) {
       issues.push('使用 eval() 函數');
     }
-    
+
     if (code.includes('innerHTML') && code.includes('+')) {
       issues.push('可能的 XSS 漏洞');
     }
-    
+
     return issues;
   }
 
@@ -464,7 +464,7 @@ export class SuggestionGenerator {
     const suggestions: PersonalizedSuggestion[] = [];
     const document = await vscode.workspace.openTextDocument(context.fileUri);
     const text = document.getText();
-    
+
     // 檢查是否可以使用 const 而不是 let
     if (text.includes('let ') && !text.includes('let ') || text.includes('=')) {
       suggestions.push({
@@ -491,7 +491,7 @@ export class SuggestionGenerator {
         }
       });
     }
-    
+
     return suggestions;
   }
 
@@ -502,11 +502,11 @@ export class SuggestionGenerator {
     context: SuggestionContext
   ): Promise<PersonalizedSuggestion[]> {
     const suggestions: PersonalizedSuggestion[] = [];
-    
+
     if (context.language === 'typescript') {
       const document = await vscode.workspace.openTextDocument(context.fileUri);
       const text = document.getText();
-      
+
       // 檢查是否缺少類型註解
       if (text.includes('function') && !text.includes(': ')) {
         suggestions.push({
@@ -534,7 +534,7 @@ export class SuggestionGenerator {
         });
       }
     }
-    
+
     return suggestions;
   }
 
@@ -545,7 +545,7 @@ export class SuggestionGenerator {
     context: SuggestionContext
   ): Promise<PersonalizedSuggestion[]> {
     const suggestions: PersonalizedSuggestion[] = [];
-    
+
     if (context.dependencies.includes('react')) {
       suggestions.push({
         id: this.generateSuggestionId(),
@@ -571,7 +571,7 @@ export class SuggestionGenerator {
         }
       });
     }
-    
+
     return suggestions;
   }
 
@@ -582,12 +582,12 @@ export class SuggestionGenerator {
     context: SuggestionContext
   ): Promise<PersonalizedSuggestion[]> {
     const suggestions: PersonalizedSuggestion[] = [];
-    
+
     // 檢查是否有測試文件
-    const hasTests = context.relatedFiles.some(file => 
+    const hasTests = context.relatedFiles.some(file =>
       file.fsPath.includes('.test.') || file.fsPath.includes('.spec.')
     );
-    
+
     if (!hasTests) {
       suggestions.push({
         id: this.generateSuggestionId(),
@@ -613,7 +613,7 @@ export class SuggestionGenerator {
         }
       });
     }
-    
+
     return suggestions;
   }
 
